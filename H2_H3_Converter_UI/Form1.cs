@@ -10,11 +10,12 @@ using System.Windows.Forms;
 
 namespace H2_H3_Converter_UI
 {
-    public partial class Form1 : Form
+    public partial class form1 : Form
     {
         List<string> bsp_paths = new List<string>();
+        string scen_path = "";
 
-        public Form1()
+        public form1()
         {
             InitializeComponent();
         }
@@ -44,16 +45,24 @@ namespace H2_H3_Converter_UI
             if (checkBox1.Checked)
             {
                 bsps_box.Enabled = true;
+                bsps_box.BackColor = SystemColors.Window;
                 bsp_label.Enabled = true;
                 bsp_add.Enabled = true;
                 bsp_remove.Enabled = true;
+                scenario_label.Enabled = true;
+                scen_box.Enabled = true;
+                browse_scen.Enabled = true;
             }
             else
             {
                 bsps_box.Enabled = false;
+                bsps_box.BackColor = SystemColors.Control;
                 bsp_label.Enabled = false;
                 bsp_add.Enabled = false;
                 bsp_remove.Enabled = false;
+                scenario_label.Enabled = false;
+                scen_box.Enabled = false;
+                browse_scen.Enabled = false;
             }
         }
 
@@ -106,6 +115,24 @@ namespace H2_H3_Converter_UI
             if (selectedIndex != -1)
             {
                 bsps_box.Items.RemoveAt(selectedIndex);
+            }
+        }
+
+        private void browse_scen_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Scenario Files (*.scenario)|*.scenario";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    scen_path = openFileDialog.FileName;
+                    scen_box.Text = openFileDialog.FileName;
+
+                    // Scroll to end
+                    scen_box.SelectionStart = scen_box.Text.Length;
+                    scen_box.ScrollToCaret();
+                }
             }
         }
     }

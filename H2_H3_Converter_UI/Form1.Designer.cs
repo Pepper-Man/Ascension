@@ -1,6 +1,6 @@
 ﻿namespace H2_H3_Converter_UI
 {
-    partial class Form1
+    partial class form1
     {
         /// <summary>
         /// Required designer variable.
@@ -39,8 +39,13 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.bsp_remove = new System.Windows.Forms.Button();
             this.bsp_add = new System.Windows.Forms.Button();
+            this.scenario_label = new System.Windows.Forms.Label();
+            this.layout_scenario = new System.Windows.Forms.TableLayoutPanel();
+            this.browse_scen = new System.Windows.Forms.Button();
+            this.scen_box = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            this.layout_scenario.SuspendLayout();
             this.SuspendLayout();
             // 
             // title
@@ -83,9 +88,11 @@
             this.tableLayoutPanel1.Controls.Add(this.bsp_label, 0, 6);
             this.tableLayoutPanel1.Controls.Add(this.bsps_box, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 10);
+            this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 11);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 10;
+            this.tableLayoutPanel1.RowCount = 13;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -94,6 +101,9 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 552);
@@ -152,6 +162,7 @@
             // bsps_box
             // 
             this.bsps_box.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.bsps_box.BackColor = System.Drawing.SystemColors.Control;
             this.bsps_box.Enabled = false;
             this.bsps_box.FormattingEnabled = true;
             this.bsps_box.ItemHeight = 16;
@@ -173,6 +184,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(200, 30);
             this.tableLayoutPanel2.TabIndex = 9;
             // 
@@ -200,17 +212,66 @@
             this.bsp_add.UseVisualStyleBackColor = true;
             this.bsp_add.Click += new System.EventHandler(this.bsp_add_Click);
             // 
-            // Form1
+            // scenario_label
+            // 
+            this.scenario_label.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.scenario_label.AutoSize = true;
+            this.scenario_label.Enabled = false;
+            this.scenario_label.Location = new System.Drawing.Point(215, 357);
+            this.scenario_label.Name = "scenario_label";
+            this.scenario_label.Size = new System.Drawing.Size(152, 16);
+            this.scenario_label.TabIndex = 10;
+            this.scenario_label.Text = "Select H3 scenario path:";
+            // 
+            // layout_scenario
+            // 
+            this.layout_scenario.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.layout_scenario.ColumnCount = 2;
+            this.layout_scenario.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.90543F));
+            this.layout_scenario.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
+            this.layout_scenario.Controls.Add(this.browse_scen, 1, 0);
+            this.layout_scenario.Controls.Add(this.scen_box, 0, 0);
+            this.layout_scenario.Location = new System.Drawing.Point(65, 383);
+            this.layout_scenario.Name = "layout_scenario";
+            this.layout_scenario.RowCount = 1;
+            this.layout_scenario.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.layout_scenario.Size = new System.Drawing.Size(453, 30);
+            this.layout_scenario.TabIndex = 11;
+            // 
+            // browse_scen
+            // 
+            this.browse_scen.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.browse_scen.Enabled = false;
+            this.browse_scen.Location = new System.Drawing.Point(369, 3);
+            this.browse_scen.Name = "browse_scen";
+            this.browse_scen.Size = new System.Drawing.Size(75, 23);
+            this.browse_scen.TabIndex = 12;
+            this.browse_scen.Text = "Browse";
+            this.browse_scen.UseVisualStyleBackColor = true;
+            this.browse_scen.Click += new System.EventHandler(this.browse_scen_Click);
+            // 
+            // scen_box
+            // 
+            this.scen_box.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.scen_box.Enabled = false;
+            this.scen_box.Location = new System.Drawing.Point(3, 4);
+            this.scen_box.Name = "scen_box";
+            this.scen_box.Size = new System.Drawing.Size(355, 22);
+            this.scen_box.TabIndex = 13;
+            // 
+            // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(582, 553);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Name = "form1";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.layout_scenario.ResumeLayout(false);
+            this.layout_scenario.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -227,6 +288,10 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Button bsp_add;
         private System.Windows.Forms.Button bsp_remove;
+        private System.Windows.Forms.Label scenario_label;
+        private System.Windows.Forms.TableLayoutPanel layout_scenario;
+        private System.Windows.Forms.Button browse_scen;
+        private System.Windows.Forms.TextBox scen_box;
     }
 }
 
