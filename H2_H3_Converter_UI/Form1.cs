@@ -97,8 +97,17 @@ namespace H2_H3_Converter_UI
                     string bsp_path = openFileDialog.FileName;
                     if (!bsp_paths.Contains(bsp_path))
                     {
-                        bsp_paths.Add(bsp_path);
-                        bsps_box.Items.Add(bsp_path.Split('\\').Last());
+                        if (bsp_path.Contains("H2EK"))
+                        {
+                            bsp_paths.Add(bsp_path);
+                            bsps_box.Items.Add(bsp_path.Split('\\').Last());
+                        }
+                        else
+                        {
+                            // BSP not from H2? Alert user, don't add
+                            MessageBox.Show("XML doesn't seem to be in the H2EK directory.\nPlease try again.", "Invalid XML path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        
                     }
                     else
                     {
@@ -141,7 +150,6 @@ namespace H2_H3_Converter_UI
                         // Scenario is not in H3EK, alert user, don't add
                         MessageBox.Show("Scenario doesn't seem to be in the H3EK directory.\nPlease try again.", "Invalid scenario path", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    
                 }
             }
         }
