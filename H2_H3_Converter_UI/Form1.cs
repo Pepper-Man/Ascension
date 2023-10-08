@@ -86,8 +86,16 @@ namespace H2_H3_Converter_UI
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string bsp_path = openFileDialog.FileName;
-                    bsp_paths.Add(bsp_path);
-                    bsps_box.Items.Add(bsp_path.Split('\\').Last());
+                    if (!bsp_paths.Contains(bsp_path))
+                    {
+                        bsp_paths.Add(bsp_path);
+                        bsps_box.Items.Add(bsp_path.Split('\\').Last());
+                    }
+                    else
+                    {
+                        // Already added this BSP, alert user and don't add
+                        MessageBox.Show("BSP already added!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
             }
         }
