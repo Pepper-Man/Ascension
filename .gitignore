@@ -1,0 +1,5 @@
+# Ignore bin and vs folders
+bin/
+.vs/
+obj/
+packages/
