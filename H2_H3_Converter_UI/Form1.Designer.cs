@@ -43,6 +43,8 @@
             this.layout_scenario = new System.Windows.Forms.TableLayoutPanel();
             this.browse_scen = new System.Windows.Forms.Button();
             this.scen_box = new System.Windows.Forms.TextBox();
+            this.existing_bitmaps = new System.Windows.Forms.CheckBox();
+            this.start_button = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.layout_scenario.SuspendLayout();
@@ -90,9 +92,11 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 10);
             this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 11);
+            this.tableLayoutPanel1.Controls.Add(this.existing_bitmaps, 0, 12);
+            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 19);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 13;
+            this.tableLayoutPanel1.RowCount = 21;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -105,8 +109,16 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 552);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 851);
             this.tableLayoutPanel1.TabIndex = 3;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
@@ -259,11 +271,37 @@
             this.scen_box.Size = new System.Drawing.Size(355, 22);
             this.scen_box.TabIndex = 13;
             // 
+            // existing_bitmaps
+            // 
+            this.existing_bitmaps.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.existing_bitmaps.AutoSize = true;
+            this.existing_bitmaps.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.existing_bitmaps.Enabled = false;
+            this.existing_bitmaps.Location = new System.Drawing.Point(95, 421);
+            this.existing_bitmaps.Name = "existing_bitmaps";
+            this.existing_bitmaps.Size = new System.Drawing.Size(392, 20);
+            this.existing_bitmaps.TabIndex = 12;
+            this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s (data) bitmaps folder?";
+            this.existing_bitmaps.UseVisualStyleBackColor = true;
+            // 
+            // start_button
+            // 
+            this.start_button.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.start_button.AutoSize = true;
+            this.start_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.start_button.Location = new System.Drawing.Point(206, 629);
+            this.start_button.Name = "start_button";
+            this.start_button.Size = new System.Drawing.Size(170, 28);
+            this.start_button.TabIndex = 13;
+            this.start_button.Text = "Begin conversion!";
+            this.start_button.UseVisualStyleBackColor = true;
+            this.start_button.Click += new System.EventHandler(this.start_button_Click);
+            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 553);
+            this.ClientSize = new System.Drawing.Size(582, 853);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "form1";
@@ -292,6 +330,8 @@
         private System.Windows.Forms.TableLayoutPanel layout_scenario;
         private System.Windows.Forms.Button browse_scen;
         private System.Windows.Forms.TextBox scen_box;
+        private System.Windows.Forms.CheckBox existing_bitmaps;
+        private System.Windows.Forms.Button start_button;
     }
 }
 

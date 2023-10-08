@@ -14,6 +14,7 @@ namespace H2_H3_Converter_UI
     {
         List<string> bsp_paths = new List<string>();
         string scen_path = "";
+        bool use_existing_tifs = false;
 
         public form1()
         {
@@ -52,6 +53,7 @@ namespace H2_H3_Converter_UI
                 scenario_label.Enabled = true;
                 scen_box.Enabled = true;
                 browse_scen.Enabled = true;
+                existing_bitmaps.Enabled = true;
             }
             else
             {
@@ -63,6 +65,7 @@ namespace H2_H3_Converter_UI
                 scenario_label.Enabled = false;
                 scen_box.Enabled = false;
                 browse_scen.Enabled = false;
+                existing_bitmaps.Enabled = false;
             }
         }
 
@@ -152,6 +155,12 @@ namespace H2_H3_Converter_UI
                     }
                 }
             }
+        }
+
+        private async void start_button_Click(object sender, EventArgs e)
+        {
+            // It's go time
+            await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs);
         }
     }
 }

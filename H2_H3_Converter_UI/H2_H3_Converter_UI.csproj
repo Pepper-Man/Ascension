@@ -9,6 +9,7 @@
     <RootNamespace>H2_H3_Converter_UI</RootNamespace>
     <AssemblyName>H2_H3_Converter_UI</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <HighEntropyVA>false</HighEntropyVA>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -34,6 +35,26 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Magick.NET-Q16-x64, Version=13.3.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
       <HintPath>..\packages\Magick.NET-Q16-x64.13.3.0\lib\netstandard20\Magick.NET-Q16-x64.dll</HintPath>
@@ -42,7 +63,7 @@
       <HintPath>..\packages\Magick.NET.Core.13.3.0\lib\netstandard20\Magick.NET.Core.dll</HintPath>
     </Reference>
     <Reference Include="ManagedBlam">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\H3EK\bin\ManagedBlam.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\H3EK\bin\ManagedBlam.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

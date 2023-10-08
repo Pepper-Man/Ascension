@@ -57,75 +57,19 @@ namespace H2_H3_Converter_UI
         public float env_contr { get; set; }
     }
 
-    class ShaderConverter
+    public class ShaderConverter
     {
-        static async Task ConvertShaders(string[] args)
+        public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps)
         {
-            List<string> bsp_paths = new List<string>();
-            string h3_scen = "";
             string existing_bitmaps = "";
 
             Console.WriteLine("H2 to H3 Shader Converter by PepperMan\n\n");
 
-            while (true)
+            if (use_existing_bitmaps)
             {
-                Console.WriteLine("Please enter the path to the H3 scenario you want to make the shaders for:");
-                h3_scen = Console.ReadLine().Trim('"');
-                if (h3_scen.EndsWith(".scenario"))
-                {
-                    if (h3_scen.Contains("H3EK"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nLooks like a scenario tag, but doesn't seem to be in the H3EK directory. Please try again.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("\nFile does not look like a .scenario tag. Please try again.");
-                }
+                existing_bitmaps = Path.GetDirectoryName(h3_scen.Replace("tags", "data")) + "\\bitmaps";
             }
-
-            while (true)
-            {
-                Console.WriteLine("\nPlease enter the path to an exported H2 BSP XML file.\nThis must be the full path with file extension - This is the scenario the shaders list will be grabbed from:");
-                string bsp_path = Console.ReadLine().Trim('"');
-                if (bsp_path.EndsWith(".xml") || bsp_path.EndsWith(".txt")) // Should really be .xml, but we'll let .txt slide too (until it crashes :) )
-                {
-                    bsp_paths.Add(bsp_path);
-                    Console.WriteLine("\nSuccessfully added!\nWould you like to add another BSP? (Must be from the same scenario) Y/N:");
-                    string add_more = Console.ReadLine();
-                    if (add_more.ToLower() != "y" && add_more.ToLower() != "yes")
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("\nFile doesn't look like a .txt or .xml file. Please try again.");
-                }
-            }
-
-            while (true)
-            {
-                Console.WriteLine("\nDo you wish to use existing .tif files from the scenario's (data) bitmaps folder to avoid extracting them again? Y/N");
-                string bitm_folder_input = Console.ReadLine();
-                if (bitm_folder_input.ToLower() == "y")
-                {
-                    existing_bitmaps = Path.GetDirectoryName(h3_scen.Replace("tags", "data")) + "\\bitmaps";
-                    break;
-                }
-                else if (bitm_folder_input.ToLower() == "n")
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Sorry, I didn't understand your answer. Please write Y or N.");
-                }
-            }
+            
             // Temporary hardcoding for quick debugging
             //bsp_paths.Add(@"C:\Program Files (x86)\Steam\steamapps\common\H2EK\tags\scenarios\solo\03a_oldmombasa\earthcity_1.xml");
             //bsp_paths.Add(@"C:\Program Files (x86)\Steam\steamapps\common\H2EK\tags\scenarios\solo\03a_oldmombasa\earthcity_2.xml");
