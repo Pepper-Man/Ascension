@@ -126,12 +126,22 @@ namespace H2_H3_Converter_UI
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    scen_path = openFileDialog.FileName;
-                    scen_box.Text = openFileDialog.FileName;
+                    string h3_scen = openFileDialog.FileName;
+                    if (h3_scen.Contains("H3EK"))
+                    {
+                        scen_path = openFileDialog.FileName;
+                        scen_box.Text = openFileDialog.FileName;
 
-                    // Scroll to end
-                    scen_box.SelectionStart = scen_box.Text.Length;
-                    scen_box.ScrollToCaret();
+                        // Scroll to end
+                        scen_box.SelectionStart = scen_box.Text.Length;
+                        scen_box.ScrollToCaret();
+                    }
+                    else
+                    {
+                        // Scenario is not in H3EK, alert user, don't add
+                        MessageBox.Show("Scenario doesn't seem to be in the H3EK directory.\nPlease try again.", "Invalid scenario path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    
                 }
             }
         }
