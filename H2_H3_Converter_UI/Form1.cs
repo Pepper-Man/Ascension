@@ -15,6 +15,9 @@ namespace H2_H3_Converter_UI
         List<string> bsp_paths = new List<string>();
         string scen_path = "";
         bool use_existing_tifs = false;
+        bool bsps_valid = false;
+        bool h3_valid = false;
+        bool h2_valid = false;
 
         public form1()
         {
@@ -31,14 +34,11 @@ namespace H2_H3_Converter_UI
 
         }
 
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void label1_Click_2(object sender, EventArgs e)
         {
-
+            
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -57,16 +57,78 @@ namespace H2_H3_Converter_UI
             }
             else
             {
+                if (!checkBox2.Checked && !checkBox3.Checked)
+                {
+                    scenario_label.Enabled = false;
+                    scen_box.Enabled = false;
+                    browse_scen.Enabled = false;
+                }
                 bsps_box.Enabled = false;
                 bsps_box.BackColor = SystemColors.Control;
                 bsp_label.Enabled = false;
                 bsp_add.Enabled = false;
                 bsp_remove.Enabled = false;
-                scenario_label.Enabled = false;
-                scen_box.Enabled = false;
-                browse_scen.Enabled = false;
                 existing_bitmaps.Enabled = false;
             }
+            update_start_button();
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked)
+            {
+                h2_scen_label.Enabled = true;
+                h2_scen_box.Enabled = true;
+                browse_scen_h2.Enabled = true;
+                scenario_label.Enabled = true;
+                scen_box.Enabled = true;
+                browse_scen.Enabled = true;
+            }
+            else
+            {
+                if (!checkBox1.Checked && !checkBox3.Checked)
+                {
+                    scenario_label.Enabled = false;
+                    scen_box.Enabled = false;
+                    browse_scen.Enabled = false;
+                }
+                if (!checkBox3.Checked)
+                {
+                    h2_scen_label.Enabled = false;
+                    h2_scen_box.Enabled = false;
+                    browse_scen_h2.Enabled = false;
+                }
+            }
+            update_start_button();
+        }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked)
+            {
+                h2_scen_label.Enabled = true;
+                h2_scen_box.Enabled = true;
+                browse_scen_h2.Enabled = true;
+                scenario_label.Enabled = true;
+                scen_box.Enabled = true;
+                browse_scen.Enabled = true;
+            }
+            else
+            {
+                if (!checkBox1.Checked && !checkBox2.Checked)
+                {
+                    scenario_label.Enabled = false;
+                    scen_box.Enabled = false;
+                    browse_scen.Enabled = false;
+                }
+                if (!checkBox2.Checked)
+                {
+                    h2_scen_label.Enabled = false;
+                    h2_scen_box.Enabled = false;
+                    browse_scen_h2.Enabled = false;
+                }
+            }
+            update_start_button();
         }
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -104,6 +166,8 @@ namespace H2_H3_Converter_UI
                         {
                             bsp_paths.Add(bsp_path);
                             bsps_box.Items.Add(bsp_path.Split('\\').Last());
+                            bsps_valid = true;
+                            update_start_button();
                         }
                         else
                         {
@@ -128,6 +192,13 @@ namespace H2_H3_Converter_UI
             {
                 bsps_box.Items.RemoveAt(selectedIndex);
             }
+            
+            if (bsps_box.Items.Count == 0)
+            {
+                // No more remaining items
+                bsps_valid = false;
+                update_start_button();
+            }
         }
 
         private void browse_scen_Click(object sender, EventArgs e)
@@ -147,6 +218,9 @@ namespace H2_H3_Converter_UI
                         // Scroll to end
                         scen_box.SelectionStart = scen_box.Text.Length;
                         scen_box.ScrollToCaret();
+
+                        h3_valid = true;
+                        update_start_button();
                     }
                     else
                     {
@@ -155,6 +229,26 @@ namespace H2_H3_Converter_UI
                     }
                 }
             }
+        }
+
+        private void update_start_button()
+        {
+            if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked)
+            {
+                if (bsps_valid && h3_valid)
+                {
+                    start_button.Enabled = true;
+                }
+                else
+                {
+                    start_button.Enabled = false;
+                }
+            }
+            else
+            {
+                start_button.Enabled = false;
+            }
+            
         }
 
         private async void start_button_Click(object sender, EventArgs e)
