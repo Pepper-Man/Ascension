@@ -275,7 +275,7 @@ namespace H2_H3_Converter_UI
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = false
+                CreateNoWindow = true
             };
 
             Process process = new Process

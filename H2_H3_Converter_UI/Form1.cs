@@ -286,6 +286,17 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled = false;
                 }
             }
+            if (checkBox1.Checked && checkBox2.Checked && checkBox3.Checked)
+            {
+                if (bsps_valid && h2_valid && h3_valid)
+                {
+                    start_button.Enabled = true;
+                }
+                else
+                {
+                    start_button.Enabled= false;
+                }
+            }
             else
             {
                 start_button.Enabled = false;
@@ -309,9 +320,10 @@ namespace H2_H3_Converter_UI
             if (checkBox3.Checked)
             {
                 // Scenario conversion
+                ScenData.ScenarioConverter(scen_path, h2_xml_path);
             }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
-
-        
     }
 }
