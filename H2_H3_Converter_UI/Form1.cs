@@ -14,6 +14,7 @@ namespace H2_H3_Converter_UI
     {
         List<string> bsp_paths = new List<string>();
         string scen_path = "";
+        string h2_xml_path = "";
         bool use_existing_tifs = false;
         bool bsps_valid = false;
         bool h3_valid = false;
@@ -231,11 +232,52 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        private void browse_scen_h2_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "XML Files (*.xml)|*.xml";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string xml_file = openFileDialog.FileName;
+                    if (xml_file.Contains("H2EK"))
+                    {
+                        h2_xml_path = openFileDialog.FileName;
+                        h2_scen_box.Text = openFileDialog.FileName;
+
+                        // Scroll to end
+                        h2_scen_box.SelectionStart = h2_scen_box.Text.Length;
+                        h2_scen_box.ScrollToCaret();
+
+                        h2_valid = true;
+                        update_start_button();
+                    }
+                    else
+                    {
+                        // Scenario XML is not in H2EK, alert user, don't add
+                        MessageBox.Show("XML doesn't seem to be in the H2EK directory.\nPlease try again.", "Invalid XML path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
         private void update_start_button()
         {
             if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked)
             {
                 if (bsps_valid && h3_valid)
+                {
+                    start_button.Enabled = true;
+                }
+                else
+                {
+                    start_button.Enabled = false;
+                }
+            }
+            if ((checkBox2.Checked || checkBox3.Checked) && !checkBox1.Checked)
+            {
+                if (h2_valid && h3_valid)
                 {
                     start_button.Enabled = true;
                 }
@@ -254,7 +296,22 @@ namespace H2_H3_Converter_UI
         private async void start_button_Click(object sender, EventArgs e)
         {
             // It's go time
-            await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs);
+            if (checkBox1.Checked)
+            {
+                // Shader conversion
+                await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs);
+            }
+            if (checkBox2.Checked)
+            {
+                // Zones conversion
+                MB_Zones.ZoneConverter(scen_path, h2_xml_path);
+            }
+            if (checkBox3.Checked)
+            {
+                // Scenario conversion
+            }
         }
+
+        
     }
 }

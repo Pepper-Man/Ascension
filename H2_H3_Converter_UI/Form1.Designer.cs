@@ -31,6 +31,9 @@
             this.title = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.layout_h2_scen = new System.Windows.Forms.TableLayoutPanel();
+            this.browse_scen_h2 = new System.Windows.Forms.Button();
+            this.h2_scen_box = new System.Windows.Forms.TextBox();
             this.hintlabel = new System.Windows.Forms.Label();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
@@ -44,15 +47,12 @@
             this.browse_scen = new System.Windows.Forms.Button();
             this.scen_box = new System.Windows.Forms.TextBox();
             this.existing_bitmaps = new System.Windows.Forms.CheckBox();
-            this.start_button = new System.Windows.Forms.Button();
             this.h2_scen_label = new System.Windows.Forms.Label();
-            this.layout_h2_scen = new System.Windows.Forms.TableLayoutPanel();
-            this.browse_scen_h2 = new System.Windows.Forms.Button();
-            this.h2_scen_box = new System.Windows.Forms.TextBox();
+            this.start_button = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
+            this.layout_h2_scen.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.layout_scenario.SuspendLayout();
-            this.layout_h2_scen.SuspendLayout();
             this.SuspendLayout();
             // 
             // title
@@ -127,6 +127,42 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 613);
             this.tableLayoutPanel1.TabIndex = 3;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
+            // 
+            // layout_h2_scen
+            // 
+            this.layout_h2_scen.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.layout_h2_scen.ColumnCount = 2;
+            this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.90543F));
+            this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
+            this.layout_h2_scen.Controls.Add(this.browse_scen_h2, 1, 0);
+            this.layout_h2_scen.Controls.Add(this.h2_scen_box, 0, 0);
+            this.layout_h2_scen.Location = new System.Drawing.Point(65, 509);
+            this.layout_h2_scen.Name = "layout_h2_scen";
+            this.layout_h2_scen.RowCount = 1;
+            this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.layout_h2_scen.Size = new System.Drawing.Size(453, 30);
+            this.layout_h2_scen.TabIndex = 14;
+            // 
+            // browse_scen_h2
+            // 
+            this.browse_scen_h2.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.browse_scen_h2.Enabled = false;
+            this.browse_scen_h2.Location = new System.Drawing.Point(369, 3);
+            this.browse_scen_h2.Name = "browse_scen_h2";
+            this.browse_scen_h2.Size = new System.Drawing.Size(75, 23);
+            this.browse_scen_h2.TabIndex = 12;
+            this.browse_scen_h2.Text = "Browse";
+            this.browse_scen_h2.UseVisualStyleBackColor = true;
+            this.browse_scen_h2.Click += new System.EventHandler(this.browse_scen_h2_Click);
+            // 
+            // h2_scen_box
+            // 
+            this.h2_scen_box.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.h2_scen_box.Enabled = false;
+            this.h2_scen_box.Location = new System.Drawing.Point(3, 4);
+            this.h2_scen_box.Name = "h2_scen_box";
+            this.h2_scen_box.Size = new System.Drawing.Size(355, 22);
+            this.h2_scen_box.TabIndex = 13;
             // 
             // hintlabel
             // 
@@ -292,6 +328,17 @@
             this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s (data) bitmaps folder?";
             this.existing_bitmaps.UseVisualStyleBackColor = true;
             // 
+            // h2_scen_label
+            // 
+            this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.h2_scen_label.AutoSize = true;
+            this.h2_scen_label.Enabled = false;
+            this.h2_scen_label.Location = new System.Drawing.Point(205, 483);
+            this.h2_scen_label.Name = "h2_scen_label";
+            this.h2_scen_label.Size = new System.Drawing.Size(172, 16);
+            this.h2_scen_label.TabIndex = 14;
+            this.h2_scen_label.Text = "Select H2 scenario XML file:";
+            // 
             // start_button
             // 
             this.start_button.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -306,52 +353,6 @@
             this.start_button.UseVisualStyleBackColor = true;
             this.start_button.Click += new System.EventHandler(this.start_button_Click);
             // 
-            // h2_scen_label
-            // 
-            this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.h2_scen_label.AutoSize = true;
-            this.h2_scen_label.Enabled = false;
-            this.h2_scen_label.Location = new System.Drawing.Point(205, 483);
-            this.h2_scen_label.Name = "h2_scen_label";
-            this.h2_scen_label.Size = new System.Drawing.Size(172, 16);
-            this.h2_scen_label.TabIndex = 14;
-            this.h2_scen_label.Text = "Select H2 scenario XML file:";
-            // 
-            // layout_h2_scen
-            // 
-            this.layout_h2_scen.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.layout_h2_scen.ColumnCount = 2;
-            this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.90543F));
-            this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
-            this.layout_h2_scen.Controls.Add(this.browse_scen_h2, 1, 0);
-            this.layout_h2_scen.Controls.Add(this.h2_scen_box, 0, 0);
-            this.layout_h2_scen.Location = new System.Drawing.Point(65, 509);
-            this.layout_h2_scen.Name = "layout_h2_scen";
-            this.layout_h2_scen.RowCount = 1;
-            this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.layout_h2_scen.Size = new System.Drawing.Size(453, 30);
-            this.layout_h2_scen.TabIndex = 14;
-            // 
-            // browse_scen_h2
-            // 
-            this.browse_scen_h2.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.browse_scen_h2.Enabled = false;
-            this.browse_scen_h2.Location = new System.Drawing.Point(369, 3);
-            this.browse_scen_h2.Name = "browse_scen_h2";
-            this.browse_scen_h2.Size = new System.Drawing.Size(75, 23);
-            this.browse_scen_h2.TabIndex = 12;
-            this.browse_scen_h2.Text = "Browse";
-            this.browse_scen_h2.UseVisualStyleBackColor = true;
-            // 
-            // h2_scen_box
-            // 
-            this.h2_scen_box.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.h2_scen_box.Enabled = false;
-            this.h2_scen_box.Location = new System.Drawing.Point(3, 4);
-            this.h2_scen_box.Name = "h2_scen_box";
-            this.h2_scen_box.Size = new System.Drawing.Size(355, 22);
-            this.h2_scen_box.TabIndex = 13;
-            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -362,11 +363,11 @@
             this.Name = "form1";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.layout_h2_scen.ResumeLayout(false);
+            this.layout_h2_scen.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.layout_scenario.ResumeLayout(false);
             this.layout_scenario.PerformLayout();
-            this.layout_h2_scen.ResumeLayout(false);
-            this.layout_h2_scen.PerformLayout();
             this.ResumeLayout(false);
 
         }
