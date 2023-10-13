@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -320,13 +321,9 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled = false;
                 }
             }
-            else
-            {
-                start_button.Enabled = false;
-            }
-            
         }
 
+        /*
         private async void start_button_Click(object sender, EventArgs e)
         {
             // It's go time
@@ -345,10 +342,43 @@ namespace H2_H3_Converter_UI
                 // Scenario conversion
                 ScenData.ScenarioConverter(scen_path, h2_xml_path);
             }
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
+        */
 
-        
+        private async void start_button_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            using (var loadingForm = new Loading())
+            {
+                // Show loading
+                loadingForm.Show();
+
+                // Start a Task for the time-consuming operation
+                await Task.Run(async () =>
+                {
+                    // It's go time
+                    if (checkBox1.Checked)
+                    {
+                        // Shader conversion
+                        await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs);
+                    }
+                    if (checkBox2.Checked)
+                    {
+                        // Zones conversion
+                        MB_Zones.ZoneConverter(scen_path, h2_xml_path);
+                    }
+                    if (checkBox3.Checked)
+                    {
+                        // Scenario conversion
+                        ScenData.ScenarioConverter(scen_path, h2_xml_path);
+                    }
+                });
+
+                // Close the loading form on the UI thread
+                loadingForm.Close();
+            }
+
+            this.Enabled = true;
+        }
     }
 }
