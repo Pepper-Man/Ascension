@@ -262,6 +262,18 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        private void existing_bitmaps_CheckedChanged(object sender, EventArgs e)
+        {
+            if (existing_bitmaps.Checked)
+            {
+                use_existing_tifs = true;
+            }
+            else
+            {
+                use_existing_tifs = false;
+            }
+        }
+
         private void update_start_button()
         {
             if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked)
@@ -297,6 +309,17 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled= false;
                 }
             }
+            if (checkBox1.Checked && (checkBox2.Checked || checkBox3.Checked))
+            {
+                if (bsps_valid && h2_valid && h3_valid)
+                {
+                    start_button.Enabled = true;
+                }
+                else
+                {
+                    start_button.Enabled = false;
+                }
+            }
             else
             {
                 start_button.Enabled = false;
@@ -325,5 +348,7 @@ namespace H2_H3_Converter_UI
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
+
+        
     }
 }

@@ -327,6 +327,7 @@
             this.existing_bitmaps.TabIndex = 12;
             this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s (data) bitmaps folder?";
             this.existing_bitmaps.UseVisualStyleBackColor = true;
+            this.existing_bitmaps.CheckedChanged += new System.EventHandler(this.existing_bitmaps_CheckedChanged);
             // 
             // h2_scen_label
             // 

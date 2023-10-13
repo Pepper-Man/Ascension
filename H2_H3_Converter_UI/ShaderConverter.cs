@@ -68,6 +68,12 @@ namespace H2_H3_Converter_UI
             if (use_existing_bitmaps)
             {
                 existing_bitmaps = Path.GetDirectoryName(h3_scen.Replace("tags", "data")) + "\\bitmaps";
+                if (!Directory.Exists(existing_bitmaps))
+                {
+                    // Folder doesn't actually exist, ignore user request
+                    Console.WriteLine("No existing data bitmap folder detected.");
+                    existing_bitmaps = "";
+                }
             }
             
             // Temporary hardcoding for quick debugging
