@@ -12,8 +12,6 @@ namespace H2_H3_Converter_UI
 {
     public partial class Loading : Form
     {
-        private TaskCompletionSource<bool> closeSignal = new TaskCompletionSource<bool>();
-
         public Loading()
         {
             InitializeComponent();
@@ -48,6 +46,9 @@ namespace H2_H3_Converter_UI
                 
             }
         }
+
+        // All of this is very scuffed as a last resort. Perhaps don't touch.
+        private TaskCompletionSource<bool> closeSignal = new TaskCompletionSource<bool>();
 
         public async Task WaitForCloseAsync()
         {

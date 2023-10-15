@@ -59,6 +59,13 @@ namespace H2_H3_Converter_UI
 
     public class ShaderConverter
     {
+        /*
+        Okay so, perhaps passing the secondary form to every function here is a terrible way to do this.
+        But I tried many alternatives and determined that idk enough about asynchronous functions and UI blockers
+        to do this in a better way.
+        Each function gets passed the secondary loading form and appends its own output to it, thus mirroring the
+        console output to the user.
+        */
         public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
         {
             string existing_bitmaps = "";

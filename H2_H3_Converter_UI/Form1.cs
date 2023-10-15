@@ -324,28 +324,6 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        /*
-        private async void start_button_Click(object sender, EventArgs e)
-        {
-            // It's go time
-            if (checkBox1.Checked)
-            {
-                // Shader conversion
-                await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs);
-            }
-            if (checkBox2.Checked)
-            {
-                // Zones conversion
-                MB_Zones.ZoneConverter(scen_path, h2_xml_path);
-            }
-            if (checkBox3.Checked)
-            {
-                // Scenario conversion
-                ScenData.ScenarioConverter(scen_path, h2_xml_path);
-            }
-        }
-        */
-
         private async void start_button_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
@@ -375,6 +353,8 @@ namespace H2_H3_Converter_UI
                 });
 
                 loadingForm.Enable_Close();
+
+                // God only knows there must be a better way to do this
                 await loadingForm.WaitForCloseAsync();
             }
 
