@@ -354,7 +354,6 @@ namespace H2_H3_Converter_UI
                 // Show loading
                 loadingForm.Show();
 
-                // Start a Task for the time-consuming operation
                 await Task.Run(async () =>
                 {
                     // It's go time
@@ -375,8 +374,8 @@ namespace H2_H3_Converter_UI
                     }
                 });
 
-                // Close the loading form on the UI thread
-                //loadingForm.Close();
+                loadingForm.Enable_Close();
+                await loadingForm.WaitForCloseAsync();
             }
 
             this.Enabled = true;

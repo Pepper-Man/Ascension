@@ -12,6 +12,8 @@ namespace H2_H3_Converter_UI
 {
     public partial class Loading : Form
     {
+        private TaskCompletionSource<bool> closeSignal = new TaskCompletionSource<bool>();
+
         public Loading()
         {
             InitializeComponent();
@@ -45,6 +47,21 @@ namespace H2_H3_Converter_UI
                 }
                 
             }
+        }
+
+        public async Task WaitForCloseAsync()
+        {
+            await closeSignal.Task;
+        }
+
+        private void close_button_Click(object sender, EventArgs e)
+        {
+            closeSignal.SetResult(true);
+        }
+
+        public void Enable_Close()
+        {
+            close_button.Enabled = true;
         }
     }
 }
