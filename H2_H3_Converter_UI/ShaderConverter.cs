@@ -59,12 +59,12 @@ namespace H2_H3_Converter_UI
 
     public class ShaderConverter
     {
-        public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, FileManager fileManager)
+        public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
         {
             string existing_bitmaps = "";
 
             Console.WriteLine("H2 to H3 Shader Converter by PepperMan\n\n");
-            fileManager.WriteToFile("H2 to H3 Shader Converter by PepperMan\n\n");
+            loadingForm.UpdateOutputBox("H2 to H3 Shader Converter by PepperMan\n\n", false);
 
             if (use_existing_bitmaps)
             {
@@ -73,7 +73,7 @@ namespace H2_H3_Converter_UI
                 {
                     // Folder doesn't actually exist, ignore user request
                     Console.WriteLine("No existing data bitmap folder detected.");
-                    fileManager.WriteToFile("No existing data bitmap folder detected.");
+                    loadingForm.UpdateOutputBox("No existing data bitmap folder detected.", false);
                     existing_bitmaps = "";
                 }
             }
@@ -92,7 +92,7 @@ namespace H2_H3_Converter_UI
 
             foreach (string bsp in bsp_paths)
             {
-                List<string> bsp_shader_paths = GetShaders(bsp, fileManager);
+                List<string> bsp_shader_paths = GetShaders(bsp, loadingForm);
                 foreach (string path in bsp_shader_paths)
                 {
                     string full_path = h2ek_path + @"\tags\" + path + ".shader";
@@ -157,10 +157,10 @@ namespace H2_H3_Converter_UI
             }
 
             Console.WriteLine("\nBeginning .shader to .xml conversion...\nPlease wait...");
-            fileManager.WriteToFile("\nBeginning .shader to .xml conversion...\nPlease wait...");
-            ShaderExtractor(all_h2_shader_paths, h2ek_path, xml_output_path, fileManager);
+            loadingForm.UpdateOutputBox("\nBeginning .shader to .xml conversion...\nPlease wait...", false);
+            ShaderExtractor(all_h2_shader_paths, h2ek_path, xml_output_path, loadingForm);
             Console.WriteLine("\nAll shaders converted to XML!\n\nGrabbing all referenced bitmap paths:\n");
-            fileManager.WriteToFile("\nAll shaders converted to XML!\n\nGrabbing all referenced bitmap paths:\n");
+            loadingForm.UpdateOutputBox("\nAll shaders converted to XML!\n\nGrabbing all referenced bitmap paths:\n", false);
             List<Shader> all_shader_data = GetShaderData(xml_output_path);
             List<string> all_bitmap_refs = new List<string>();
 
@@ -182,11 +182,11 @@ namespace H2_H3_Converter_UI
             {
                 // Grab all bitmaps
                 Console.WriteLine("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...");
-                fileManager.WriteToFile("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...");
-                Task task = ExtractBitmaps(all_bitmap_refs, h2ek_path, tga_output_path, fileManager);
+                loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...", false);
+                Task task = ExtractBitmaps(all_bitmap_refs, h2ek_path, tga_output_path, loadingForm);
                 await WaitForTaskCompletion(task);
                 Console.WriteLine("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...");
-                fileManager.WriteToFile("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...");
+                loadingForm.UpdateOutputBox("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...", false);
             }
             else
             {
@@ -198,38 +198,38 @@ namespace H2_H3_Converter_UI
 
                 // Grab missing bitmaps
                 Console.WriteLine("\nObtained all referenced bitmaps!\n\nExtracting any missing bitmaps to TGA...");
-                fileManager.WriteToFile("\nObtained all referenced bitmaps!\n\nExtracting any missing bitmaps to TGA...");
-                Task task = ExtractBitmaps(missing_files, h2ek_path, tga_output_path, fileManager);
+                loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps!\n\nExtracting any missing bitmaps to TGA...", false);
+                Task task = ExtractBitmaps(missing_files, h2ek_path, tga_output_path, loadingForm);
                 await WaitForTaskCompletion(task);
                 Console.WriteLine("\nExtracted all missing bitmaps to .TGA\nRunning .TIF conversion process...");
-                fileManager.WriteToFile("\nExtracted all missing bitmaps to .TGA\nRunning .TIF conversion process...");
+                loadingForm.UpdateOutputBox("\nExtracted all missing bitmaps to .TGA\nRunning .TIF conversion process...", false);
             }
 
             ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-            string[] errors = TGAToTIF(tga_output_path, bitmaps_dir, h3ek_path, fileManager);
+            string[] errors = TGAToTIF(tga_output_path, bitmaps_dir, h3ek_path, loadingForm);
             Console.WriteLine("\nFinished importing bitmaps into H3.\nCreating H3 shader tags...");
-            fileManager.WriteToFile("\nFinished importing bitmaps into H3.\nCreating H3 shader tags...");
-            MakeShaderTags(all_shader_data, bitmaps_dir, h3ek_path, fileManager);
+            loadingForm.UpdateOutputBox("\nFinished importing bitmaps into H3.\nCreating H3 shader tags...", false);
+            MakeShaderTags(all_shader_data, bitmaps_dir, h3ek_path, loadingForm);
             Console.WriteLine("\nSuccessfully created all shader tags.");
-            fileManager.WriteToFile("\nSuccessfully created all shader tags.");
+            loadingForm.UpdateOutputBox("\nSuccessfully created all shader tags.", false);
             if (errors.Count() != 0)
             {
                 Console.WriteLine("The following errors were caught:\n");
-                fileManager.WriteToFile("The following errors were caught:\n");
+                loadingForm.UpdateOutputBox("The following errors were caught:\n", false);
                 foreach (string bitmap_issue in errors)
                 {
                     Console.WriteLine(bitmap_issue);
-                    fileManager.WriteToFile(bitmap_issue);
+                    loadingForm.UpdateOutputBox(bitmap_issue, true);
                 }
             }
             Console.WriteLine("\nFinished converting shaders!");
-            fileManager.WriteToFile("\nFinished converting shaders!");
+            loadingForm.UpdateOutputBox("\nFinished converting shaders!", false);
         }
 
-        static List<string> GetShaders(string bsp_path, FileManager fileManager)
+        static List<string> GetShaders(string bsp_path, Loading loadingForm)
         {
             Console.WriteLine("Parsing XML for " + bsp_path);
-            fileManager.WriteToFile("Parsing XML for " + bsp_path);
+            loadingForm.UpdateOutputBox("Parsing XML for " + bsp_path, false);
 
             XmlDocument bspfile = new XmlDocument();
             bspfile.Load(bsp_path);
@@ -254,13 +254,13 @@ namespace H2_H3_Converter_UI
                     {
                         end = true;
                         Console.WriteLine("\nFinished getting materials in bsp \"" + bsp_path + "\"\n");
-                        fileManager.WriteToFile("\nFinished getting materials in bsp \"" + bsp_path + "\"\n");
+                        loadingForm.UpdateOutputBox("\nFinished getting materials in bsp \"" + bsp_path + "\"\n", false);
                         Console.WriteLine("Shaders list:\n");
-                        fileManager.WriteToFile("Shaders list:\n");
+                        loadingForm.UpdateOutputBox("Shaders list:\n", false);
                         foreach (string shader in shader_paths)
                         {
                             Console.WriteLine(shader);
-                            fileManager.WriteToFile(shader);
+                            loadingForm.UpdateOutputBox(shader, false);
                         }
                     }
                 }
@@ -268,7 +268,7 @@ namespace H2_H3_Converter_UI
             return shader_paths;
         }
 
-        static void ShaderExtractor(List<string> shader_paths, string h2ek_path, string xml_output_path, FileManager fileManager)
+        static void ShaderExtractor(List<string> shader_paths, string h2ek_path, string xml_output_path, Loading loadingForm)
         {
             string tool_path = h2ek_path + @"\tool.exe";
 
@@ -283,11 +283,11 @@ namespace H2_H3_Converter_UI
 
                 string arguments = string.Join(" ", argumentList);
 
-                RunTool(tool_path, arguments, h2ek_path, fileManager);
+                RunTool(tool_path, arguments, h2ek_path, loadingForm);
             }
         }
 
-        static void RunTool(string tool_path, string arguments, string ek_path, FileManager fileManager)
+        static void RunTool(string tool_path, string arguments, string ek_path, Loading loadingForm)
         {
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
@@ -312,7 +312,7 @@ namespace H2_H3_Converter_UI
                     if (e.Data != null)
                     {
                         Console.WriteLine(e.Data);
-                        fileManager.WriteToFile(e.Data + Environment.NewLine);
+                        loadingForm.UpdateOutputBox(e.Data + Environment.NewLine, true);
                     }
                 };
                 process.ErrorDataReceived += (sender, e) =>
@@ -320,7 +320,7 @@ namespace H2_H3_Converter_UI
                     if (e.Data != null)
                     {
                         Console.WriteLine("Error: " + e.Data);
-                        fileManager.WriteToFile("Error: " + e.Data + Environment.NewLine);
+                        loadingForm.UpdateOutputBox("Error: " + e.Data + Environment.NewLine, true);
                     }
                 };
             }
@@ -491,7 +491,7 @@ namespace H2_H3_Converter_UI
             return all_shader_data;
         }
 
-        static async Task ExtractBitmaps(List<string> all_bitmap_refs, string h2ek_path, string tga_output_path, FileManager fileManager)
+        static async Task ExtractBitmaps(List<string> all_bitmap_refs, string h2ek_path, string tga_output_path, Loading loadingForm)
         {
             List<Task> tasks = new List<Task>();
             string tool_path = h2ek_path + @"\tool.exe";
@@ -507,10 +507,10 @@ namespace H2_H3_Converter_UI
             };
 
                 string arguments = string.Join(" ", argumentListTGA);
-                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, fileManager)));
+                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, loadingForm)));
 
                 Console.WriteLine("Extracted " + bitmap);
-                fileManager.WriteToFile("Extracted " + bitmap);
+                loadingForm.UpdateOutputBox("Extracted " + bitmap, false);
             }
 
             await Task.WhenAll(tasks);
@@ -528,7 +528,7 @@ namespace H2_H3_Converter_UI
             };
 
                 string arguments = string.Join(" ", argumentListXML);
-                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, fileManager)));
+                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, loadingForm)));
             }
 
             await Task.WhenAll(tasks);
@@ -542,7 +542,7 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        static string[] TGAToTIF(string tga_output_path, string bitmaps_dir, string h3ek_path, FileManager fileManager)
+        static string[] TGAToTIF(string tga_output_path, string bitmaps_dir, string h3ek_path, Loading loadingForm)
         {
             List<string> error_files = new List<string>();
             string[] tga_files = Directory.GetFiles(tga_output_path, "*.tga");
@@ -585,7 +585,7 @@ namespace H2_H3_Converter_UI
             }
 
             Console.WriteLine("Importing bitmaps...");
-            fileManager.WriteToFile("Importing bitmaps...");
+            loadingForm.UpdateOutputBox("Importing bitmaps...", false);
             string tool_path = h3ek_path + @"\tool.exe";
             List<string> argumentList = new List<string>
         {
@@ -594,10 +594,10 @@ namespace H2_H3_Converter_UI
         };
 
             string arguments = string.Join(" ", argumentList);
-            RunTool(tool_path, arguments, h3ek_path, fileManager);
+            RunTool(tool_path, arguments, h3ek_path, loadingForm);
 
             Console.WriteLine("Setting bitmap options...");
-            fileManager.WriteToFile("Setting bitmap options...");
+            loadingForm.UpdateOutputBox("Setting bitmap options...", false);
             List<BitmapData> all_bitmap_data = new List<BitmapData>();
             string[] xml_files = Directory.GetFiles(tga_output_path.Replace("textures_output", "bitmap_xml"), "*.xml");
 
@@ -699,8 +699,8 @@ namespace H2_H3_Converter_UI
 
             // Run import again to update bitmaps
             Console.WriteLine("Reimport bitmaps...");
-            fileManager.WriteToFile("Reimport bitmaps...");
-            RunTool(tool_path, arguments, h3ek_path, fileManager);
+            loadingForm.UpdateOutputBox("Reimport bitmaps...", false);
+            RunTool(tool_path, arguments, h3ek_path, loadingForm);
             return error_files.ToArray();
         }
 
@@ -720,7 +720,7 @@ namespace H2_H3_Converter_UI
             func_data.SetData(data_array);
         }
 
-        static void MakeShaderTags(List<Shader> all_shader_data, string bitmaps_dir, string h3ek_path, FileManager fileManager)
+        static void MakeShaderTags(List<Shader> all_shader_data, string bitmaps_dir, string h3ek_path, Loading loadingForm)
         {
             string bitmap_tags_dir = bitmaps_dir.Replace("data", "tags").Split(new[] { "\\tags\\" }, StringSplitOptions.None).LastOrDefault();
             string shaders_dir = (bitmaps_dir.Split(new[] { "\\data\\" }, StringSplitOptions.None).LastOrDefault()).Replace("bitmaps", "shaders");
@@ -938,8 +938,8 @@ namespace H2_H3_Converter_UI
                                 string tool_path = h3ek_path + @"\tool.exe";
 
                                 Console.WriteLine($"Reimporting bitmap {bitmap_filename} as colour for shader foliage...");
-                                fileManager.WriteToFile($"Reimporting bitmap {bitmap_filename} as colour for shader foliage...");
-                                RunTool(tool_path, arguments, h3ek_path, fileManager);
+                                loadingForm.UpdateOutputBox($"Reimporting bitmap {bitmap_filename} as colour for shader foliage...", false);
+                                RunTool(tool_path, arguments, h3ek_path, loadingForm);
                             }
 
                             // Add alpha map parameter
@@ -1415,7 +1415,7 @@ namespace H2_H3_Converter_UI
                         else
                         {
                             Console.WriteLine($"Shader {shader.name} had an invalid specular setting, odd.");
-                            fileManager.WriteToFile($"Shader {shader.name} had an invalid specular setting, odd.");
+                            loadingForm.UpdateOutputBox($"Shader {shader.name} had an invalid specular setting, odd.", false);
                         }
                     }
 
@@ -1935,8 +1935,8 @@ namespace H2_H3_Converter_UI
                             string tool_path = h3ek_path + @"\tool.exe";
 
                             Console.WriteLine($"Reimporting bitmap {bitmap_filename} as DXT5 to make sure alpha works for transparency...");
-                            fileManager.WriteToFile($"Reimporting bitmap {bitmap_filename} as DXT5 to make sure alpha works for transparency...");
-                            RunTool(tool_path, arguments, h3ek_path, fileManager);
+                            loadingForm.UpdateOutputBox($"Reimporting bitmap {bitmap_filename} as DXT5 to make sure alpha works for transparency...", false);
+                            RunTool(tool_path, arguments, h3ek_path, loadingForm);
 
                             // Add alpha test map parameter
                             ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();

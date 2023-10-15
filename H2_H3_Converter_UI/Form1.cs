@@ -354,10 +354,6 @@ namespace H2_H3_Converter_UI
                 // Show loading
                 loadingForm.Show();
 
-                // Create the output txt
-                FileManager fileManager = new FileManager();
-                fileManager.FileCreator();
-
                 // Start a Task for the time-consuming operation
                 await Task.Run(async () =>
                 {
@@ -365,7 +361,7 @@ namespace H2_H3_Converter_UI
                     if (checkBox1.Checked)
                     {
                         // Shader conversion
-                        await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, fileManager);
+                        await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, loadingForm);
                     }
                     if (checkBox2.Checked)
                     {
@@ -380,43 +376,10 @@ namespace H2_H3_Converter_UI
                 });
 
                 // Close the loading form on the UI thread
-                loadingForm.Close();
+                //loadingForm.Close();
             }
 
             this.Enabled = true;
         }
     }
-
-    public class FileManager
-    {
-        public string filePath { get; private set; }
-
-        public void FileCreator()
-        {
-            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output.txt");
-            File.Create(filePath).Dispose();
-        }
-
-        public void WriteToFile(string content)
-        {
-            if (!File.Exists(filePath))
-            {
-                File.WriteAllText(filePath, content);
-            }
-            else
-            {
-                if (content.Contains("\n"))
-                {
-                    File.AppendAllText(filePath, content);
-                }
-                else
-                {
-                    File.AppendAllText(filePath, content + Environment.NewLine);
-                }
-                
-            }
-            
-        }
-    }
-    
 }
