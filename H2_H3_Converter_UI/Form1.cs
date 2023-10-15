@@ -345,12 +345,12 @@ namespace H2_H3_Converter_UI
                     if (checkBox2.Checked)
                     {
                         // Zones conversion
-                        MB_Zones.ZoneConverter(scen_path, h2_xml_path);
+                        MB_Zones.ZoneConverter(scen_path, h2_xml_path, loadingForm);
                     }
                     if (checkBox3.Checked)
                     {
                         // Scenario conversion
-                        ScenData.ScenarioConverter(scen_path, h2_xml_path);
+                        ScenData.ScenarioConverter(scen_path, h2_xml_path, loadingForm);
                     }
                 });
 

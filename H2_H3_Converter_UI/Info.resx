@@ -119,9 +119,9 @@
   </resheader>
   <data name="textBox1.Text" xml:space="preserve">
     <value>Check this box if you wish to use pre-existing .tif files.
-For example, if you are using textures extracted by other means that you wish
-to use instead of those extracted with Tool. This may cut down on the number
-of times the texture is re-processed.
+For example, if you are using textures extracted by other means (such as from 
+Reclaimer or Vaporeon's tiff source) that you wish to use instead of extracting
+via Tool. This may reduce the number of times the texture is re-processed.
 The textures must be in the "standard practice" location, e.g. in a folder named
 "bitmaps" in the scenario's data folder (next to the "structure" folder).
 

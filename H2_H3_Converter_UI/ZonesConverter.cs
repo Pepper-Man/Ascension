@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml;
 using System.Linq;
 using System.Collections.Generic;
+using H2_H3_Converter_UI;
 
 class Area
 {
@@ -33,17 +34,18 @@ class Zone
 
 class MB_Zones
 {
-    public static void ZoneConverter(string scen_path, string xml_path)
+    public static void ZoneConverter(string scen_path, string xml_path, Loading loadingForm)
     {
         string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-        Convert_XML(xml_path, h3ek_path, scen_path);
+        Convert_XML(xml_path, h3ek_path, scen_path, loadingForm);
     }
 
-    static void Convert_XML(string xml_path, string h3ek_path, string scen_path)
+    static void Convert_XML(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
     {
         Console.WriteLine("\nBeginning XML Conversion:\n");
+        loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
 
         string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "modified_input.xml");
 
@@ -73,10 +75,12 @@ class MB_Zones
             }
 
             Console.WriteLine("Modified file saved successfully.\n\nPreparing to patch tag data.\n\nLoaded zones:\n");
+            loadingForm.UpdateOutputBox("Modified file saved successfully.\n\nPreparing to patch tag data.\n\nLoaded zones:\n", false);
         }
         catch (Exception ex)
         {
             Console.WriteLine("An error occurred: " + ex.Message);
+            loadingForm.UpdateOutputBox("An error occurred: " + ex.Message, false);
         }
 
         xml_path = newFilePath;
@@ -105,6 +109,7 @@ class MB_Zones
                     string zoneName = element.SelectSingleNode("./field[@name='name']").InnerText.Trim();
                     zones_list.Add(zoneName);
                     Console.WriteLine(zoneName);
+                    loadingForm.UpdateOutputBox(zoneName, false);
                     i++;
                 }
                 else
@@ -115,6 +120,7 @@ class MB_Zones
         }
 
         Console.WriteLine("\nBegin patching data:\n");
+        loadingForm.UpdateOutputBox("\nBegin patching data:\n", false);
 
         // Temp file creation/wiping
 
@@ -185,10 +191,10 @@ class MB_Zones
                 i++;
             }
         }
-        Edit_The_Tags(h3ek_path, scen_path);
+        Edit_The_Tags(h3ek_path, scen_path, loadingForm);
     }
 
-    static void Edit_The_Tags(string h3ek_path, string scen_path)
+    static void Edit_The_Tags(string h3ek_path, string scen_path, Loading loadingForm)
     {
         List<Zone> zone_data = new List<Zone>();
         List<int> total_area_counts = new List<int>();
@@ -204,6 +210,7 @@ class MB_Zones
         List<string> fpos_normal = new List<string>();
 
         Console.WriteLine("Beginning tag writing process...");
+        loadingForm.UpdateOutputBox("Beginning tag writing process...", false);
 
         int zone = -1;
         bool areas = false;
@@ -253,6 +260,7 @@ class MB_Zones
                     });
                 }
                 Console.WriteLine(line.Trim());
+                loadingForm.UpdateOutputBox(line.Trim(), false);
                 //PatchTag("zone", line.Substring(line.IndexOf(' ') + 1).Trim(), 0, 0);
                 continue;
             }
@@ -296,6 +304,7 @@ class MB_Zones
                     // Patch area name
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].areas[{areaIndex}].name";
                     Console.WriteLine($"patching {line.Trim()}");
+                    //loadingForm.UpdateOutputBox($"patching {line.Trim()}", false);
                     area_names.Add(line.Trim());
                     //PatchTag("area", line.Trim(), 0, totalAreaCount);
                     areaDataCount++;
@@ -305,6 +314,7 @@ class MB_Zones
                     // Patch area flags
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].areas[{areaIndex}].area flags";
                     Console.WriteLine("area flags");
+                    //loadingForm.UpdateOutputBox("area flags", false);
                     area_flags.Add(line.Trim());
                     //PatchTag("area", line.Trim(), 1, totalAreaCount);
                     areaDataCount++;
@@ -330,6 +340,7 @@ class MB_Zones
                     // Patch manual reference frame
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].areas[{areaIndex}].manual reference frame";
                     Console.WriteLine($"manual ref frame = {line.Trim()}");
+                    //loadingForm.UpdateOutputBox($"manual ref frame = {line.Trim()}", false);
                     area_refs.Add(line.Trim());
                     //PatchTag("area", line.Trim(), 4, totalAreaCount);
                     areaDataCount = 0;
@@ -348,6 +359,7 @@ class MB_Zones
                 {
                     // Patch firing position index
                     Console.WriteLine($"firing position {line.Trim()} patch start");
+                    loadingForm.UpdateOutputBox($"firing position {line.Trim()} patch start", false);
                     //PatchTag("fpos", line.Trim(), 0, totalFposCount);
                     fposDataCount++;
                 }
@@ -356,6 +368,7 @@ class MB_Zones
                     // Patch firing position position
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].position (local)";
                     Console.WriteLine("patching position");
+                    //loadingForm.UpdateOutputBox("patching position", false);
                     fpos_xyz.Add(line.Trim());
                     //PatchTag("fpos", line.Trim(), 1, totalFposCount);
                     fposDataCount++;
@@ -365,6 +378,7 @@ class MB_Zones
                     // Patch firing position ref frame
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].reference frame";
                     Console.WriteLine("patching ref frame");
+                    //loadingForm.UpdateOutputBox("patching ref frame", false);
                     fposDataCount++;
                 }
                 else if (fposDataCount == 3)
@@ -372,6 +386,7 @@ class MB_Zones
                     // Patch firing position flags
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].flags";
                     Console.WriteLine("patching flags");
+                    //loadingForm.UpdateOutputBox("patching flags", false);
                     fpos_flags.Add(line.Trim());
                     //PatchTag("fpos", line.Trim(), 3, totalFposCount);
                     if (int.Parse(line.Trim()) >= 90)
@@ -401,6 +416,7 @@ class MB_Zones
                     // Patch firing position area
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].area";
                     Console.WriteLine("patching area");
+                    //loadingForm.UpdateOutputBox("patching area", false);
                     fpos_area.Add(line.Trim());
                     //PatchTag("fpos", line.Trim(), 4, totalFposCount);
                     fposDataCount++;
@@ -410,6 +426,7 @@ class MB_Zones
                     // Patch firing position cluster index
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].cluster index";
                     Console.WriteLine("patching cluster index");
+                    //loadingForm.UpdateOutputBox("patching cluster index", false);
                     fpos_cluster.Add(line.Trim());
                     //PatchTag("fpos", line.Trim(), 5, totalFposCount);
                     fposDataCount++;
@@ -419,6 +436,7 @@ class MB_Zones
                     // Patch firing position normal
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].normal";
                     Console.WriteLine("patching normal");
+                    //loadingForm.UpdateOutputBox("patching normal", false);
                     fpos_normal.Add(line.Trim());
                     //PatchTag("fpos", line.Trim(), 6, totalFposCount);
                     fposDataCount = 0;
@@ -452,16 +470,17 @@ class MB_Zones
             Areas = tempAreas,
             Fpos = tempFpos
         });
-        ManagedBlamHandler(zone_data, h3ek_path, scen_path);
+        ManagedBlamHandler(zone_data, h3ek_path, scen_path, loadingForm);
     }
 
-    static void ManagedBlamHandler(List<Zone> zone_data, string h3ek_path, string scen_path)
+    static void ManagedBlamHandler(List<Zone> zone_data, string h3ek_path, string scen_path, Loading loadingForm)
     {
         // Variables
         var tag_path = Bungie.Tags.TagPath.FromPathAndType(Path.ChangeExtension(scen_path.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
         Console.WriteLine("\nSaving tag...\n");
+        loadingForm.UpdateOutputBox("\nSaving tag...\n", false);
 
         using (var tagFile = new Bungie.Tags.TagFile(tag_path))
         {
@@ -541,6 +560,7 @@ class MB_Zones
             tagFile.Save();
 
             Console.WriteLine("All zones, areas and firing positions have been successfully transferred into the H3 scenario!");
+            loadingForm.UpdateOutputBox("All zones, areas and firing positions have been successfully transferred into the H3 scenario!", false);
         }
     }
 }

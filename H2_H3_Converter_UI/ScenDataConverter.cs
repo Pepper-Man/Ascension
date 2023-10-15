@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using H2_H3_Converter_UI;
 
 class StartLoc
 {
@@ -85,7 +86,7 @@ class Decal
 
 class ScenData
 {
-    public static void ScenarioConverter(string scen_path, string xml_path)
+    public static void ScenarioConverter(string scen_path, string xml_path, Loading loadingForm)
     {
         string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
 
@@ -98,19 +99,22 @@ class ScenData
         {
             File.Copy(scen_path, backup_filepath);
             Console.WriteLine("Backup created successfully.");
+            loadingForm.UpdateOutputBox("Backup created successfully.", false);
         }
         else
         {
             Console.WriteLine("Backup already exists.");
+            loadingForm.UpdateOutputBox("Backup already exists.", false);
         }
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-        Convert_XML(xml_path, h3ek_path, scen_path);
+        Convert_XML(xml_path, h3ek_path, scen_path, loadingForm);
     }
 
-    static void Convert_XML(string xml_path, string h3ek_path, string scen_path)
+    static void Convert_XML(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
     {
         Console.WriteLine("\nBeginning XML Conversion:\n");
+        loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
 
         string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "modified_input.xml");
 
@@ -140,10 +144,12 @@ class ScenData
             }
 
             Console.WriteLine("Modified file saved successfully.\n\nPreparing to patch tag data:\n");
+            loadingForm.UpdateOutputBox("Modified file saved successfully.\n\nPreparing to patch tag data:\n", false);
         }
         catch (Exception ex)
         {
             Console.WriteLine("An error occurred: " + ex.Message);
+            loadingForm.UpdateOutputBox("An error occurred: " + ex.Message, false);
         }
 
         xml_path = newFilePath;
@@ -197,6 +203,7 @@ class ScenData
                 {
                     names_end = true;
                     Console.WriteLine("Finished processing object name data.");
+                    loadingForm.UpdateOutputBox("Finished processing object name data.", false);
                 }
             }
         }
@@ -217,6 +224,7 @@ class ScenData
                 {
                     names_end = true;
                     Console.WriteLine("Finished processing netgame flag name data.");
+                    loadingForm.UpdateOutputBox("Finished processing netgame flag name data.", false);
                 }
             }
         }
@@ -259,12 +267,14 @@ class ScenData
                     });
 
                     Console.WriteLine("Processed starting position " + i);
+                    loadingForm.UpdateOutputBox("Processed starting position " + i, false);
                     i++;
                 }
                 else
                 {
                     locs_end = true;
                     Console.WriteLine("\nFinished processing starting positions data.");
+                    loadingForm.UpdateOutputBox("\nFinished processing starting positions data.", false);
                 }
             }
         }
@@ -293,12 +303,14 @@ class ScenData
                     });
 
                     Console.WriteLine("Process netgame equipment " + i);
+                    loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
                     i++;
                 }
                 else
                 {
                     weaps_end = true;
                     Console.WriteLine("\nFinished processing netgame equipment (weapon) data.");
+                    loadingForm.UpdateOutputBox("\nFinished processing netgame equipment (weapon) data.", false);
                 }
             }
         }
@@ -321,6 +333,7 @@ class ScenData
                 {
                     scen_end = true;
                     Console.WriteLine("Finished processing scenery palette data.");
+                    loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
                 }
             }
         }
@@ -354,6 +367,7 @@ class ScenData
                 {
                     scen_end = true;
                     Console.WriteLine("Finished processing scenery placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing scenery placement data.", false);
                 }
             }
         }
@@ -389,6 +403,7 @@ class ScenData
                 {
                     vols_end = true;
                     Console.WriteLine("Finished processing trigger volume data.");
+                    loadingForm.UpdateOutputBox("Finished processing trigger volume data.", false);
                 }
             }
         }
@@ -411,6 +426,7 @@ class ScenData
                 {
                     vehi_end = true;
                     Console.WriteLine("Finished processing vehicle palette data.");
+                    loadingForm.UpdateOutputBox("Finished processing vehicle palette data.", false);
                 }
             }
         }
@@ -444,6 +460,7 @@ class ScenData
                 {
                     vehi_end = true;
                     Console.WriteLine("Finished processing vehicle placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing vehicle placement data.", false);
                 }
             }
         }
@@ -466,6 +483,7 @@ class ScenData
                 {
                     crates_end = true;
                     Console.WriteLine("Finished processing crate palette data.");
+                    loadingForm.UpdateOutputBox("Finished processing crate palette data.", false);
                 }
             }
         }
@@ -501,6 +519,7 @@ class ScenData
                 {
                     crates_end = true;
                     Console.WriteLine("Finished processing crate placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing crate placement data.", false);
                 }
             }
         }
@@ -535,6 +554,7 @@ class ScenData
                 {
                     netflags_end = true;
                     Console.WriteLine("Finished processing netgame flags data.");
+                    loadingForm.UpdateOutputBox("Finished processing netgame flags data.", false);
                 }
             }
         }
@@ -557,6 +577,7 @@ class ScenData
                 {
                     decs_end = true;
                     Console.WriteLine("Finished processing decal palette data.");
+                    loadingForm.UpdateOutputBox("Finished processing decal palette data.", false);
                 }
             }
         }
@@ -590,14 +611,15 @@ class ScenData
                 {
                     decs_end = true;
                     Console.WriteLine("Finished processing decal placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing decal placement data.", false);
                 }
             }
         }
 
-        ManagedBlamHandler(all_object_names, all_starting_locs, all_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_types, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path);
+        ManagedBlamHandler(all_object_names, all_starting_locs, all_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_types, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm);
     }
 
-    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<WeapLoc> weap_data, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<TagPath> all_vehi_types, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path)
+    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<WeapLoc> weap_data, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<TagPath> all_vehi_types, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm)
     {
         // Weapons dictionary
         Dictionary<string, TagPath> weapMapping = new Dictionary<string, TagPath>
@@ -716,6 +738,7 @@ class ScenData
             else
             {
                 Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
+                loadingForm.UpdateOutputBox("\nNo existing sceneries, adding respawn point\n", false);
                 ((TagFieldBlock)tagFile.Fields[21]).AddElement();
                 var scen_tag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[0].Fields[0];
                 scen_tag.Path = respawn_scen_path;
@@ -768,6 +791,7 @@ class ScenData
                 {
                     // Grenade stuff, need to treat as equipment not weapon
                     Console.WriteLine("Adding " + weap_type + " equipment");
+                    loadingForm.UpdateOutputBox("Adding " + weap_type + " equipment", false);
 
                     // Equipment, check if palette entry exists first
                     bool equip_entry_exists = false;
@@ -822,6 +846,7 @@ class ScenData
                 {
                     // All games entries, ignore
                     Console.WriteLine("Ignoring blank weapon collection");
+                    loadingForm.UpdateOutputBox("Ignoring blank weapon collection", false);
                     continue;
                 }
                 else if (weap_type.Contains("ammo"))
@@ -921,6 +946,7 @@ class ScenData
                 {
                     // Weapon, check if palette entry exists first
                     Console.WriteLine("Adding " + weap_type + " weapon");
+                    loadingForm.UpdateOutputBox("Adding " + weap_type + " weapon", false);
                     bool weap_entry_exists = false;
                     foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
                     {
@@ -1339,6 +1365,7 @@ class ScenData
             tagFile.Save();
 
             Console.WriteLine("\nScenario data conversion complete!");
+            loadingForm.UpdateOutputBox("\nScenario data conversion complete!", false);
         }
     }
 }
