@@ -46,13 +46,16 @@
             this.layout_scenario = new System.Windows.Forms.TableLayoutPanel();
             this.browse_scen = new System.Windows.Forms.Button();
             this.scen_box = new System.Windows.Forms.TextBox();
-            this.existing_bitmaps = new System.Windows.Forms.CheckBox();
             this.h2_scen_label = new System.Windows.Forms.Label();
             this.start_button = new System.Windows.Forms.Button();
+            this.existing_bitmaps = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.info_label = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel1.SuspendLayout();
             this.layout_h2_scen.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.layout_scenario.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // title
@@ -98,9 +101,9 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 10);
             this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 11);
-            this.tableLayoutPanel1.Controls.Add(this.existing_bitmaps, 0, 12);
             this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 14);
             this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 17);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 12);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 18;
@@ -116,8 +119,8 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -315,20 +318,6 @@
             this.scen_box.Size = new System.Drawing.Size(355, 22);
             this.scen_box.TabIndex = 13;
             // 
-            // existing_bitmaps
-            // 
-            this.existing_bitmaps.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.existing_bitmaps.AutoSize = true;
-            this.existing_bitmaps.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.existing_bitmaps.Enabled = false;
-            this.existing_bitmaps.Location = new System.Drawing.Point(95, 421);
-            this.existing_bitmaps.Name = "existing_bitmaps";
-            this.existing_bitmaps.Size = new System.Drawing.Size(392, 20);
-            this.existing_bitmaps.TabIndex = 12;
-            this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s (data) bitmaps folder?";
-            this.existing_bitmaps.UseVisualStyleBackColor = true;
-            this.existing_bitmaps.CheckedChanged += new System.EventHandler(this.existing_bitmaps_CheckedChanged);
-            // 
             // h2_scen_label
             // 
             this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -354,6 +343,48 @@
             this.start_button.UseVisualStyleBackColor = true;
             this.start_button.Click += new System.EventHandler(this.start_button_Click);
             // 
+            // existing_bitmaps
+            // 
+            this.existing_bitmaps.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.existing_bitmaps.AutoSize = true;
+            this.existing_bitmaps.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.existing_bitmaps.Enabled = false;
+            this.existing_bitmaps.Location = new System.Drawing.Point(16, 3);
+            this.existing_bitmaps.Name = "existing_bitmaps";
+            this.existing_bitmaps.Size = new System.Drawing.Size(354, 20);
+            this.existing_bitmaps.TabIndex = 12;
+            this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s bitmaps folder?";
+            this.existing_bitmaps.UseVisualStyleBackColor = true;
+            this.existing_bitmaps.CheckedChanged += new System.EventHandler(this.existing_bitmaps_CheckedChanged);
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 87.16216F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
+            this.tableLayoutPanel3.Controls.Add(this.existing_bitmaps, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.info_label, 1, 0);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(69, 420);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(444, 26);
+            this.tableLayoutPanel3.TabIndex = 15;
+            // 
+            // info_label
+            // 
+            this.info_label.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.info_label.Enabled = false;
+            this.info_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.info_label.Location = new System.Drawing.Point(390, 5);
+            this.info_label.Name = "info_label";
+            this.info_label.Size = new System.Drawing.Size(51, 16);
+            this.info_label.TabIndex = 13;
+            this.info_label.TabStop = true;
+            this.info_label.Text = "help";
+            this.info_label.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.info_label_LinkClicked);
+            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -369,6 +400,8 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.layout_scenario.ResumeLayout(false);
             this.layout_scenario.PerformLayout();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -395,6 +428,8 @@
         private System.Windows.Forms.TableLayoutPanel layout_h2_scen;
         private System.Windows.Forms.Button browse_scen_h2;
         private System.Windows.Forms.TextBox h2_scen_box;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.LinkLabel info_label;
     }
 }
 

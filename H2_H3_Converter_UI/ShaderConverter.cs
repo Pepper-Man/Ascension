@@ -65,6 +65,8 @@ namespace H2_H3_Converter_UI
         to do this in a better way.
         Each function gets passed the secondary loading form and appends its own output to it, thus mirroring the
         console output to the user.
+        Pretty much everything else except the way in which tool output is captured is identical to the standalone
+        version of the program.
         */
         public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
         {

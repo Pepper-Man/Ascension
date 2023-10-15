@@ -57,6 +57,7 @@ namespace H2_H3_Converter_UI
                 scen_box.Enabled = true;
                 browse_scen.Enabled = true;
                 existing_bitmaps.Enabled = true;
+                info_label.Enabled = true;
             }
             else
             {
@@ -72,6 +73,7 @@ namespace H2_H3_Converter_UI
                 bsp_add.Enabled = false;
                 bsp_remove.Enabled = false;
                 existing_bitmaps.Enabled = false;
+                info_label.Enabled = false;
             }
             update_start_button();
         }
@@ -359,6 +361,12 @@ namespace H2_H3_Converter_UI
             }
 
             this.Enabled = true;
+        }
+
+        private void info_label_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Info info_window = new Info();
+            info_window.ShowDialog();
         }
     }
 }
