@@ -778,7 +778,12 @@ class ScenData
 
 
                 i++;
+
+                
             }
+
+            Console.WriteLine("Done spawns");
+            loadingForm.UpdateOutputBox("Done spawns", false);
 
             Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
 
@@ -993,6 +998,9 @@ class ScenData
                     dropdown_type.Value = 2; // 2 for weapon
                     dropdown_source.Value = 1; // 1 for editor
                 }
+
+                Console.WriteLine("Done weapons");
+                loadingForm.UpdateOutputBox("Done weapons", false);
             }
 
             // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
@@ -1053,6 +1061,9 @@ class ScenData
                 tagFile.Save();
             }
 
+            Console.WriteLine("Done scenery");
+            loadingForm.UpdateOutputBox("Done scenery", false);
+
             // Trigger volumes section
             foreach (TrigVol vol in all_trig_vols)
             {
@@ -1079,6 +1090,9 @@ class ScenData
                 var ext = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[7];
                 ext.Data = vol.vol_ext.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
+
+            Console.WriteLine("Done trigger volumes");
+            loadingForm.UpdateOutputBox("Done trigger volumes", false);
 
             // Vehicle section
             foreach (TagPath vehi_type in all_vehi_types)
@@ -1133,6 +1147,9 @@ class ScenData
                 var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
                 variant.Data = vehicle.vehi_vrnt;
             }
+
+            Console.WriteLine("Done vehicles");
+            loadingForm.UpdateOutputBox("Done vehicles", false);
 
             // Crates section
 
@@ -1302,6 +1319,9 @@ class ScenData
                 }
             }
 
+            Console.WriteLine("Done crates");
+            loadingForm.UpdateOutputBox("Done crates", false);
+
             // Decals section
             foreach (TagPath dec_type in all_dec_types)
             {
@@ -1363,6 +1383,9 @@ class ScenData
             }
 
             tagFile.Save();
+
+            Console.WriteLine("Done decals");
+            loadingForm.UpdateOutputBox("Done decals", false);
 
             Console.WriteLine("\nScenario data conversion complete!");
             loadingForm.UpdateOutputBox("\nScenario data conversion complete!", false);

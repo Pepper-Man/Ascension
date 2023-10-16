@@ -48,8 +48,8 @@
             this.scen_box = new System.Windows.Forms.TextBox();
             this.h2_scen_label = new System.Windows.Forms.Label();
             this.start_button = new System.Windows.Forms.Button();
-            this.existing_bitmaps = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.existing_bitmaps = new System.Windows.Forms.CheckBox();
             this.info_label = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel1.SuspendLayout();
             this.layout_h2_scen.SuspendLayout();
@@ -343,20 +343,6 @@
             this.start_button.UseVisualStyleBackColor = true;
             this.start_button.Click += new System.EventHandler(this.start_button_Click);
             // 
-            // existing_bitmaps
-            // 
-            this.existing_bitmaps.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.existing_bitmaps.AutoSize = true;
-            this.existing_bitmaps.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.existing_bitmaps.Enabled = false;
-            this.existing_bitmaps.Location = new System.Drawing.Point(16, 3);
-            this.existing_bitmaps.Name = "existing_bitmaps";
-            this.existing_bitmaps.Size = new System.Drawing.Size(354, 20);
-            this.existing_bitmaps.TabIndex = 12;
-            this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s bitmaps folder?";
-            this.existing_bitmaps.UseVisualStyleBackColor = true;
-            this.existing_bitmaps.CheckedChanged += new System.EventHandler(this.existing_bitmaps_CheckedChanged);
-            // 
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -372,11 +358,25 @@
             this.tableLayoutPanel3.Size = new System.Drawing.Size(444, 26);
             this.tableLayoutPanel3.TabIndex = 15;
             // 
+            // existing_bitmaps
+            // 
+            this.existing_bitmaps.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.existing_bitmaps.AutoSize = true;
+            this.existing_bitmaps.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.existing_bitmaps.Enabled = false;
+            this.existing_bitmaps.Location = new System.Drawing.Point(16, 3);
+            this.existing_bitmaps.Name = "existing_bitmaps";
+            this.existing_bitmaps.Size = new System.Drawing.Size(354, 20);
+            this.existing_bitmaps.TabIndex = 12;
+            this.existing_bitmaps.Text = "Use existing .tif files from the scenario\'s bitmaps folder?";
+            this.existing_bitmaps.UseVisualStyleBackColor = true;
+            this.existing_bitmaps.CheckedChanged += new System.EventHandler(this.existing_bitmaps_CheckedChanged);
+            // 
             // info_label
             // 
             this.info_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.info_label.Enabled = false;
-            this.info_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.info_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.info_label.Location = new System.Drawing.Point(390, 5);
             this.info_label.Name = "info_label";
             this.info_label.Size = new System.Drawing.Size(51, 16);
