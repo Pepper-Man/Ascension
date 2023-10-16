@@ -49,7 +49,7 @@ This is primarily built for use by the porting team I am in, but feel free to us
 * I cannot distribute the required ManagedBlam.dll, so you will need to either:
     * Copy your Halo 3 ManagedBlam.dll (found in "H3EK\bin") into the same folder as this exe
     * Alternatively, simply place the files of this program directly into your "H3EK\bin" directory.
-* Run this .exe, provide the file paths when prompted.
+* Run this .exe, tick the converters you wish to run, and fill in any active filepath boxes.
 
 # Notes
 * The program may crash when parsing the XML of a BSP. If this happens, its because the XML file contains erroneous data that needs to be removed. You will need to open the XML file in a text editor, and located and remove any instances of `xFF`. These may not display under normal searches - I am looking for a way to fix this issue.
