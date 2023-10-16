@@ -354,6 +354,8 @@ namespace H2_H3_Converter_UI
                     }
                 });
 
+                loadingForm.UpdateOutputBox("All conversions complete! You may now close this window.", false);
+
                 loadingForm.Enable_Close();
 
                 // God only knows there must be a better way to do this

@@ -1004,7 +1004,7 @@ class ScenData
             }
 
             // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
-
+            
             foreach (TagPath scen_type in all_scen_types)
             {
                 // Check if current type exists in palette
@@ -1057,8 +1057,6 @@ class ScenData
                 var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                 var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
                 variant.Data = scenery.scen_vrnt;
-
-                tagFile.Save();
             }
 
             Console.WriteLine("Done scenery");
