@@ -462,14 +462,22 @@ class MB_Zones
             tempFpos.Add(new Fpos { XYZCoord = fpos_xyz[countFpos], FposFlags = fpos_flags[countFpos], AreaRef = fpos_area[countFpos], ClusterIndex = fpos_cluster[countFpos], NormalDirection = fpos_normal[countFpos] });
             countFpos++;
         }
-        zone_data.Add(new Zone
+        try
         {
-            ZoneName = zone_names[zone],
-            AreasCount = total_area_counts[zone],
-            FposCount = total_fpos_counts[zone],
-            Areas = tempAreas,
-            Fpos = tempFpos
-        });
+            zone_data.Add(new Zone
+            {
+                ZoneName = zone_names[zone],
+                AreasCount = total_area_counts[zone],
+                FposCount = total_fpos_counts[zone],
+                Areas = tempAreas,
+                Fpos = tempFpos
+            });
+        }
+        catch (Exception e)
+        {
+            // User tried to generate zones on a multiplayer map? Let's not just crash huh
+            Console.WriteLine("Tried to generate zone data, but none found!");
+        }
         ManagedBlamHandler(zone_data, h3ek_path, scen_path, loadingForm);
     }
 
