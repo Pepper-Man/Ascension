@@ -96,7 +96,7 @@ namespace H2_H3_Converter_UI
 
             string bitmaps_dir = (h3_scen.Substring(0, h3_scen.LastIndexOf('\\')) + "\\bitmaps").Replace("tags", "data");
             string h2ek_path = bsp_paths[0].Substring(0, bsp_paths[0].IndexOf("H2EK") + "H2EK".Length);
-            string h3ek_path = @"C:\Program Files (x86)\Steam\steamapps\common\H3EK";
+            string h3ek_path = h3_scen.Substring(0, h3_scen.IndexOf("H3EK") + "H3EK".Length);
             List<string> all_h2_shader_paths = new List<string>();
 
             foreach (string bsp in bsp_paths)
