@@ -354,7 +354,7 @@ namespace H2_H3_Converter_UI
                     }
                 });
 
-                loadingForm.UpdateOutputBox("All conversions complete! You may now close this window.", false);
+                loadingForm.UpdateOutputBox("All conversions complete! Click \"close\" to exit the program.", false);
 
                 loadingForm.Enable_Close();
 
@@ -362,7 +362,8 @@ namespace H2_H3_Converter_UI
                 await loadingForm.WaitForCloseAsync();
             }
 
-            this.Enabled = true;
+            // Conversion complete, exit program
+            Environment.Exit(0);
         }
 
         private void info_label_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
