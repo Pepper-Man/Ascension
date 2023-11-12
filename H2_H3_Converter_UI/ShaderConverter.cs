@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Bungie.Game;
+using System.Text;
 
 namespace H2_H3_Converter_UI
 {
@@ -235,46 +236,101 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox("\nFinished converting shaders!", false);
         }
 
+        static bool IsXmlChar(char ch)
+        {
+            // Check if the character is a valid XML character
+            return ch == 0x9 || ch == 0xA || ch == 0xD ||
+               (ch >= 0x20 && ch <= 0xD7FF) ||
+               (ch >= 0xE000 && ch <= 0xFFFD) ||
+               (ch >= 0x10000 && ch <= 0x10FFFF);
+        }
+
+        static string RemoveInvalidXmlCharacters(string input)
+        {
+            // Replace invalid characters with an empty string
+            StringBuilder cleanedString = new StringBuilder();
+            foreach (char ch in input)
+            {
+                if (IsXmlChar(ch))
+                {
+                    cleanedString.Append(ch);
+                }
+            }
+
+            return cleanedString.ToString();
+        }
+
+        static string CleanXML(string filePath)
+        {
+            try
+            {
+                // Read as text
+                string xmlContent = File.ReadAllText(filePath);
+
+                // Clean invalid characters
+                string cleanedXML = RemoveInvalidXmlCharacters(xmlContent);
+
+                Console.WriteLine("XML Cleaned");
+
+                return cleanedXML;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"XML clean/load error: {ex}");
+                return null;
+            }
+        }
+
         static List<string> GetShaders(string bsp_path, Loading loadingForm)
         {
             Console.WriteLine("Parsing XML for " + bsp_path);
             loadingForm.UpdateOutputBox("Parsing XML for " + bsp_path, false);
 
-            XmlDocument bspfile = new XmlDocument();
-            bspfile.Load(bsp_path);
-            XmlNode root = bspfile.DocumentElement;
-
-            XmlNodeList materials_block = root.SelectNodes(".//block[@name='materials']");
-            List<string> shader_paths = new List<string>();
-
-            foreach (XmlNode material in materials_block)
+            XmlReaderSettings settings = new XmlReaderSettings
             {
-                bool end = false;
-                int i = 0;
-                while (!end)
+                ValidationType = ValidationType.None,
+                DtdProcessing = DtdProcessing.Ignore
+            };
+
+            string xmlData = CleanXML(bsp_path);
+            using (XmlReader reader = XmlReader.Create(new StringReader(xmlData), settings))
+            {
+                XmlDocument bspfile = new XmlDocument();
+                bspfile.Load(reader);
+                XmlNode root = bspfile.DocumentElement;
+
+                XmlNodeList materials_block = root.SelectNodes(".//block[@name='materials']");
+                List<string> shader_paths = new List<string>();
+
+                foreach (XmlNode material in materials_block)
                 {
-                    XmlNode element = material.SelectSingleNode("./element[@index='" + i + "']");
-                    if (element != null)
+                    bool end = false;
+                    int i = 0;
+                    while (!end)
                     {
-                        shader_paths.Add(element.SelectSingleNode("./tag_reference[@name='shader']").InnerText.Trim());
-                        i++;
-                    }
-                    else
-                    {
-                        end = true;
-                        Console.WriteLine("\nFinished getting materials in bsp \"" + bsp_path + "\"\n");
-                        loadingForm.UpdateOutputBox("\nFinished getting materials in bsp \"" + bsp_path + "\"\n", false);
-                        Console.WriteLine("Shaders list:\n");
-                        loadingForm.UpdateOutputBox("Shaders list:\n", false);
-                        foreach (string shader in shader_paths)
+                        XmlNode element = material.SelectSingleNode("./element[@index='" + i + "']");
+                        if (element != null)
                         {
-                            Console.WriteLine(shader);
-                            loadingForm.UpdateOutputBox(shader, false);
+                            shader_paths.Add(element.SelectSingleNode("./tag_reference[@name='shader']").InnerText.Trim());
+                            i++;
+                        }
+                        else
+                        {
+                            end = true;
+                            Console.WriteLine("\nFinished getting materials in bsp \"" + bsp_path + "\"\n");
+                            loadingForm.UpdateOutputBox("\nFinished getting materials in bsp \"" + bsp_path + "\"\n", false);
+                            Console.WriteLine("Shaders list:\n");
+                            loadingForm.UpdateOutputBox("Shaders list:\n", false);
+                            foreach (string shader in shader_paths)
+                            {
+                                Console.WriteLine(shader);
+                                loadingForm.UpdateOutputBox(shader, false);
+                            }
                         }
                     }
                 }
+                return shader_paths;
             }
-            return shader_paths;
         }
 
         static void ShaderExtractor(List<string> shader_paths, string h2ek_path, string xml_output_path, Loading loadingForm)
