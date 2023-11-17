@@ -24,6 +24,7 @@ namespace H2_H3_Converter_UI
         public string env_tint { get; set; }
         public string env_glnc { get; set; }
         public string spec_type { get; set; }
+        public string env_bitmap { get; set; }
     }
 
     class Parameter
@@ -426,6 +427,7 @@ namespace H2_H3_Converter_UI
                 string specular_glc_col = "";
                 string env_col = "";
                 string env_glc_col = "";
+                string env_bitm = "";
 
                 XmlNodeList params_block = root.SelectNodes(".//block[@name='parameters']");
                 string shd_templ = root.SelectSingleNode("./tag_reference[@name='template']").InnerText.Trim();
@@ -459,6 +461,10 @@ namespace H2_H3_Converter_UI
                             else if (prm_name == "env_glancing_tint_color")
                             {
                                 env_glc_col = element.SelectSingleNode("./field[@name='const color']").InnerText.Trim();
+                            }
+                            else if (prm_name == "environment_map")
+                            {
+                                env_bitm = element.SelectSingleNode("./tag_reference[@name='bitmap']").InnerText.Trim();
                             }
                             else
                             {
@@ -550,7 +556,8 @@ namespace H2_H3_Converter_UI
                     spec_glnc = specular_glc_col,
                     env_tint = env_col,
                     env_glnc = env_glc_col,
-                    spec_type = specular_setting
+                    spec_type = specular_setting,
+                    env_bitmap = env_bitm
                 }); ;
             }
             return all_shader_data;
@@ -1485,7 +1492,7 @@ namespace H2_H3_Converter_UI
                     }
 
                     // Dynamic env mapping?
-                    if (shader.env_tint != "")
+                    if (shader.env_tint != "" && shader.env_bitmap == "")
                     {
                         var env_mapping = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[5]/ShortInteger:short");
                         env_mapping.Data = 2; // 2 is dynamic
@@ -1514,6 +1521,55 @@ namespace H2_H3_Converter_UI
                         env_col_func.Value.MasterType = FunctionEditorMasterType.Basic;
                         float[] env_colour = shader.env_tint.Split(',').Select(float.Parse).ToArray();
                         env_col_func.Value.SetColor(0, GameColor.FromRgb(env_colour[0], env_colour[1], env_colour[2]));
+                        param_index++;
+                    }
+
+                    // Per-pixel env mapping
+                    else if (shader.env_tint != "" && shader.env_bitmap != "")
+                    {
+                        var env_mapping = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[5]/ShortInteger:short");
+                        env_mapping.Data = 1; // 1 is per-pixel
+
+                        // Add new parameter
+                        ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
+
+                        // Set parameter name
+                        var env_param_name = (TagFieldElementStringID)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/StringID:parameter name");
+                        env_param_name.Data = "env_tint_color";
+
+                        // Set parameter type
+                        var env_param_type = (TagFieldEnum)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/LongEnum:parameter type");
+                        env_param_type.Value = 1; // 0 is "bitmap", 1 is "color", 2 is "real", 3 is "int"
+
+                        // Add animated parameter
+                        ((TagFieldBlock)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters")).AddElement();
+
+                        // Set animated parameter type to colour
+                        var anim_param_type = (TagFieldEnum)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/LongEnum:type");
+                        anim_param_type.Value = 1; // 0 is "scale uniform", 1 is "color"
+
+                        // Set function data to RGB colour
+                        TagFieldCustomFunctionEditor env_col_func = (TagFieldCustomFunctionEditor)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/Custom:animation function");
+                        env_col_func.Value.ColorGraphType = FunctionEditorColorGraphType.OneColor;
+                        env_col_func.Value.MasterType = FunctionEditorMasterType.Basic;
+                        float[] env_colour = shader.env_tint.Split(',').Select(float.Parse).ToArray();
+                        env_col_func.Value.SetColor(0, GameColor.FromRgb(env_colour[0], env_colour[1], env_colour[2]));
+                        param_index++;
+
+                        // Add new parameter for env bitmap
+                        ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
+
+                        // Set parameter name
+                        var env_bitm_name = (TagFieldElementStringID)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/StringID:parameter name");
+                        env_bitm_name.Data = "environment_map";
+
+                        // Set parameter type
+                        var env_bitm_type = (TagFieldEnum)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/LongEnum:parameter type");
+                        env_bitm_type.Value = 0; // 0 is "bitmap", 1 is "color", 2 is "real", 3 is "int"
+
+                        // Set env bitmap
+                        var env_bitm = (TagFieldReference)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Reference:bitmap");
+                        env_bitm.Path = TagPath.FromPathAndType(Path.Combine(bitmap_tags_dir, new DirectoryInfo(shader.env_bitmap).Name), "bitm*");
                         param_index++;
                     }
 
@@ -1991,10 +2047,10 @@ namespace H2_H3_Converter_UI
                             }
 
                             List<string> argumentList = new List<string>
-                        {
-                            "reimport-bitmaps-single",
-                            alpha_map_path
-                        };
+                            {
+                                "reimport-bitmaps-single",
+                                alpha_map_path
+                            };
 
                             string arguments = string.Join(" ", argumentList);
                             string tool_path = h3ek_path + @"\tool.exe";
