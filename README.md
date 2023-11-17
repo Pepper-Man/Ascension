@@ -53,7 +53,8 @@ This is primarily built for use by the porting team I am in, but feel free to us
 * The program will exit when clicking "close" in the output window. This is to avoid an issue with managedblam being run more than once.
 
 # Notes
-* The program may crash when parsing the XML of a BSP. If this happens, its because the XML file contains erroneous data that needs to be removed. You will need to open the XML file in a text editor, and located and remove any instances of `xFF`. These may not display under normal searches - I am looking for a way to fix this issue.
+* Scenery and crate placements may be bugged on some solo scenarios
+* The program should now automatically handle XML files straight from H2 - no manual cleanup/"xFF" removal required!
 * There will very likely be bugs and issues that I haven't caught. Please let me know on Discord - `pepperman`
 
 # Credits
