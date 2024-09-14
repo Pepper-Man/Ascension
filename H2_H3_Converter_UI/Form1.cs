@@ -91,13 +91,13 @@ namespace H2_H3_Converter_UI
             }
             else
             {
-                if (!checkBox1.Checked && !checkBox3.Checked)
+                if (!checkBox1.Checked && !checkBox3.Checked && !checkBox4.Checked)
                 {
                     scenario_label.Enabled = false;
                     scen_box.Enabled = false;
                     browse_scen.Enabled = false;
                 }
-                if (!checkBox3.Checked)
+                if (!checkBox3.Checked && !checkBox4.Checked)
                 {
                     h2_scen_label.Enabled = false;
                     h2_scen_box.Enabled = false;
@@ -120,13 +120,42 @@ namespace H2_H3_Converter_UI
             }
             else
             {
-                if (!checkBox1.Checked && !checkBox2.Checked)
+                if (!checkBox1.Checked && !checkBox2.Checked && !checkBox4.Checked)
                 {
                     scenario_label.Enabled = false;
                     scen_box.Enabled = false;
                     browse_scen.Enabled = false;
                 }
-                if (!checkBox2.Checked)
+                if (!checkBox2.Checked && !checkBox4.Checked)
+                {
+                    h2_scen_label.Enabled = false;
+                    h2_scen_box.Enabled = false;
+                    browse_scen_h2.Enabled = false;
+                }
+            }
+            update_start_button();
+        }
+
+        private void checkBox4_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox4.Checked)
+            {
+                h2_scen_label.Enabled = true;
+                h2_scen_box.Enabled = true;
+                browse_scen_h2.Enabled = true;
+                scenario_label.Enabled = true;
+                scen_box.Enabled = true;
+                browse_scen.Enabled = true;
+            }
+            else
+            {
+                if (!checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked)
+                {
+                    scenario_label.Enabled = false;
+                    scen_box.Enabled = false;
+                    browse_scen.Enabled = false;
+                }
+                if (!checkBox2.Checked && !checkBox3.Checked)
                 {
                     h2_scen_label.Enabled = false;
                     h2_scen_box.Enabled = false;
@@ -280,7 +309,7 @@ namespace H2_H3_Converter_UI
 
         private void update_start_button()
         {
-            if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked)
+            if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked && !checkBox4.Checked)
             {
                 if (bsps_valid && h3_valid)
                 {
@@ -291,7 +320,7 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled = false;
                 }
             }
-            if ((checkBox2.Checked || checkBox3.Checked) && !checkBox1.Checked)
+            if ((checkBox2.Checked || checkBox3.Checked || checkBox4.Checked) && !checkBox1.Checked)
             {
                 if (h2_valid && h3_valid)
                 {
@@ -302,7 +331,7 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled = false;
                 }
             }
-            if (checkBox1.Checked && checkBox2.Checked && checkBox3.Checked)
+            if (checkBox1.Checked && checkBox2.Checked && checkBox3.Checked && !checkBox4.Checked)
             {
                 if (bsps_valid && h2_valid && h3_valid)
                 {
@@ -313,7 +342,7 @@ namespace H2_H3_Converter_UI
                     start_button.Enabled= false;
                 }
             }
-            if (checkBox1.Checked && (checkBox2.Checked || checkBox3.Checked))
+            if (checkBox1.Checked && (checkBox2.Checked || checkBox3.Checked || checkBox4.Checked))
             {
                 if (bsps_valid && h2_valid && h3_valid)
                 {
@@ -351,6 +380,11 @@ namespace H2_H3_Converter_UI
                     {
                         // Scenario conversion
                         ScenData.ScenarioConverter(scen_path, h2_xml_path, loadingForm);
+                    }
+                    if (checkBox4.Checked)
+                    {
+                        // Hint conversion
+                        HintConverter.JumpHintConverter(scen_path, h2_xml_path, loadingForm);
                     }
                 });
 

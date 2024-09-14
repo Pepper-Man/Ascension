@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HintConverter.cs" />
     <Compile Include="Info.cs">
       <SubType>Form</SubType>
     </Compile>

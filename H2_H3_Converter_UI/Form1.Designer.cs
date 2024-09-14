@@ -51,6 +51,7 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.existing_bitmaps = new System.Windows.Forms.CheckBox();
             this.info_label = new System.Windows.Forms.LinkLabel();
+            this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.layout_h2_scen.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -90,23 +91,25 @@
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.layout_h2_scen, 0, 15);
+            this.tableLayoutPanel1.Controls.Add(this.layout_h2_scen, 0, 16);
             this.tableLayoutPanel1.Controls.Add(this.title, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.hintlabel, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.checkBox2, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.checkBox3, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.bsp_label, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.bsps_box, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
-            this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 10);
-            this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 11);
-            this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 14);
-            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 17);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 12);
+            this.tableLayoutPanel1.Controls.Add(this.bsp_label, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.bsps_box, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 9);
+            this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 11);
+            this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 12);
+            this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 15);
+            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 18);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 13);
+            this.tableLayoutPanel1.Controls.Add(this.checkBox4, 0, 5);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 18;
+            this.tableLayoutPanel1.RowCount = 19;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -126,8 +129,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 613);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 641);
             this.tableLayoutPanel1.TabIndex = 3;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
@@ -139,7 +141,7 @@
             this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
             this.layout_h2_scen.Controls.Add(this.browse_scen_h2, 1, 0);
             this.layout_h2_scen.Controls.Add(this.h2_scen_box, 0, 0);
-            this.layout_h2_scen.Location = new System.Drawing.Point(65, 509);
+            this.layout_h2_scen.Location = new System.Drawing.Point(65, 539);
             this.layout_h2_scen.Name = "layout_h2_scen";
             this.layout_h2_scen.RowCount = 1;
             this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -210,7 +212,7 @@
             this.bsp_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.bsp_label.AutoSize = true;
             this.bsp_label.Enabled = false;
-            this.bsp_label.Location = new System.Drawing.Point(160, 187);
+            this.bsp_label.Location = new System.Drawing.Point(160, 217);
             this.bsp_label.Name = "bsp_label";
             this.bsp_label.Size = new System.Drawing.Size(263, 16);
             this.bsp_label.TabIndex = 6;
@@ -224,7 +226,7 @@
             this.bsps_box.Enabled = false;
             this.bsps_box.FormattingEnabled = true;
             this.bsps_box.ItemHeight = 16;
-            this.bsps_box.Location = new System.Drawing.Point(65, 213);
+            this.bsps_box.Location = new System.Drawing.Point(65, 243);
             this.bsps_box.Name = "bsps_box";
             this.bsps_box.Size = new System.Drawing.Size(453, 68);
             this.bsps_box.TabIndex = 8;
@@ -238,7 +240,7 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Controls.Add(this.bsp_add, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.bsp_remove, 1, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(191, 287);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(191, 317);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -275,7 +277,7 @@
             this.scenario_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.scenario_label.AutoSize = true;
             this.scenario_label.Enabled = false;
-            this.scenario_label.Location = new System.Drawing.Point(219, 357);
+            this.scenario_label.Location = new System.Drawing.Point(219, 387);
             this.scenario_label.Name = "scenario_label";
             this.scenario_label.Size = new System.Drawing.Size(145, 16);
             this.scenario_label.TabIndex = 10;
@@ -289,7 +291,7 @@
             this.layout_scenario.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
             this.layout_scenario.Controls.Add(this.browse_scen, 1, 0);
             this.layout_scenario.Controls.Add(this.scen_box, 0, 0);
-            this.layout_scenario.Location = new System.Drawing.Point(65, 383);
+            this.layout_scenario.Location = new System.Drawing.Point(65, 413);
             this.layout_scenario.Name = "layout_scenario";
             this.layout_scenario.RowCount = 2;
             this.layout_scenario.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -323,7 +325,7 @@
             this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.h2_scen_label.AutoSize = true;
             this.h2_scen_label.Enabled = false;
-            this.h2_scen_label.Location = new System.Drawing.Point(205, 483);
+            this.h2_scen_label.Location = new System.Drawing.Point(205, 513);
             this.h2_scen_label.Name = "h2_scen_label";
             this.h2_scen_label.Size = new System.Drawing.Size(172, 16);
             this.h2_scen_label.TabIndex = 14;
@@ -335,7 +337,7 @@
             this.start_button.AutoSize = true;
             this.start_button.Enabled = false;
             this.start_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.start_button.Location = new System.Drawing.Point(206, 578);
+            this.start_button.Location = new System.Drawing.Point(206, 607);
             this.start_button.Name = "start_button";
             this.start_button.Size = new System.Drawing.Size(170, 28);
             this.start_button.TabIndex = 13;
@@ -351,7 +353,7 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
             this.tableLayoutPanel3.Controls.Add(this.existing_bitmaps, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.info_label, 1, 0);
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(69, 420);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(69, 450);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -385,11 +387,24 @@
             this.info_label.Text = "help";
             this.info_label.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.info_label_LinkClicked);
             // 
+            // checkBox4
+            // 
+            this.checkBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox4.AutoSize = true;
+            this.checkBox4.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox4.Location = new System.Drawing.Point(196, 155);
+            this.checkBox4.Name = "checkBox4";
+            this.checkBox4.Size = new System.Drawing.Size(190, 20);
+            this.checkBox4.TabIndex = 16;
+            this.checkBox4.Text = "Convert scenario hint data?";
+            this.checkBox4.UseVisualStyleBackColor = true;
+            this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
+            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 623);
+            this.ClientSize = new System.Drawing.Size(582, 653);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "form1";
@@ -430,6 +445,7 @@
         private System.Windows.Forms.TextBox h2_scen_box;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.LinkLabel info_label;
+        private System.Windows.Forms.CheckBox checkBox4;
     }
 }
 
