@@ -384,7 +384,7 @@ namespace H2_H3_Converter_UI
                     if (checkBox4.Checked)
                     {
                         // Hint conversion
-                        HintConverter.JumpHintConverter(scen_path, h2_xml_path, loadingForm);
+                        HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
                     }
                 });
 

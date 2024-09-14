@@ -1,4 +1,5 @@
 ﻿using Bungie;
+using Bungie.Tags;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,18 +52,16 @@ namespace H2_H3_Converter_UI
 
     public class HintConverter
     {
-        public static void JumpHintConverter(string scen_path, string xml_path, Loading loadingForm)
+        public static void JumpHintsToXML(string scenPath, string xmlPath, Loading loadingForm)
         {
-            string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
-
             // Create scenario backup
-            string backup_folderpath = Path.GetDirectoryName(scen_path) + @"\scenario_backup";
+            string backup_folderpath = Path.GetDirectoryName(scenPath) + @"\scenario_backup";
             Directory.CreateDirectory(backup_folderpath);
-            string backup_filepath = Path.Combine(backup_folderpath, scen_path.Split('\\').Last());
+            string backup_filepath = Path.Combine(backup_folderpath, scenPath.Split('\\').Last());
 
             if (!File.Exists(backup_filepath))
             {
-                File.Copy(scen_path, backup_filepath);
+                File.Copy(scenPath, backup_filepath);
                 Console.WriteLine("Backup created successfully.");
                 loadingForm.UpdateOutputBox("Backup created successfully.", false);
             }
@@ -72,9 +71,7 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox("Backup already exists.", false);
             }
 
-            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-            string newFilePath = Convert_XML(xml_path, h3ek_path, scen_path, loadingForm);
-
+            string newFilePath = Convert_XML(xmlPath, loadingForm);
             XmlDocument scenfile = new XmlDocument();
             scenfile.Load(newFilePath);
 
@@ -167,11 +164,11 @@ namespace H2_H3_Converter_UI
             }
             scenarioHints.scenarioHints = bspsH;
             scenarioParallelos.scenarioParallelos = bspsP;
-            Console.WriteLine(scenarioHints.ToString());
-            Console.WriteLine(scenarioParallelos.ToString());
+            loadingForm.UpdateOutputBox($"Successfully read hint data for all BSPs.", false);
+            JumpHintstoH3(scenPath, loadingForm);
         }
 
-        static string Convert_XML(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
+        static string Convert_XML(string xmlPath, Loading loadingForm)
         {
             Console.WriteLine("\nBeginning XML Conversion:\n");
             loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
@@ -180,7 +177,7 @@ namespace H2_H3_Converter_UI
 
             try
             {
-                string[] lines = File.ReadAllLines(xml_path);
+                string[] lines = File.ReadAllLines(xmlPath);
                 bool removeLines = false;
 
                 using (StreamWriter writer = new StreamWriter(newFilePath))
@@ -213,6 +210,31 @@ namespace H2_H3_Converter_UI
             }
 
             return newFilePath;
+        }
+    
+        public static void JumpHintstoH3(string scenPath, Loading loadingForm)
+        {
+            string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
+            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
+            var relativeScenPath = TagPath.FromPathAndType(Path.ChangeExtension(scenPath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
+            TagFile scenTag = new TagFile();
+
+            try
+            {
+                scenTag.Load(relativeScenPath);
+                loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
+            }
+            catch
+            {
+                loadingForm.UpdateOutputBox($"Unknown managedblam error", false);
+                return;
+            }
+            finally
+            {
+                scenTag.Save();
+                scenTag.Dispose();
+                loadingForm.UpdateOutputBox($"Finished writing data to scenario tag!", false);
+            }
         }
     }
 }
