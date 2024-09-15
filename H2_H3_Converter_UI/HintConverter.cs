@@ -10,14 +10,14 @@ using System.Xml;
 
 namespace H2_H3_Converter_UI
 {
-    class JumpHint
+    public class JumpHint
     {
         public string Flags { get; set; }
         public string ParallelIndex { get; set; }
         public string JumpHeight { get; set; }
     }
 
-    class Parallelogram
+    public class Parallelogram
     {
         public string Flags { get; set; }
         public string Point0 { get; set; }
@@ -30,22 +30,22 @@ namespace H2_H3_Converter_UI
         public string Point3Ref { get; set; }
     }
 
-    class BspHints
+    public class BspHints
     {
         public List<JumpHint> jumpHints { get; set; }
     }
 
-    class BspParallelos
+    public class BspParallelos
     {
         public List<Parallelogram> parallelograms { get; set;}
     }
 
-    class ScenarioHints
+    public class ScenarioHints
     {
         public List<BspHints> scenarioHints { get; set; }
     }
 
-    class ScenarioParallelos
+    public class ScenarioParallelos
     {
         public List<BspParallelos> scenarioParallelos { get; set; }
     }
@@ -71,7 +71,7 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox("Backup already exists.", false);
             }
 
-            string newFilePath = Convert_XML(xmlPath, loadingForm);
+            string newFilePath = ConvertXML(xmlPath, loadingForm);
             XmlDocument scenfile = new XmlDocument();
             scenfile.Load(newFilePath);
 
@@ -165,10 +165,10 @@ namespace H2_H3_Converter_UI
             scenarioHints.scenarioHints = bspsH;
             scenarioParallelos.scenarioParallelos = bspsP;
             loadingForm.UpdateOutputBox($"Successfully read hint data for all BSPs.", false);
-            JumpHintstoH3(scenPath, loadingForm);
+            JumpHintstoH3(scenPath, loadingForm, scenarioHints, scenarioParallelos);
         }
 
-        static string Convert_XML(string xmlPath, Loading loadingForm)
+        static string ConvertXML(string xmlPath, Loading loadingForm)
         {
             Console.WriteLine("\nBeginning XML Conversion:\n");
             loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
@@ -211,8 +211,8 @@ namespace H2_H3_Converter_UI
 
             return newFilePath;
         }
-    
-        public static void JumpHintstoH3(string scenPath, Loading loadingForm)
+
+        public static void JumpHintstoH3(string scenPath, Loading loadingForm, ScenarioHints scenarioHintsContainer, ScenarioParallelos scenarioParallelosContainer)
         {
             string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
             ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
@@ -223,6 +223,52 @@ namespace H2_H3_Converter_UI
             {
                 scenTag.Load(relativeScenPath);
                 loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
+
+                // Write parallelogram geometry data before jump hints to make sure they can reference something
+                int bspIndex = 0;
+                ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry")).RemoveAllElements();
+                foreach (BspParallelos bsp in scenarioParallelosContainer.scenarioParallelos)
+                {
+                    loadingForm.UpdateOutputBox($"Start writing parallelogram geometry data for bsp {bspIndex}", false);
+
+                    // Loops over every parallelogram entry and writes it to tag
+                    int i = 0;
+                    if (bsp.parallelograms != null)
+                    {
+                        foreach (Parallelogram para in bsp.parallelograms)
+                        {
+                            loadingForm.UpdateOutputBox($"Parallelogram {i}", false);
+
+                            int parallelCount = ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry")).Count();
+                            ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry")).AddElement();
+
+                            // Flags
+                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/Flags:Flags")).RawValue = UInt32.Parse(para.Flags.Substring(0, 1));
+
+                            // Point 0
+                            ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/RealPoint3d:Point 0")).Data = para.Point0.Split(',').Select(float.Parse).ToArray();
+                            ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/ShortBlockIndex:structure bsp 0")).Value = bspIndex;
+
+                            // Point 1
+                            ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/RealPoint3d:Point 1")).Data = para.Point1.Split(',').Select(float.Parse).ToArray();
+                            ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/ShortBlockIndex:structure bsp 1")).Value = bspIndex;
+
+                            // Point 2
+                            ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/RealPoint3d:Point 2")).Data = para.Point2.Split(',').Select(float.Parse).ToArray();
+                            ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/ShortBlockIndex:structure bsp 2")).Value = bspIndex;
+
+                            // Point 3
+                            ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/RealPoint3d:Point 3")).Data = para.Point3.Split(',').Select(float.Parse).ToArray();
+                            ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/ShortBlockIndex:structure bsp 3")).Value = bspIndex;
+
+                            i++;
+                        }
+                    }
+
+                    bspIndex++;
+                }
+
+                loadingForm.UpdateOutputBox($"Finished writing parallelogram geometry data", false);
             }
             catch
             {
