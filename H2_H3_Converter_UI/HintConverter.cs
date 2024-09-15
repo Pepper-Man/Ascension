@@ -30,6 +30,8 @@ namespace H2_H3_Converter_UI
         public string Point3Ref { get; set; }
     }
 
+    // At some point I should really redo these names, this is not good for readability
+
     public class BspHints
     {
         public List<JumpHint> jumpHints { get; set; }
@@ -292,7 +294,7 @@ namespace H2_H3_Converter_UI
                             // Flags
                             ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/WordFlags:Flags")).RawValue = UInt32.Parse(jHint.Flags.Substring(0, 1));
 
-                            // Geometry index
+                            // Geometry index - H2 stores jump hints and their respective parallelograms on a per-bsp basis. H3 does not, so we must account for the previous parallelograms as well
                             ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortBlockIndex:geometry index")).Value = Int32.Parse(jHint.ParallelIndex) + hintStartIndex;
 
                             // Force jump height
@@ -306,10 +308,12 @@ namespace H2_H3_Converter_UI
                     hintStartIndex = ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).Count();
                     bspIndex++;
                 }
+
+                loadingForm.UpdateOutputBox($"Finished writing jump hint data", false);
             }
             catch
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error", false);
+                loadingForm.UpdateOutputBox($"Unknown managedblam error! Hint data will not have been written correctly!", false);
                 return;
             }
             finally
