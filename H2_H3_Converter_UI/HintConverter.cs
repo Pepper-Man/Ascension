@@ -201,7 +201,7 @@ namespace H2_H3_Converter_UI
                 }
 
                 Console.WriteLine("Modified file saved successfully.\n\nPreparing to patch tag data:\n");
-                loadingForm.UpdateOutputBox("Modified file saved successfully.\n\nPreparing to patch tag data:\n", false);
+                loadingForm.UpdateOutputBox("Modified file saved successfully. Preparing to patch tag data:\n", false);
             }
             catch (Exception ex)
             {
@@ -269,6 +269,43 @@ namespace H2_H3_Converter_UI
                 }
 
                 loadingForm.UpdateOutputBox($"Finished writing parallelogram geometry data", false);
+
+                // Time to write the jump hint data
+                bspIndex = 0;
+                int hintStartIndex = 0;
+                ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).RemoveAllElements();
+                foreach (BspHints bsp in scenarioHintsContainer.scenarioHints)
+                {
+                    loadingForm.UpdateOutputBox($"Start writing jump hint data for bsp {bspIndex}", false);
+
+                    // Loops over every parallelogram entry and writes it to tag
+                    int i = 0;
+                    if (bsp.jumpHints != null)
+                    {
+                        foreach (JumpHint jHint in bsp.jumpHints)
+                        {
+                            loadingForm.UpdateOutputBox($"Jump hint {i}", false);
+
+                            int hintCount = ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).Count();
+                            ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).AddElement();
+
+                            // Flags
+                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/WordFlags:Flags")).RawValue = UInt32.Parse(jHint.Flags.Substring(0, 1));
+
+                            // Geometry index
+                            ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortBlockIndex:geometry index")).Value = Int32.Parse(jHint.ParallelIndex) + hintStartIndex;
+
+                            // Force jump height
+                            string test = jHint.JumpHeight;
+                            ((TagFieldEnum)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortEnum:force jump height")).Value = Int32.Parse(jHint.JumpHeight.Substring(0, 1));
+
+                            i++;
+                        }
+                    }
+
+                    hintStartIndex = ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).Count();
+                    bspIndex++;
+                }
             }
             catch
             {
