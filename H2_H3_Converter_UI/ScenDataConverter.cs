@@ -108,51 +108,12 @@ class ScenData
         }
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-        Convert_XML(xml_path, h3ek_path, scen_path, loadingForm);
+        ConvertScenData(xml_path, h3ek_path, scen_path, loadingForm);
     }
 
-    static void Convert_XML(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
+    static void ConvertScenData(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
     {
-        Console.WriteLine("\nBeginning XML Conversion:\n");
-        loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
-
-        string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "modified_input.xml");
-
-        try
-        {
-            string[] lines = File.ReadAllLines(xml_path);
-            bool removeLines = false;
-
-            using (StreamWriter writer = new StreamWriter(newFilePath))
-            {
-                foreach (string line in lines)
-                {
-                    if (line.Contains("<block name=\"source files\">"))
-                    {
-                        removeLines = true;
-                        writer.WriteLine(line);
-                    }
-                    else if (line.Contains("<block name=\"scripting data\">"))
-                    {
-                        removeLines = false;
-                    }
-                    else if (!removeLines)
-                    {
-                        writer.WriteLine(line);
-                    }
-                }
-            }
-
-            Console.WriteLine("Modified file saved successfully.\n\nPreparing to patch tag data:\n");
-            loadingForm.UpdateOutputBox("Modified file saved successfully.\n\nPreparing to patch tag data:\n", false);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred: " + ex.Message);
-            loadingForm.UpdateOutputBox("An error occurred: " + ex.Message, false);
-        }
-
-        xml_path = newFilePath;
+        xml_path = Utils.ConvertXML(xml_path, loadingForm);
 
         XmlDocument scenfile = new XmlDocument();
         scenfile.Load(xml_path);

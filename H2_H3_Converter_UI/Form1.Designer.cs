@@ -199,11 +199,11 @@
             this.checkBox3.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox3.AutoSize = true;
             this.checkBox3.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox3.Location = new System.Drawing.Point(144, 125);
+            this.checkBox3.Location = new System.Drawing.Point(124, 125);
             this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(295, 20);
+            this.checkBox3.Size = new System.Drawing.Size(335, 20);
             this.checkBox3.TabIndex = 5;
-            this.checkBox3.Text = "Convert scenario data (objects, spawns etc)?";
+            this.checkBox3.Text = "Convert scenario object data (objects, spawns etc)?";
             this.checkBox3.UseVisualStyleBackColor = true;
             this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
@@ -392,11 +392,11 @@
             this.checkBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox4.AutoSize = true;
             this.checkBox4.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox4.Location = new System.Drawing.Point(196, 155);
+            this.checkBox4.Location = new System.Drawing.Point(108, 155);
             this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(190, 20);
+            this.checkBox4.Size = new System.Drawing.Size(366, 20);
             this.checkBox4.TabIndex = 16;
-            this.checkBox4.Text = "Convert scenario hint data?";
+            this.checkBox4.Text = "Convert misc scenario data (jump hints, flags, point sets)?";
             this.checkBox4.UseVisualStyleBackColor = true;
             this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 

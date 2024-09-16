@@ -93,6 +93,7 @@
       <DependentUpon>Loading.cs</DependentUpon>
     </Compile>
     <Compile Include="ScenDataConverter.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="ZonesConverter.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
