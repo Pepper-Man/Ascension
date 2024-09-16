@@ -86,29 +86,15 @@ class Decal
 
 class ScenData
 {
-    public static void ScenarioConverter(string scen_path, string xml_path, Loading loadingForm)
+    public static void ScenarioConverter(string scenPath, string xmlPath, Loading loadingForm)
     {
-        string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
+        string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
-        // Create scenario backup
-        string backup_folderpath = Path.GetDirectoryName(scen_path) + @"\scenario_backup";
-        Directory.CreateDirectory(backup_folderpath);
-        string backup_filepath = Path.Combine(backup_folderpath, scen_path.Split('\\').Last());
-
-        if (!File.Exists(backup_filepath))
-        {
-            File.Copy(scen_path, backup_filepath);
-            Console.WriteLine("Backup created successfully.");
-            loadingForm.UpdateOutputBox("Backup created successfully.", false);
-        }
-        else
-        {
-            Console.WriteLine("Backup already exists.");
-            loadingForm.UpdateOutputBox("Backup already exists.", false);
-        }
+        // Make sure we have a scenario backup
+        Utils.BackupScenario(scenPath, xmlPath, loadingForm);
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-        ConvertScenData(xml_path, h3ek_path, scen_path, loadingForm);
+        ConvertScenData(xmlPath, h3ek_path, scenPath, loadingForm);
     }
 
     static void ConvertScenData(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)

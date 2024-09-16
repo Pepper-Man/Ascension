@@ -56,22 +56,8 @@ namespace H2_H3_Converter_UI
     {
         public static void JumpHintsToXML(string scenPath, string xmlPath, Loading loadingForm)
         {
-            // Create scenario backup
-            string backup_folderpath = Path.GetDirectoryName(scenPath) + @"\scenario_backup";
-            Directory.CreateDirectory(backup_folderpath);
-            string backup_filepath = Path.Combine(backup_folderpath, scenPath.Split('\\').Last());
-
-            if (!File.Exists(backup_filepath))
-            {
-                File.Copy(scenPath, backup_filepath);
-                Console.WriteLine("Backup created successfully.");
-                loadingForm.UpdateOutputBox("Backup created successfully.", false);
-            }
-            else
-            {
-                Console.WriteLine("Backup already exists.");
-                loadingForm.UpdateOutputBox("Backup already exists.", false);
-            }
+            // Make sure we have a scenario backup
+            Utils.BackupScenario(scenPath, xmlPath, loadingForm);
 
             string newFilePath = Utils.ConvertXML(xmlPath, loadingForm);
             XmlDocument scenfile = new XmlDocument();

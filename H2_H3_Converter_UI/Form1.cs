@@ -386,10 +386,10 @@ namespace H2_H3_Converter_UI
                         // Hint conversion
                         HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
 
-                        // Point set conversion
-
-                        
                         // Flags conversion
+
+
+                        // Point set conversion
                     }
                 });
 
