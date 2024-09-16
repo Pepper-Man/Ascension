@@ -18,6 +18,7 @@ namespace H2_H3_Converter_UI
     class PointSet
     {
         public string SetName { get; set; }
+        public int BspIndex { get; set; }
         public List<PointElement> Elements { get; set; }
     }
 
@@ -52,6 +53,7 @@ namespace H2_H3_Converter_UI
                     PointSet set = new PointSet();
                     List<PointElement> allPointsForSet = new List<PointElement>();
                     set.SetName = setEntry.SelectSingleNode($".//field[@name='name']").InnerText.Trim();
+                    set.BspIndex = Int32.Parse(setEntry.SelectSingleNode($".//block_index[@name='short block index']").Attributes["index"]?.Value);
                     XmlNode setPointsBlock = setEntry.SelectSingleNode($".//block[@name='points']");
 
                     // Loop over all points within current point set
@@ -74,7 +76,6 @@ namespace H2_H3_Converter_UI
 
                     set.Elements = allPointsForSet;
                     allPointSets.Add(set);
-                    Console.WriteLine(allPointSets.ToString());
                     i++;
                 }
                 else
@@ -84,7 +85,6 @@ namespace H2_H3_Converter_UI
                 }
             }
 
-            /*
             // Now for the managedblam stuff
             string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
             ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
@@ -95,31 +95,42 @@ namespace H2_H3_Converter_UI
             {
                 scenTag.Load(relativeScenPath);
                 loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
-                ((TagFieldBlock)scenTag.SelectField($"Block:cutscene flags")).RemoveAllElements();
+                ((TagFieldBlock)scenTag.SelectField($"Block:scripting data[0]/Block:point sets")).RemoveAllElements();
 
                 i = 0;
-                foreach (FlagElement flag in allFlags)
+                foreach (PointSet pointSet in allPointSets)
                 {
-                    loadingForm.UpdateOutputBox($"Writing data for cutscene flag {i}", false);
-                    ((TagFieldBlock)scenTag.SelectField($"Block:cutscene flags")).AddElement();
-                    ((TagFieldElementStringID)scenTag.SelectField($"Block:cutscene flags[{i}]/StringId:name")).Data = flag.Name;
-                    ((TagFieldElementArraySingle)scenTag.SelectField($"Block:cutscene flags[{i}]/RealPoint3d:position")).Data = flag.Position;
-                    ((TagFieldElementArraySingle)scenTag.SelectField($"Block:cutscene flags[{i}]/RealEulerAngles2d:facing")).Data = flag.Facing;
+                    loadingForm.UpdateOutputBox($"Writing data for point set {pointSet.SetName}", false);
+                    ((TagFieldBlock)scenTag.SelectField($"Block:scripting data[0]/Block:point sets")).AddElement();
+                    ((TagFieldElementString)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/String:name")).Data = pointSet.SetName;
+                    ((TagFieldBlockIndex)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/ShortBlockIndex:bsp index")).Value = pointSet.BspIndex;
+
+                    int j = 0;
+                    foreach (PointElement point in pointSet.Elements)
+                    {
+                        ((TagFieldBlock)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points")).AddElement();
+                        ((TagFieldElementString)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points[{j}]/String:name")).Data = point.Name;
+                        ((TagFieldElementArraySingle)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points[{j}]/RealPoint3d:position")).Data = point.Position;
+                        ((TagFieldElementArraySingle)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points[{j}]/RealEulerAngles2d:facing direction")).Data = point.Facing;
+                        ((TagFieldElementInteger)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points[{j}]/ShortInteger:bsp index")).Data = pointSet.BspIndex;
+                        ((TagFieldBlockIndex)scenTag.SelectField($"Block:scripting data[0]/Block:point sets[{i}]/Block:points[{j}]/ShortBlockIndex:structure bsp")).Value = pointSet.BspIndex;
+                        j++;
+                    }
+
                     i++;
                 }
             }
             catch
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Flag data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Unknown managedblam error! Point set data will not have been written correctly!", false);
                 return;
             }
             finally
             {
                 scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing flag data to scenario tag!", false);
+                loadingForm.UpdateOutputBox($"Finished writing point set data to scenario tag!", false);
             }
-            */
         }
     }
 }
