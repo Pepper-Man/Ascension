@@ -17,17 +17,11 @@ namespace H2_H3_Converter_UI
 
     public class FlagConverter
     {
-        public static void ConvertCutsceneFlags(string scenPath, string xmlPath, Loading loadingForm)
+        public static void ConvertCutsceneFlags(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
         {
             // Make sure we have a scenario backup
             Utils.BackupScenario(scenPath, xmlPath, loadingForm);
-
             loadingForm.UpdateOutputBox("Begin reading scenario cutscene flags from XML...", false);
-            string newFilePath = Utils.ConvertXML(xmlPath, loadingForm);
-            XmlDocument scenfile = new XmlDocument();
-            scenfile.Load(newFilePath);
-
-            loadingForm.UpdateOutputBox("Modified XML file loaded successfully.", false);
 
             XmlNode root = scenfile.DocumentElement;
             XmlNodeList cutFlagsBlock = root.SelectNodes(".//block[@name='cutscene flags']");

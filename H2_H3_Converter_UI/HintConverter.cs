@@ -54,7 +54,7 @@ namespace H2_H3_Converter_UI
 
     public class HintConverter
     {
-        public static void JumpHintsToXML(string scenPath, string xmlPath, Loading loadingForm)
+        public static XmlDocument JumpHintsToXML(string scenPath, string xmlPath, Loading loadingForm)
         {
             // Make sure we have a scenario backup
             Utils.BackupScenario(scenPath, xmlPath, loadingForm);
@@ -154,6 +154,7 @@ namespace H2_H3_Converter_UI
             scenarioParallelos.scenarioParallelos = bspsP;
             loadingForm.UpdateOutputBox($"Successfully read hint data for all BSPs.", false);
             JumpHintstoH3(scenPath, loadingForm, scenarioHints, scenarioParallelos);
+            return scenfile;
         }
 
         public static void JumpHintstoH3(string scenPath, Loading loadingForm, ScenarioHints scenarioHintsContainer, ScenarioParallelos scenarioParallelosContainer)

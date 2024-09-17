@@ -24,17 +24,11 @@ namespace H2_H3_Converter_UI
 
     public class ScriptPointConverter
     {
-        public static void ConvertScriptPoints(string scenPath, string xmlPath, Loading loadingForm)
+        public static void ConvertScriptPoints(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
         {
             // Make sure we have a scenario backup
             Utils.BackupScenario(scenPath, xmlPath, loadingForm);
-
             loadingForm.UpdateOutputBox("Begin reading scenario script points from XML...", false);
-            string newFilePath = Utils.ConvertXML(xmlPath, loadingForm);
-            XmlDocument scenfile = new XmlDocument();
-            scenfile.Load(newFilePath);
-
-            loadingForm.UpdateOutputBox("Modified XML file loaded successfully.", false);
 
             XmlNode root = scenfile.DocumentElement;
             XmlNodeList pointSetsParentBlock = root.SelectNodes(".//block[@name='source files']");

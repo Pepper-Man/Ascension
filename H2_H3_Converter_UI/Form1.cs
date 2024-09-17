@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace H2_H3_Converter_UI
 {
@@ -384,13 +385,13 @@ namespace H2_H3_Converter_UI
                     if (checkBox4.Checked)
                     {
                         // Hint conversion
-                        HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
+                        XmlDocument scenFile = HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
 
                         // Flags conversion
-                        FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm);
+                        FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm, scenFile);
 
                         // Point set conversion
-                        ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm);
+                        ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
                     }
                 });
 
