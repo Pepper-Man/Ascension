@@ -392,11 +392,11 @@
             this.checkBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox4.AutoSize = true;
             this.checkBox4.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox4.Location = new System.Drawing.Point(73, 155);
+            this.checkBox4.Location = new System.Drawing.Point(54, 155);
             this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(437, 20);
+            this.checkBox4.Size = new System.Drawing.Size(475, 20);
             this.checkBox4.TabIndex = 16;
-            this.checkBox4.Text = "Convert AI/script scenario data (jump hints, flags, point sets, squads)?";
+            this.checkBox4.Text = "Convert AI/script scenario data (jump hints, flags, point sets, squad groups)?";
             this.checkBox4.UseVisualStyleBackColor = true;
             this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 
