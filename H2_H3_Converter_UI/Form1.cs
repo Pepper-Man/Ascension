@@ -18,6 +18,7 @@ namespace H2_H3_Converter_UI
         List<string> bsp_paths = new List<string>();
         string scen_path = "";
         string h2_xml_path = "";
+        string squad_folder_txt_path = "";
         bool use_existing_tifs = false;
         bool bsps_valid = false;
         bool h3_valid = false;
@@ -147,6 +148,8 @@ namespace H2_H3_Converter_UI
                 scenario_label.Enabled = true;
                 scen_box.Enabled = true;
                 browse_scen.Enabled = true;
+                use_squad_folder_names.Enabled = true;
+                help_squad_folders.Enabled = true;
             }
             else
             {
@@ -162,6 +165,10 @@ namespace H2_H3_Converter_UI
                     h2_scen_box.Enabled = false;
                     browse_scen_h2.Enabled = false;
                 }
+                use_squad_folder_names.Enabled = false;
+                squad_folder_names_browse.Enabled = false;
+                squad_folder_names_text.Enabled = false;
+                help_squad_folders.Enabled = false;
             }
             update_start_button();
         }
@@ -308,6 +315,20 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        private void use_squad_folder_names_CheckedChanged(object sender, EventArgs e)
+        {
+            if (use_squad_folder_names.Checked)
+            {
+                squad_folder_names_browse.Enabled = true;
+                squad_folder_names_text.Enabled = true;
+            }
+            else
+            {
+                squad_folder_names_browse.Enabled = false;
+                squad_folder_names_text.Enabled = false;
+            }
+        }
+
         private void update_start_button()
         {
             if (checkBox1.Checked && !checkBox2.Checked && !checkBox3.Checked && !checkBox4.Checked)
@@ -415,6 +436,35 @@ namespace H2_H3_Converter_UI
         {
             Info info_window = new Info();
             info_window.ShowDialog();
+        }
+
+        private void help_squad_folders_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            SquadFolderHelp squad_folder_info_window = new SquadFolderHelp();
+            squad_folder_info_window.ShowDialog();
+        }
+
+        private void tableLayoutPanel5_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void squad_folder_names_browse_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "TXT Files (*.txt)|*.txt";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    squad_folder_txt_path = openFileDialog.FileName;
+                    squad_folder_names_text.Text = openFileDialog.FileName;
+
+                    // Scroll to end
+                    squad_folder_names_text.SelectionStart = squad_folder_names_text.Text.Length;
+                    squad_folder_names_text.ScrollToCaret();
+                }
+            }
         }
     }
 }

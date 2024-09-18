@@ -31,6 +31,9 @@
             this.title = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.squad_folder_names_browse = new System.Windows.Forms.Button();
+            this.squad_folder_names_text = new System.Windows.Forms.TextBox();
             this.layout_h2_scen = new System.Windows.Forms.TableLayoutPanel();
             this.browse_scen_h2 = new System.Windows.Forms.Button();
             this.h2_scen_box = new System.Windows.Forms.TextBox();
@@ -52,11 +55,16 @@
             this.existing_bitmaps = new System.Windows.Forms.CheckBox();
             this.info_label = new System.Windows.Forms.LinkLabel();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.use_squad_folder_names = new System.Windows.Forms.CheckBox();
+            this.help_squad_folders = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
             this.layout_h2_scen.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.layout_scenario.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // title
@@ -91,6 +99,7 @@
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel4, 0, 18);
             this.tableLayoutPanel1.Controls.Add(this.layout_h2_scen, 0, 16);
             this.tableLayoutPanel1.Controls.Add(this.title, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.hintlabel, 0, 1);
@@ -103,12 +112,13 @@
             this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 11);
             this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 12);
             this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 15);
-            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 18);
+            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 20);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 13);
             this.tableLayoutPanel1.Controls.Add(this.checkBox4, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel5, 0, 17);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 19;
+            this.tableLayoutPanel1.RowCount = 21;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -126,12 +136,49 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 641);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 703);
             this.tableLayoutPanel1.TabIndex = 3;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.90543F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
+            this.tableLayoutPanel4.Controls.Add(this.squad_folder_names_browse, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.squad_folder_names_text, 0, 0);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(65, 609);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(453, 30);
+            this.tableLayoutPanel4.TabIndex = 15;
+            // 
+            // squad_folder_names_browse
+            // 
+            this.squad_folder_names_browse.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.squad_folder_names_browse.Enabled = false;
+            this.squad_folder_names_browse.Location = new System.Drawing.Point(369, 3);
+            this.squad_folder_names_browse.Name = "squad_folder_names_browse";
+            this.squad_folder_names_browse.Size = new System.Drawing.Size(75, 23);
+            this.squad_folder_names_browse.TabIndex = 12;
+            this.squad_folder_names_browse.Text = "Browse";
+            this.squad_folder_names_browse.UseVisualStyleBackColor = true;
+            this.squad_folder_names_browse.Click += new System.EventHandler(this.squad_folder_names_browse_Click);
+            // 
+            // squad_folder_names_text
+            // 
+            this.squad_folder_names_text.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.squad_folder_names_text.Enabled = false;
+            this.squad_folder_names_text.Location = new System.Drawing.Point(3, 4);
+            this.squad_folder_names_text.Name = "squad_folder_names_text";
+            this.squad_folder_names_text.Size = new System.Drawing.Size(355, 22);
+            this.squad_folder_names_text.TabIndex = 13;
             // 
             // layout_h2_scen
             // 
@@ -143,8 +190,9 @@
             this.layout_h2_scen.Controls.Add(this.h2_scen_box, 0, 0);
             this.layout_h2_scen.Location = new System.Drawing.Point(65, 539);
             this.layout_h2_scen.Name = "layout_h2_scen";
-            this.layout_h2_scen.RowCount = 1;
+            this.layout_h2_scen.RowCount = 2;
             this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.layout_h2_scen.Size = new System.Drawing.Size(453, 30);
             this.layout_h2_scen.TabIndex = 14;
             // 
@@ -164,7 +212,7 @@
             // 
             this.h2_scen_box.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.h2_scen_box.Enabled = false;
-            this.h2_scen_box.Location = new System.Drawing.Point(3, 4);
+            this.h2_scen_box.Location = new System.Drawing.Point(3, 3);
             this.h2_scen_box.Name = "h2_scen_box";
             this.h2_scen_box.Size = new System.Drawing.Size(355, 22);
             this.h2_scen_box.TabIndex = 13;
@@ -337,7 +385,7 @@
             this.start_button.AutoSize = true;
             this.start_button.Enabled = false;
             this.start_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.start_button.Location = new System.Drawing.Point(206, 607);
+            this.start_button.Location = new System.Drawing.Point(206, 666);
             this.start_button.Name = "start_button";
             this.start_button.Size = new System.Drawing.Size(170, 28);
             this.start_button.TabIndex = 13;
@@ -357,6 +405,7 @@
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(444, 26);
             this.tableLayoutPanel3.TabIndex = 15;
             // 
@@ -400,16 +449,62 @@
             this.checkBox4.UseVisualStyleBackColor = true;
             this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tableLayoutPanel5.ColumnCount = 2;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 87.16216F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
+            this.tableLayoutPanel5.Controls.Add(this.use_squad_folder_names, 0, 0);
+            this.tableLayoutPanel5.Controls.Add(this.help_squad_folders, 1, 0);
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(69, 575);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 1;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(444, 26);
+            this.tableLayoutPanel5.TabIndex = 17;
+            this.tableLayoutPanel5.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel5_Paint);
+            // 
+            // use_squad_folder_names
+            // 
+            this.use_squad_folder_names.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.use_squad_folder_names.AutoSize = true;
+            this.use_squad_folder_names.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.use_squad_folder_names.Enabled = false;
+            this.use_squad_folder_names.Location = new System.Drawing.Point(47, 3);
+            this.use_squad_folder_names.Name = "use_squad_folder_names";
+            this.use_squad_folder_names.Size = new System.Drawing.Size(293, 20);
+            this.use_squad_folder_names.TabIndex = 12;
+            this.use_squad_folder_names.Text = "Use squad folder names TXT file? (Optional)";
+            this.use_squad_folder_names.UseVisualStyleBackColor = true;
+            this.use_squad_folder_names.CheckedChanged += new System.EventHandler(this.use_squad_folder_names_CheckedChanged);
+            // 
+            // help_squad_folders
+            // 
+            this.help_squad_folders.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.help_squad_folders.Enabled = false;
+            this.help_squad_folders.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.help_squad_folders.Location = new System.Drawing.Point(391, 5);
+            this.help_squad_folders.Name = "help_squad_folders";
+            this.help_squad_folders.Size = new System.Drawing.Size(48, 16);
+            this.help_squad_folders.TabIndex = 13;
+            this.help_squad_folders.TabStop = true;
+            this.help_squad_folders.Text = "help";
+            this.help_squad_folders.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.help_squad_folders_LinkClicked);
+            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 653);
+            this.ClientSize = new System.Drawing.Size(582, 731);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "form1";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.layout_h2_scen.ResumeLayout(false);
             this.layout_h2_scen.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
@@ -417,6 +512,8 @@
             this.layout_scenario.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -446,6 +543,12 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.LinkLabel info_label;
         private System.Windows.Forms.CheckBox checkBox4;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Button squad_folder_names_browse;
+        private System.Windows.Forms.TextBox squad_folder_names_text;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.CheckBox use_squad_folder_names;
+        private System.Windows.Forms.LinkLabel help_squad_folders;
     }
 }
 
