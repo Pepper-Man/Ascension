@@ -26,8 +26,6 @@ namespace H2_H3_Converter_UI
     {
         public static void ConvertScriptPoints(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
         {
-            // Make sure we have a scenario backup
-            Utils.BackupScenario(scenPath, xmlPath, loadingForm);
             loadingForm.UpdateOutputBox("Begin reading scenario script points from XML...", false);
 
             XmlNode root = scenfile.DocumentElement;

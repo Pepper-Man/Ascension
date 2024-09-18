@@ -388,13 +388,13 @@ namespace H2_H3_Converter_UI
                         XmlDocument scenFile = HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
 
                         // Flags conversion
-                        //FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm, scenFile);
+                        FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm, scenFile);
 
                         // Point set conversion
-                        //ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
+                        ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
 
                         // Squads conversion
-                        //SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);
                         SquadsConverter.ConvertSquads(scen_path, h2_xml_path, loadingForm, scenFile);
                     }
                 });
