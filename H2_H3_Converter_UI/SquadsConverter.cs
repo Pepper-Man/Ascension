@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace H2_H3_Converter_UI
@@ -135,7 +136,19 @@ namespace H2_H3_Converter_UI
             {
                 loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
             }
-            
+
+            // Flags-wise, just gonna convert values based on name tbh. This isn't pretty and doesn't handle most
+            // combos but they are extremely infrequently used and i cba to code for them
+            Dictionary<string, uint> flagMapping = new Dictionary<string, uint>()
+            {
+                { "0", 0 },
+                { "1initially asleep", 0 },
+                { "2infection form explode", 1 },
+                { "4n/a", 2 },
+                { "8always place", 4 },
+                { "16initially hidden", 8 },
+                { "9always placeinitially asleep", 4 },
+            };
 
             XmlNode root = scenfile.DocumentElement;
             XmlNodeList squadsBlock = root.SelectNodes(".//block[@name='squads']");
@@ -205,16 +218,9 @@ namespace H2_H3_Converter_UI
                         startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                         startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
 
-                        // Flags-wise, only gonna bother with "always placed" for now
-                        uint flagsTemp = UInt32.Parse(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1));
-                        if (flagsTemp == 8)
-                        {
-                            startLoc.Flags = 4; 
-                        }
-                        else
-                        {
-                            startLoc.Flags = 0;
-                        }
+                        // Figure out flag value using conversion dictionary defined at the start of this function
+                        string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
+                        startLoc.Flags = flagMapping[flagsString];
 
                         startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
                         startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
