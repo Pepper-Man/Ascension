@@ -78,11 +78,11 @@
             this.checkBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox1.AutoSize = true;
             this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox1.Location = new System.Drawing.Point(224, 65);
+            this.checkBox1.Location = new System.Drawing.Point(251, 65);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(134, 20);
+            this.checkBox1.Size = new System.Drawing.Size(80, 20);
             this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "Convert shaders?";
+            this.checkBox1.Text = "Shaders";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
@@ -173,11 +173,11 @@
             // 
             this.hintlabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.hintlabel.AutoSize = true;
-            this.hintlabel.Location = new System.Drawing.Point(157, 37);
+            this.hintlabel.Location = new System.Drawing.Point(153, 37);
             this.hintlabel.Name = "hintlabel";
-            this.hintlabel.Size = new System.Drawing.Size(268, 16);
+            this.hintlabel.Size = new System.Drawing.Size(276, 16);
             this.hintlabel.TabIndex = 3;
-            this.hintlabel.Text = "Please check the conversions that you want:";
+            this.hintlabel.Text = "Please check the conversion(s) that you want:";
             this.hintlabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.hintlabel.Click += new System.EventHandler(this.label1_Click_1);
             // 
@@ -186,11 +186,11 @@
             this.checkBox2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox2.AutoSize = true;
             this.checkBox2.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox2.Location = new System.Drawing.Point(174, 95);
+            this.checkBox2.Location = new System.Drawing.Point(180, 95);
             this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(235, 20);
+            this.checkBox2.Size = new System.Drawing.Size(222, 20);
             this.checkBox2.TabIndex = 4;
-            this.checkBox2.Text = "Convert zones and firing positions?";
+            this.checkBox2.Text = "Zones, areas and firing positions";
             this.checkBox2.UseVisualStyleBackColor = true;
             this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
             // 
@@ -199,11 +199,11 @@
             this.checkBox3.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox3.AutoSize = true;
             this.checkBox3.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox3.Location = new System.Drawing.Point(124, 125);
+            this.checkBox3.Location = new System.Drawing.Point(151, 125);
             this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(335, 20);
+            this.checkBox3.Size = new System.Drawing.Size(281, 20);
             this.checkBox3.TabIndex = 5;
-            this.checkBox3.Text = "Convert scenario object data (objects, spawns etc)?";
+            this.checkBox3.Text = "Scenario object data (objects, spawns etc)";
             this.checkBox3.UseVisualStyleBackColor = true;
             this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
@@ -392,11 +392,11 @@
             this.checkBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox4.AutoSize = true;
             this.checkBox4.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox4.Location = new System.Drawing.Point(54, 155);
+            this.checkBox4.Location = new System.Drawing.Point(100, 155);
             this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(475, 20);
+            this.checkBox4.Size = new System.Drawing.Size(383, 20);
             this.checkBox4.TabIndex = 16;
-            this.checkBox4.Text = "Convert AI/script scenario data (jump hints, flags, point sets, squad groups)?";
+            this.checkBox4.Text = "Scenario AI/script data (jump hints, flags, point sets, squads)";
             this.checkBox4.UseVisualStyleBackColor = true;
             this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 
