@@ -24,6 +24,7 @@ namespace H2_H3_Converter_UI
             public float[] Facing { get; set; }
             public uint Flags { get; set; }
             public int CharIndex { get; set; }
+            public int WeapIndex { get; set; }
             public int SeatType { get; set; }
             public int Grenade {  get; set; }
             public int Swarm { get; set; }
@@ -44,6 +45,7 @@ namespace H2_H3_Converter_UI
             public int InsaneDiff { get; set; }
             public int Upgrade {  get; set; }
             public int CharIndex { get; set; }
+            public int WeapIndex { get; set; }
             public int Zone {  get; set; }
             public int Grenade { get; set; }
             public string VehiVariant { get; set; }
@@ -189,7 +191,82 @@ namespace H2_H3_Converter_UI
             {
                 scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing squad data to scenario tag!", false);
+                loadingForm.UpdateOutputBox($"Finished writing character palette data to scenario tag!", false);
+            }
+
+        }
+
+        public static void ConvertWeapPalette(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+        {
+            loadingForm.UpdateOutputBox("Begin reading scenario weapon palette from XML...", false);
+
+            XmlNode root = scenfile.DocumentElement;
+            XmlNodeList weapPaletteBlock = root.SelectNodes(".//block[@name='weapon palette']");
+            loadingForm.UpdateOutputBox("Located weapon palette data block.", false);
+
+            List<string> h2WeapRefs = new List<string>();
+            bool h2WeapDataEnd = false;
+            int i = 0;
+
+            while (!h2WeapDataEnd)
+            {
+                XmlNode weapEntry = weapPaletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                if (weapEntry != null)
+                {
+                    string weapRef = weapEntry.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                    h2WeapRefs.Add(weapRef);
+                    loadingForm.UpdateOutputBox($"Weapon reference {i}: \"{weapRef}\".", false);
+                    i++;
+                }
+                else
+                {
+                    h2WeapDataEnd = true;
+                    loadingForm.UpdateOutputBox("Finished reading weapon palette data.", false);
+                }
+            }
+
+            // MB tiem
+            string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
+            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
+            var relativeScenPath = TagPath.FromPathAndType(Path.ChangeExtension(scenPath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
+            TagFile scenTag = new TagFile();
+
+            // Convert H2 .weapon paths to H3 versions
+            Utils utilsInstance = new Utils();
+            List<TagPath> h3WeapPaths = new List<TagPath>();
+            foreach (string h2Path in h2WeapRefs)
+            {
+                TagPath h3Weap = utilsInstance.weaponMapping[h2Path];
+                h3WeapPaths.Add(h3Weap);
+            }
+
+            // Now lets write the weapon palette for the H3 scenario
+            try
+            {
+                scenTag.Load(relativeScenPath);
+                loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
+
+                loadingForm.UpdateOutputBox($"Begin writing weapon palette data", false);
+                ((TagFieldBlock)scenTag.SelectField($"Block:weapon palette")).RemoveAllElements();
+                i = 0;
+
+                foreach (TagPath weapPath in h3WeapPaths)
+                {
+                    ((TagFieldBlock)scenTag.SelectField($"Block:weapon palette")).AddElement();
+                    ((TagFieldReference)scenTag.SelectField($"Block:weapon palette[{i}]/Reference:name")).Path = weapPath;
+                    i++;
+                }
+            }
+            catch
+            {
+                loadingForm.UpdateOutputBox($"Unknown managedblam error! Weapon palette data will not have been written correctly!", false);
+                return;
+            }
+            finally
+            {
+                scenTag.Save();
+                scenTag.Dispose();
+                loadingForm.UpdateOutputBox($"Finished writing weapon palette data to scenario tag!", false);
             }
 
         }
@@ -250,6 +327,7 @@ namespace H2_H3_Converter_UI
                     squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
                     squad.Upgrade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText.Trim().Substring(0, 1));
                     squad.CharIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
+                    squad.WeapIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                     squad.Zone = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial zone']").Attributes["index"]?.Value);
                     squad.Grenade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
                     squad.VehiVariant = squadEntry.SelectSingleNode("./field[@name='vehicle variant']").InnerText.Trim();
@@ -301,6 +379,7 @@ namespace H2_H3_Converter_UI
                         startLoc.Flags = flagMapping[flagsString];
 
                         startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
+                        startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                         startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
                         startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
                         startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
@@ -371,6 +450,7 @@ namespace H2_H3_Converter_UI
                     ((TagFieldElementInteger)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortInteger:normal diff count")).Data = squad.NormalDiff;
                     ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortEnum:major upgrade")).Value = squad.Upgrade;
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortBlockIndex:character type")).Value = squad.CharIndex;
+                    ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortBlockIndex:initial weapon")).Value = squad.WeapIndex;
                     ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortEnum:grenade type")).Value = squad.Grenade;
                     ((TagFieldElementStringID)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/StringId:vehicle variant")).Data = squad.VehiVariant;
                     ((TagFieldElementString)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/String:Placement script")).Data = squad.PlaceScript;
@@ -385,6 +465,7 @@ namespace H2_H3_Converter_UI
                         ((TagFieldElementArraySingle)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/RealEulerAngles2d:facing (yaw, pitch)")).Data = startingLoc.Facing;
                         ((TagFieldFlags)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/Flags:flags")).RawValue = startingLoc.Flags;
                         ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortBlockIndex:character type")).Value = startingLoc.CharIndex;
+                        ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortBlockIndex:initial weapon")).Value = startingLoc.WeapIndex;
                         ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortEnum:seat type")).Value = startingLoc.SeatType;
                         ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortEnum:grenade type")).Value = startingLoc.Grenade;
                         ((TagFieldElementInteger)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortInteger:swarm count")).Data = startingLoc.Swarm;

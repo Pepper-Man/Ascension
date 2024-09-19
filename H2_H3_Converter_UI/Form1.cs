@@ -416,6 +416,7 @@ namespace H2_H3_Converter_UI
 
                         // Squads conversion
                         SquadsConverter.ConvertCharPalette(scen_path, h2_xml_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertWeapPalette(scen_path, h2_xml_path, loadingForm, scenFile);
                         SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);
                         SquadsConverter.ConvertSquads(scen_path, h2_xml_path, loadingForm, scenFile);
                     }

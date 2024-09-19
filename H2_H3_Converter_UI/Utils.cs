@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace H2_H3_Converter_UI
 {
@@ -144,6 +145,52 @@ namespace H2_H3_Converter_UI
             { "objects\\characters\\heretic\\ai\\heretic_leader_hologram", TagPath.FromPathAndExtension("halo_2\\objects\\characters\\heretic\\ai\\heretic_leader_hologram", "character") },
             { "objects\\characters\\heretic\\ai\\heretic_major", TagPath.FromPathAndExtension("halo_2\\objects\\characters\\heretic\\ai\\heretic_major", "character") },
             { "objects\\characters\\heretic_grunt\\ai\\heretic_grunt", TagPath.FromPathAndExtension("objects\\characters\\heretic_grunt\\ai\\heretic_grunt", "character") },
+        };
+
+        public Dictionary<string, TagPath> weaponMapping = new Dictionary<string, TagPath>()
+        {
+            // Fixed
+            { "objects\\weapons\\fixed\\plasma_cannon\\plasma_cannon", TagPath.FromPathAndExtension("objects\\weapons\\turret\\plasma_cannon\\plasma_cannon", "weapon") },
+            { "objects\\weapons\\fixed\\plasma_cannon\\item\\c_turret_mp_item", TagPath.FromPathAndExtension("objects\\weapons\\turret\\plasma_cannon\\plasma_cannon", "weapon") },
+
+            // Melee
+            { "objects\\weapons\\melee\\energy_blade\\energy_blade", TagPath.FromPathAndExtension("objects\\weapons\\melee\\energy_blade\\energy_blade", "weapon") },
+            { "objects\\weapons\\melee\\gravity_hammer\\gravity_hammer", TagPath.FromPathAndExtension("objects\\weapons\\melee\\gravity_hammer\\gravity_hammer", "weapon") },
+            
+            // Multiplayer
+            { "objects\\weapons\\multiplayer\\ball\\head_sp", TagPath.FromPathAndExtension("objects\\weapons\\multiplayer\\ball\\primary_skull", "weapon") },
+        
+            // Pistols
+            { "objects\\weapons\\pistol\\magnum\\magnum", TagPath.FromPathAndExtension("objects\\weapons\\pistol\\magnum\\magnum", "weapon") },
+            { "objects\\weapons\\pistol\\needler\\needler", TagPath.FromPathAndExtension("objects\\weapons\\pistol\\needler\\needler", "weapon") },
+            { "objects\\weapons\\pistol\\plasma_pistol\\plasma_pistol", TagPath.FromPathAndExtension("objects\\weapons\\pistol\\plasma_pistol\\plasma_pistol", "weapon") },
+        
+            // Rifles
+            { "objects\\weapons\\rifle\\battle_rifle\\battle_rifle", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\battle_rifle\\battle_rifle", "weapon") },
+            { "objects\\weapons\\rifle\\beam_rifle\\beam_rifle", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\beam_rifle\\beam_rifle", "weapon") },
+            { "objects\\weapons\\rifle\\brute_plasma_rifle\\brute_plasma_rifle", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\plasma_rifle_red\\plasma_rifle_red", "weapon") },
+            { "objects\\weapons\\rifle\\covenant_carbine\\covenant_carbine", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\covenant_carbine\\covenant_carbine", "weapon") },
+            { "objects\\weapons\\rifle\\plasma_rifle\\plasma_rifle", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\plasma_rifle\\plasma_rifle", "weapon") },
+            { "objects\\weapons\\rifle\\shotgun\\shotgun", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\shotgun\\shotgun", "weapon") },
+            { "objects\\weapons\\rifle\\smg\\smg", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\smg\\smg", "weapon") },
+            { "objects\\weapons\\rifle\\smg_silenced\\smg_silenced", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\smg_silenced\\smg_silenced", "weapon") },
+            { "objects\\weapons\\rifle\\sniper_rifle\\sniper_rifle", TagPath.FromPathAndExtension("objects\\weapons\\rifle\\sniper_rifle\\sniper_rifle", "weapon") },
+        
+            // Support high
+            { "objects\\weapons\\support_high\\flak_cannon\\flak_cannon", TagPath.FromPathAndExtension("objects\\weapons\\support_high\\flak_cannon\\flak_cannon", "weapon") },
+            { "objects\\weapons\\support_high\\rocket_launcher\\rocket_launcher", TagPath.FromPathAndExtension("objects\\weapons\\support_high\\rocket_launcher\\rocket_launcher", "weapon") },
+
+            // Support low
+            { "objects\\weapons\\support_low\\brute_shot\\brute_shot", TagPath.FromPathAndExtension("objects\\weapons\\support_low\\brute_shot\\brute_shot", "weapon") },
+
+            // Sentinel-specific stuff
+            { "objects\\characters\\sentinel_aggressor\\weapons\\welder\\sentinel_aggressor_welder", TagPath.FromPathAndExtension("objects\\characters\\sentinel_aggressor\\weapons\\welder\\sentinel_aggressor_welder", "weapon") },
+            { "objects\\characters\\sentinel_aggressor\\weapons\\beam\\sentinel_aggressor_beam", TagPath.FromPathAndExtension("objects\\weapons\\support_low\\sentinel_gun\\sentinel_gun", "weapon") },
+        
+            // Misc
+            { "objects\\vehicles\\c_turret_ap\\weapon\\big_needler_handheld", TagPath.FromPathAndExtension("halo_2\\objects\\vehicles\\c_turret_ap\\weapon\\big_needler_handheld", "weapon") },
+            // This is temporary - H3 jackals have the shield built in
+            { "objects\\weapons\\melee\\jackal_shield\\jackal_shield", TagPath.FromPathAndExtension("objects\\weapons\\multiplayer\\flag\\flag", "weapon") },
         };
     }
 }
