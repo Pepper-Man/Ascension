@@ -25,6 +25,7 @@ namespace H2_H3_Converter_UI
             public uint Flags { get; set; }
             public int CharIndex { get; set; }
             public int WeapIndex { get; set; }
+            public int VehiIndex { get; set; }
             public int SeatType { get; set; }
             public int Grenade {  get; set; }
             public int Swarm { get; set; }
@@ -44,6 +45,7 @@ namespace H2_H3_Converter_UI
             public int NormalDiff {  get; set; }
             public int InsaneDiff { get; set; }
             public int Upgrade {  get; set; }
+            public int VehiIndex { get; set; }
             public int CharIndex { get; set; }
             public int WeapIndex { get; set; }
             public int Zone {  get; set; }
@@ -292,6 +294,7 @@ namespace H2_H3_Converter_UI
                     squad.NormalDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='normal diff count']").InnerText.Trim());
                     squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
                     squad.Upgrade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText.Trim().Substring(0, 1));
+                    squad.VehiIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
                     squad.CharIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
                     squad.WeapIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                     squad.Zone = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial zone']").Attributes["index"]?.Value);
@@ -346,6 +349,7 @@ namespace H2_H3_Converter_UI
 
                         startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
                         startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
+                        startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
                         startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
                         startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
                         startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
@@ -417,6 +421,7 @@ namespace H2_H3_Converter_UI
                     ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortEnum:major upgrade")).Value = squad.Upgrade;
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortBlockIndex:character type")).Value = squad.CharIndex;
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortBlockIndex:initial weapon")).Value = squad.WeapIndex;
+                    ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortBlockIndex:vehicle type")).Value = squad.VehiIndex;
                     ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/ShortEnum:grenade type")).Value = squad.Grenade;
                     ((TagFieldElementStringID)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/StringId:vehicle variant")).Data = squad.VehiVariant;
                     ((TagFieldElementString)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/String:Placement script")).Data = squad.PlaceScript;
@@ -432,6 +437,7 @@ namespace H2_H3_Converter_UI
                         ((TagFieldFlags)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/Flags:flags")).RawValue = startingLoc.Flags;
                         ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortBlockIndex:character type")).Value = startingLoc.CharIndex;
                         ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortBlockIndex:initial weapon")).Value = startingLoc.WeapIndex;
+                        ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortBlockIndex:vehicle type")).Value = startingLoc.VehiIndex;
                         ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortEnum:seat type")).Value = startingLoc.SeatType;
                         ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortEnum:grenade type")).Value = startingLoc.Grenade;
                         ((TagFieldElementInteger)scenTag.SelectField($"Block:squads[{i}]/Block:fire-teams[0]/Block:starting locations[{j}]/ShortInteger:swarm count")).Data = startingLoc.Swarm;
