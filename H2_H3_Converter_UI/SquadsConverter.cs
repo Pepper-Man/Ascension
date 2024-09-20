@@ -120,108 +120,42 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox($"Finished writing squad group data to scenario tag!", false);
             }
         }
-    
-        public static void ConvertCharPalette(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+
+        public static void ConvertPalette(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile, string paletteType)
         {
-            loadingForm.UpdateOutputBox("Begin reading scenario character palette from XML...", false);
+            loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
 
             XmlNode root = scenfile.DocumentElement;
-            XmlNodeList charPaletteBlock = root.SelectNodes(".//block[@name='character palette']");
-            loadingForm.UpdateOutputBox("Located character palette data block.", false);
+            XmlNodeList paletteBlock = root.SelectNodes($".//block[@name='{paletteType} palette']");
+            loadingForm.UpdateOutputBox($"Located {paletteType} palette data block.", false);
 
-            List<string> h2CharRefs = new List<string>();
-            bool h2CharDataEnd = false;
+            List<string> h2ObjRefs = new List<string>();
+            bool h2DataEnd = false;
             int i = 0;
 
-            while (!h2CharDataEnd)
+            while (!h2DataEnd)
             {
-                XmlNode charEntry = charPaletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (charEntry != null)
+                XmlNode paletteEntry = paletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                if (paletteEntry != null)
                 {
-                    string charRef = charEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
-                    h2CharRefs.Add(charRef);
-                    loadingForm.UpdateOutputBox($"Character reference {i}: \"{charRef}\".", false);
+                    string objRef = null;
+                    if (paletteType == "character")
+                    {
+                        objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
+                    }
+                    else
+                    {
+                        objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                    }
+                    
+                    h2ObjRefs.Add(objRef);
+                    loadingForm.UpdateOutputBox($"{i}: {paletteType} reference {i}: \"{objRef}\".", false);
                     i++;
                 }
                 else
                 {
-                    h2CharDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished reading character palette data.", false);
-                }
-            }
-            
-            // MB tiem
-            string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
-            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-            var relativeScenPath = TagPath.FromPathAndType(Path.ChangeExtension(scenPath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
-            TagFile scenTag = new TagFile();
-
-            // Convert H2 .character paths to H3 versions
-            Utils utilsInstance = new Utils();
-            List<TagPath> h3CharPaths = new List<TagPath>();
-            foreach (string h2Path in h2CharRefs)
-            {
-                TagPath h3Char = utilsInstance.characterMapping[h2Path];
-                h3CharPaths.Add(h3Char);
-            }
-
-            // Now lets write the character palette for the H3 scenario
-            try
-            {
-                scenTag.Load(relativeScenPath);
-                loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
-
-                loadingForm.UpdateOutputBox($"Begin writing character palette data", false);
-                ((TagFieldBlock)scenTag.SelectField($"Block:character palette")).RemoveAllElements();
-                i = 0;
-
-                foreach (TagPath charPath in h3CharPaths)
-                {
-                    ((TagFieldBlock)scenTag.SelectField($"Block:character palette")).AddElement();
-                    ((TagFieldReference)scenTag.SelectField($"Block:character palette[{i}]/Reference:reference")).Path = charPath;
-                    i++;
-                }
-            }
-            catch
-            {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Character palette data will not have been written correctly!", false);
-                return;
-            }
-            finally
-            {
-                scenTag.Save();
-                scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing character palette data to scenario tag!", false);
-            }
-
-        }
-
-        public static void ConvertWeapPalette(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
-        {
-            loadingForm.UpdateOutputBox("Begin reading scenario weapon palette from XML...", false);
-
-            XmlNode root = scenfile.DocumentElement;
-            XmlNodeList weapPaletteBlock = root.SelectNodes(".//block[@name='weapon palette']");
-            loadingForm.UpdateOutputBox("Located weapon palette data block.", false);
-
-            List<string> h2WeapRefs = new List<string>();
-            bool h2WeapDataEnd = false;
-            int i = 0;
-
-            while (!h2WeapDataEnd)
-            {
-                XmlNode weapEntry = weapPaletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (weapEntry != null)
-                {
-                    string weapRef = weapEntry.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                    h2WeapRefs.Add(weapRef);
-                    loadingForm.UpdateOutputBox($"Weapon reference {i}: \"{weapRef}\".", false);
-                    i++;
-                }
-                else
-                {
-                    h2WeapDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished reading weapon palette data.", false);
+                    h2DataEnd = true;
+                    loadingForm.UpdateOutputBox($"Finished reading {paletteType} palette data.", false);
                 }
             }
 
@@ -233,12 +167,37 @@ namespace H2_H3_Converter_UI
 
             // Convert H2 .weapon paths to H3 versions
             Utils utilsInstance = new Utils();
-            List<TagPath> h3WeapPaths = new List<TagPath>();
-            foreach (string h2Path in h2WeapRefs)
+            List<TagPath> h3ObjPaths = new List<TagPath>();
+
+            if (paletteType == "character")
             {
-                TagPath h3Weap = utilsInstance.weaponMapping[h2Path];
-                h3WeapPaths.Add(h3Weap);
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = utilsInstance.characterMapping[h2Path];
+                    h3ObjPaths.Add(h3Obj);
+                }
             }
+            else if (paletteType == "weapon")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = utilsInstance.weaponMapping[h2Path];
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
+            else if (paletteType == "vehicle")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = utilsInstance.vehicleMapping[h2Path];
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
+            else
+            {
+                loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
+            }
+            
 
             // Now lets write the weapon palette for the H3 scenario
             try
@@ -246,29 +205,36 @@ namespace H2_H3_Converter_UI
                 scenTag.Load(relativeScenPath);
                 loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
 
-                loadingForm.UpdateOutputBox($"Begin writing weapon palette data", false);
-                ((TagFieldBlock)scenTag.SelectField($"Block:weapon palette")).RemoveAllElements();
+                loadingForm.UpdateOutputBox($"Begin writing {paletteType} palette data", false);
+                ((TagFieldBlock)scenTag.SelectField($"Block:{paletteType} palette")).RemoveAllElements();
                 i = 0;
 
-                foreach (TagPath weapPath in h3WeapPaths)
+                foreach (TagPath objPath in h3ObjPaths)
                 {
-                    ((TagFieldBlock)scenTag.SelectField($"Block:weapon palette")).AddElement();
-                    ((TagFieldReference)scenTag.SelectField($"Block:weapon palette[{i}]/Reference:name")).Path = weapPath;
+                    ((TagFieldBlock)scenTag.SelectField($"Block:{paletteType} palette")).AddElement();
+                    if (paletteType == "character")
+                    {
+                        ((TagFieldReference)scenTag.SelectField($"Block:{paletteType} palette[{i}]/Reference:reference")).Path = objPath;
+                    }
+                    else
+                    {
+                        ((TagFieldReference)scenTag.SelectField($"Block:{paletteType} palette[{i}]/Reference:name")).Path = objPath;
+                    }
+                    
                     i++;
                 }
             }
             catch
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Weapon palette data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Unknown managedblam error! {paletteType} palette data will not have been written correctly!", false);
                 return;
             }
             finally
             {
                 scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing weapon palette data to scenario tag!", false);
+                loadingForm.UpdateOutputBox($"Finished writing {paletteType} palette data to scenario tag!", false);
             }
-
         }
 
         public static void ConvertSquads(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)

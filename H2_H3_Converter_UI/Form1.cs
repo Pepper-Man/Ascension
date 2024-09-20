@@ -415,8 +415,8 @@ namespace H2_H3_Converter_UI
                         ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
 
                         // Squads conversion
-                        SquadsConverter.ConvertCharPalette(scen_path, h2_xml_path, loadingForm, scenFile);
-                        SquadsConverter.ConvertWeapPalette(scen_path, h2_xml_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character");
+                        SquadsConverter.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon");
                         SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);
                         SquadsConverter.ConvertSquads(scen_path, h2_xml_path, loadingForm, scenFile);
                     }

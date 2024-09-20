@@ -192,5 +192,12 @@ namespace H2_H3_Converter_UI
             // This is temporary - H3 jackals have the shield built in
             { "objects\\weapons\\melee\\jackal_shield\\jackal_shield", TagPath.FromPathAndExtension("objects\\weapons\\multiplayer\\flag\\flag", "weapon") },
         };
+
+        public Dictionary<string, TagPath> vehicleMapping = new Dictionary<string, TagPath>()
+        {
+            // Temporary to allow compilation
+            { "objects\\weapons\\fixed\\plasma_cannon\\plasma_cannon", TagPath.FromPathAndExtension("objects\\weapons\\turret\\plasma_cannon\\plasma_cannon", "weapon") },
+            
+        };
     }
 }
