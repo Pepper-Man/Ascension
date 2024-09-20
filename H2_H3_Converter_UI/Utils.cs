@@ -195,9 +195,19 @@ namespace H2_H3_Converter_UI
 
         public Dictionary<string, TagPath> vehicleMapping = new Dictionary<string, TagPath>()
         {
-            // Temporary to allow compilation
-            { "objects\\weapons\\fixed\\plasma_cannon\\plasma_cannon", TagPath.FromPathAndExtension("objects\\weapons\\turret\\plasma_cannon\\plasma_cannon", "weapon") },
-            
+            { "objects\\vehicles\\banshee\\banshee", TagPath.FromPathAndExtension("objects\\vehicles\\banshee\\banshee", "vehicle") },
+            { "objects\\vehicles\\c_turret_ap\\c_turret_ap", TagPath.FromPathAndExtension("h2\\objects\\vehicles\\c_turret_ap\\c_turret_ap", "vehicle") },
+            { "objects\\vehicles\\creep\\creep", TagPath.FromPathAndExtension("halo_2\\objects\\vehicles\\shadow\\shadow_h2_other", "vehicle") },
+            { "objects\\vehicles\\ghost\\ghost", TagPath.FromPathAndExtension("objects\\vehicles\\ghost\\ghost", "vehicle") },
+            { "objects\\vehicles\\h_turret_ap\\h_turret_ap", TagPath.FromPathAndExtension("objects\\weapons\\turret\\machinegun_turret\\machinegun_turret", "vehicle") },
+            { "objects\\vehicles\\insertion_pod\\insertion_pod", TagPath.FromPathAndExtension("objects\\vehicles\\insertion_pod\\insertion_pod", "vehicle") },
+            { "objects\\vehicles\\pelican\\pelican", TagPath.FromPathAndExtension("halo_2\\objects\\vehicles\\pelican\\pelican", "vehicle") },
+            { "objects\\vehicles\\phantom\\phantom", TagPath.FromPathAndExtension("halo_2\\objects\\vehicles\\phantom\\h2_phantom", "vehicle") },
+            { "objects\\vehicles\\scorpion\\scorpion", TagPath.FromPathAndExtension("objects\\vehicles\\scorpion\\scorpion", "vehicle") },
+            { "objects\\vehicles\\spectre\\spectre", TagPath.FromPathAndExtension("objects\\vehicles\\spectre\\spectre", "vehicle") },
+            { "objects\\vehicles\\warthog\\warthog", TagPath.FromPathAndExtension("objects\\vehicles\\warthog\\warthog", "vehicle") },
+            { "objects\\vehicles\\warthog\\warthog_rocket", TagPath.FromPathAndExtension("objects\\vehicles\\warthog\\warthog", "vehicle") },
+            { "objects\\vehicles\\wraith\\wraith", TagPath.FromPathAndExtension("objects\\vehicles\\wraith\\wraith", "vehicle") },
         };
     }
 }
