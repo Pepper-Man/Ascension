@@ -32,6 +32,19 @@ class WeapLoc
     public string weap_type { get; set; }
 }
 
+class SpWeapLoc
+{
+    public int type_index { get; set; }
+    public int name_index { get; set; }
+    public int flags { get; set; }
+    public float[] position { get; set; }
+    public float[] rotation { get; set; }
+    public float scale { get; set; }
+    public string var_name { get; set; }
+    public int rounds_left { get; set; }
+    public int rounds_loaded { get; set; }
+}
+
 class Scenery
 {
     public string scen_type { get; set; }
@@ -106,8 +119,10 @@ class ScenData
 
         XmlNode root = scenfile.DocumentElement;
 
+        string scenario_type = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
         XmlNodeList player_start_loc_block = root.SelectNodes(".//block[@name='player starting locations']");
-        XmlNodeList weapon_placements_block = root.SelectNodes(".//block[@name='netgame equipment']");
+        XmlNodeList weapon_mp_entries_block = root.SelectNodes(".//block[@name='netgame equipment']");
+        XmlNodeList weapon_sp_entries_block = root.SelectNodes(".//block[@name='weapons']");
         XmlNodeList scen_palette_block = root.SelectNodes(".//block[@name='scenery palette']");
         XmlNodeList scen_entries_block = root.SelectNodes(".//block[@name='scenery']");
         XmlNodeList trig_vol_block = root.SelectNodes(".//block[@name='trigger volumes']");
@@ -121,7 +136,8 @@ class ScenData
         XmlNodeList decal_entries_block = root.SelectNodes(".//block[@name='decals']");
 
         List<StartLoc> all_starting_locs = new List<StartLoc>();
-        List<WeapLoc> all_weapon_locs = new List<WeapLoc>();
+        List<WeapLoc> all_mp_weapon_locs = new List<WeapLoc>();
+        List<SpWeapLoc> all_sp_weapon_locs = new List<SpWeapLoc>();
         List<TagPath> all_scen_types = new List<TagPath>();
         List<Scenery> all_scen_entries = new List<Scenery>();
         List<TrigVol> all_trig_vols = new List<TrigVol>();
@@ -226,41 +242,87 @@ class ScenData
             }
         }
 
-        foreach (XmlNode weapon in weapon_placements_block)
+        // Have to handle weapons differently for solo vs mult
+        if (scenario_type == "1,multiplayer")
         {
-            bool weaps_end = false;
-            int i = 0;
-            while (!weaps_end)
+            foreach (XmlNode weapon in weapon_mp_entries_block)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = weapon.SelectSingleNode(search_string);
-                if (element != null)
+                bool weaps_end = false;
+                int i = 0;
+                while (!weaps_end)
                 {
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string orient = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim();
-                    string time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
-                    string type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
-
-                    all_weapon_locs.Add(new WeapLoc
+                    string search_string = "./element[@index='" + i + "']";
+                    XmlNode element = weapon.SelectSingleNode(search_string);
+                    if (element != null)
                     {
-                        weap_xyz = xyz,
-                        weap_orient = orient,
-                        spawn_time = time,
-                        weap_type = type
-                    });
+                        string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                        string orient = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim();
+                        string time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
+                        string type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
 
-                    Console.WriteLine("Process netgame equipment " + i);
-                    loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
-                    i++;
-                }
-                else
-                {
-                    weaps_end = true;
-                    Console.WriteLine("\nFinished processing netgame equipment (weapon) data.");
-                    loadingForm.UpdateOutputBox("\nFinished processing netgame equipment (weapon) data.", false);
+                        all_mp_weapon_locs.Add(new WeapLoc
+                        {
+                            weap_xyz = xyz,
+                            weap_orient = orient,
+                            spawn_time = time,
+                            weap_type = type
+                        });
+
+                        Console.WriteLine("Process netgame equipment " + i);
+                        loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
+                        i++;
+                    }
+                    else
+                    {
+                        weaps_end = true;
+                        Console.WriteLine("\nFinished processing netgame equipment (weapon) data.");
+                        loadingForm.UpdateOutputBox("\nFinished processing netgame equipment (weapon) data.", false);
+                    }
                 }
             }
         }
+        else if (scenario_type == "0,solo")
+        {
+            // Before we can do anything, gotta transfer the weapon palette data so the indices line up
+            SquadsConverter.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "weapon");
+            loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
+
+            foreach (XmlNode weapon_entry in weapon_sp_entries_block)
+            {
+                bool weaps_end = false;
+                int i = 0;
+                while (!weaps_end)
+                {
+                    string search_string = "./element[@index='" + i + "']";
+                    XmlNode element = weapon_entry.SelectSingleNode(search_string);
+
+                    if (element != null)
+                    {
+                        SpWeapLoc weapon = new SpWeapLoc();
+                        weapon.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
+                        weapon.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
+                        weapon.flags = Int32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
+                        weapon.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        weapon.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        weapon.scale = float.Parse(element.SelectSingleNode("./field[@name='scale']").InnerText.Trim());
+                        weapon.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                        weapon.rounds_left = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
+                        weapon.rounds_loaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
+
+                        all_sp_weapon_locs.Add(weapon);
+                        loadingForm.UpdateOutputBox($"Processed weapon placement {i}.", false);
+                        i++;
+                    }
+                    else
+                    {
+                        weaps_end = true;
+                        Console.WriteLine("\nFinished processing weapon data.");
+                        loadingForm.UpdateOutputBox("\nFinished processing weapon placement data.", false);
+                    }
+                }
+            }
+        }
+        
 
         foreach (XmlNode entry in scen_palette_block)
         {
@@ -563,10 +625,10 @@ class ScenData
             }
         }
 
-        ManagedBlamHandler(all_object_names, all_starting_locs, all_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_types, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm);
+        ManagedBlamHandler(all_object_names, all_starting_locs, all_mp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_types, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
     }
 
-    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<WeapLoc> weap_data, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<TagPath> all_vehi_types, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm)
+    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<WeapLoc> weap_data, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<TagPath> all_vehi_types, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
     {
         // Weapons dictionary
         Dictionary<string, TagPath> weapMapping = new Dictionary<string, TagPath>
