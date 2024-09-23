@@ -823,6 +823,11 @@ class ScenData
                         var equip_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[6]).Elements[0].Fields[8];
                         equip_stime.Data = uint.Parse(weapon.spawn_time);
 
+                        // BSP stuff
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = weapon.manual_bsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = weapon.origin_bsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/CharEnum:bsp policy")).Value = weapon.bsp_policy;
+
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
                         var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
@@ -1036,6 +1041,10 @@ class ScenData
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = scenery.rotation;
 
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manual_bsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.origin_bsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bsp_policy;
+
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                         var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
@@ -1125,6 +1134,10 @@ class ScenData
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = crate.rotation;
+
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manual_bsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.origin_bsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bsp_policy;
 
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
@@ -1236,6 +1249,9 @@ class ScenData
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:weapons[{x}]/Struct:permutation data/StringId:variant name")).Data = weapon.var_name;
                     ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{x}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.rounds_left;
                     ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{x}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.rounds_loaded;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = weapon.manual_bsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = weapon.origin_bsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/CharEnum:bsp policy")).Value = weapon.bsp_policy;
 
                     ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 2; // 2 for weapon
                     ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
@@ -1275,6 +1291,9 @@ class ScenData
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{x}]/Struct:permutation data/StringId:variant name")).Data = scenery.var_name;
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfinding_type;
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmapping_type;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manual_bsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.origin_bsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bsp_policy;
 
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 for scenery
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
@@ -1299,8 +1318,11 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealEulerAngles3d:rotation")).Data = vehicle.rotation;
                 ((TagFieldElementStringID)tagFile.SelectField($"Block:vehicles[{j}]/Struct:permutation data/StringId:variant name")).Data = vehicle.var_name;
                 ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
+                ((TagFieldBlockFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = vehicle.manual_bsp;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = vehicle.origin_bsp;
+                ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/CharEnum:bsp policy")).Value = vehicle.bsp_policy;
 
-                ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
+            ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
                 ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
                 j++;
