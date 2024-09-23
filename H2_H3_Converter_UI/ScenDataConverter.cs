@@ -486,7 +486,7 @@ class ScenData
                     crate.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
                     crate.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
                     crate.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    crate.position = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(); ;
+                    crate.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                     crate.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
                     crate.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
                     crate.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
@@ -1302,6 +1302,46 @@ class ScenData
                 }
 
                 loadingForm.UpdateOutputBox("Done SP scenery", false);
+
+                // SP crate section
+
+                // Crate palette
+                ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).RemoveAllElements();
+                x = 0;
+
+                foreach (TagPath crate_type in all_crate_types)
+                {
+                    ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).AddElement();
+                    ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{x}]/Reference:name")).Path = crate_type;
+                    x++;
+                }
+
+                // Crate placements
+                ((TagFieldBlock)tagFile.SelectField($"Block:crates")).RemoveAllElements();
+                x = 0;
+
+                foreach (Crate crate in all_crate_entries)
+                {
+                    ((TagFieldBlock)tagFile.SelectField($"Block:crates")).AddElement();
+
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/ShortBlockIndex:type")).Value = crate.type_index;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/ShortBlockIndex:name")).Value = crate.name_index;
+                    ((TagFieldFlags)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Flags:placement flags")).RawValue = crate.flags;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/RealPoint3d:position")).Data = crate.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/RealEulerAngles3d:rotation")).Data = crate.rotation;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Real:scale")).Data = crate.scale;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:crates[{x}]/Struct:permutation data/StringId:variant name")).Data = crate.var_name;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manual_bsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.origin_bsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bsp_policy;
+
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 for crate
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+
+                    x++;
+                }
+
+                loadingForm.UpdateOutputBox("Done SP crates", false);
             }
 
 
