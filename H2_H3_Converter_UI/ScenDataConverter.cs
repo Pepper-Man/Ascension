@@ -24,15 +24,7 @@ class StartLoc
     public string spawn_type_3 { get; set; }
 }
 
-class WeapLoc
-{
-    public string weap_xyz { get; set; }
-    public string weap_orient { get; set; }
-    public string spawn_time { get; set; }
-    public string weap_type { get; set; }
-}
-
-class SpWeapLoc
+class ObjectPlacement
 {
     public int type_index { get; set; }
     public int name_index { get; set; }
@@ -41,16 +33,24 @@ class SpWeapLoc
     public float[] rotation { get; set; }
     public float scale { get; set; }
     public string var_name { get; set; }
+}
+
+class MpWeapLoc : ObjectPlacement
+{
+    public string spawn_time { get; set; }
+    public string collection_type { get; set; }
+}
+
+class SpWeapLoc : ObjectPlacement
+{
     public int rounds_left { get; set; }
     public int rounds_loaded { get; set; }
 }
 
-class Scenery
+class Scenery : ObjectPlacement
 {
-    public string scen_type { get; set; }
-    public string scen_xyz { get; set; }
-    public string scen_orient { get; set; }
-    public string scen_vrnt { get; set; }
+    public int pathfinding_type { get; set; }
+    public int lightmapping_type { get; set; }
 }
 
 class TrigVol
@@ -62,25 +62,12 @@ class TrigVol
     public string vol_up { get; set; }
 }
 
-class Vehicle
+class Vehicle : ObjectPlacement
 {
-    public int type_index { get; set; }
-    public int name_index { get; set; }
-    public uint flags { get; set; }
-    public float[] position { get; set; }
-    public float[] rotation { get; set; }
-    public string var_name { get; set; }
     public float body_vitality { get; set; }
 }
 
-class Crate
-{
-    public string crate_type { get; set; }
-    public string crate_name { get; set; }
-    public string crate_xyz { get; set; }
-    public string crate_orient { get; set; }
-    public string crate_vrnt { get; set; }
-}
+class Crate : ObjectPlacement {}
 
 class NetFlag
 {
@@ -139,7 +126,7 @@ class ScenData
         XmlNodeList decal_entries_block = root.SelectNodes(".//block[@name='decals']");
 
         List<StartLoc> all_starting_locs = new List<StartLoc>();
-        List<WeapLoc> all_mp_weapon_locs = new List<WeapLoc>();
+        List<MpWeapLoc> all_mp_weapon_locs = new List<MpWeapLoc>();
         List<SpWeapLoc> all_sp_weapon_locs = new List<SpWeapLoc>();
         List<TagPath> all_scen_types = new List<TagPath>();
         List<Scenery> all_scen_entries = new List<Scenery>();
@@ -248,29 +235,23 @@ class ScenData
         // Have to handle weapons differently for solo vs mult
         if (scenario_type == "1,multiplayer")
         {
-            foreach (XmlNode weapon in weapon_mp_entries_block)
+            foreach (XmlNode weapon_entry in weapon_mp_entries_block)
             {
                 bool weaps_end = false;
                 int i = 0;
                 while (!weaps_end)
                 {
                     string search_string = "./element[@index='" + i + "']";
-                    XmlNode element = weapon.SelectSingleNode(search_string);
+                    XmlNode element = weapon_entry.SelectSingleNode(search_string);
                     if (element != null)
                     {
-                        string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                        string orient = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim();
-                        string time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
-                        string type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
+                        MpWeapLoc weapon = new MpWeapLoc();
+                        weapon.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        weapon.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        weapon.spawn_time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
+                        weapon.collection_type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
 
-                        all_mp_weapon_locs.Add(new WeapLoc
-                        {
-                            weap_xyz = xyz,
-                            weap_orient = orient,
-                            spawn_time = time,
-                            weap_type = type
-                        });
-
+                        all_mp_weapon_locs.Add(weapon);
                         Console.WriteLine("Process netgame equipment " + i);
                         loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
                         i++;
@@ -350,29 +331,27 @@ class ScenData
             }
         }
 
-        foreach (XmlNode scenery in scen_entries_block)
+        foreach (XmlNode scenery_entry in scen_entries_block)
         {
             bool scen_end = false;
             int i = 0;
             while (!scen_end)
             {
                 string search_string = "./element[@index='" + i + "']";
-                XmlNode element = scenery.SelectSingleNode(search_string);
+                XmlNode element = scenery_entry.SelectSingleNode(search_string);
                 if (element != null)
                 {
-                    string type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString();
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string orient = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim();
-                    string variant = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                    Scenery scenery = new Scenery();
+                    scenery.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
+                    scenery.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
+                    scenery.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
+                    scenery.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                    scenery.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                    scenery.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                    scenery.pathfinding_type = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
+                    scenery.lightmapping_type = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
 
-                    all_scen_entries.Add(new Scenery
-                    {
-                        scen_type = type,
-                        scen_xyz = xyz,
-                        scen_orient = orient,
-                        scen_vrnt = variant
-                    });
-
+                    all_scen_entries.Add(scenery);
                     i++;
                 }
                 else
@@ -476,31 +455,26 @@ class ScenData
             }
         }
 
-        foreach (XmlNode crate in crate_entries_block)
+        foreach (XmlNode crate_entry in crate_entries_block)
         {
             bool crates_end = false;
             int i = 0;
             while (!crates_end)
             {
                 string search_string = "./element[@index='" + i + "']";
-                XmlNode element = crate.SelectSingleNode(search_string);
+                XmlNode element = crate_entry.SelectSingleNode(search_string);
                 if (element != null)
                 {
-                    string type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString();
-                    string name = element.SelectSingleNode("./block_index[@type='name']").Attributes["index"].Value.ToString();
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string orient = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim();
-                    string variant = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                    Crate crate = new Crate();
 
-                    all_crate_entries.Add(new Crate
-                    {
-                        crate_type = type,
-                        crate_name = name,
-                        crate_xyz = xyz,
-                        crate_orient = orient,
-                        crate_vrnt = variant
-                    });
+                    crate.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
+                    crate.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
+                    crate.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
+                    crate.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                    crate.position = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(); ;
+                    crate.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
 
+                    all_crate_entries.Add(crate);
                     i++;
                 }
                 else
@@ -607,7 +581,7 @@ class ScenData
         ManagedBlamHandler(all_object_names, all_starting_locs, all_mp_weapon_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
     }
 
-    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<WeapLoc> weap_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
+    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<MpWeapLoc> weap_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
     {
         // Weapons dictionary
         Dictionary<string, TagPath> mpWeapMapping = new Dictionary<string, TagPath>
@@ -782,7 +756,7 @@ class ScenData
 
                 foreach (var weapon in weap_data)
                 {
-                    string weap_type = weapon.weap_type.Split('\\')[weapon.weap_type.Split('\\').Length - 1];
+                    string weap_type = weapon.collection_type.Split('\\')[weapon.collection_type.Split('\\').Length - 1];
 
                     if (weap_type == "frag_grenades" || weap_type == "plasma_grenades")
                     {
@@ -817,11 +791,11 @@ class ScenData
 
                         // XYZ
                         var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = weapon.weap_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        equip_xyz.Data = weapon.position;
 
                         // Rotation
                         var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = weapon.weap_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        equip_orient.Data = weapon.rotation;
 
                         // Type
                         var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
@@ -879,11 +853,11 @@ class ScenData
 
                         // XYZ
                         var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = weapon.weap_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        equip_xyz.Data = weapon.position;
 
                         // Rotation
                         var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = weapon.weap_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        equip_orient.Data = weapon.rotation;
 
                         // Type
                         var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
@@ -895,7 +869,7 @@ class ScenData
                         dropdown_type.Value = 3; // 3 for equipment
                         dropdown_source.Value = 1; // 1 for editor
                     }
-                    else if (weapon.weap_type.Contains("vehicles"))
+                    else if (weapon.collection_type.Contains("vehicles"))
                     {
                         // Check if current type exists in palette
                         bool type_exists_already = false;
@@ -933,11 +907,11 @@ class ScenData
                         // Position
                         var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[0].FieldName;
                         var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = weapon.weap_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        xyz_pos.Data = weapon.position;
 
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = weapon.weap_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        rotation.Data = weapon.rotation;
                     }
                     else
                     {
@@ -970,11 +944,11 @@ class ScenData
 
                         // XYZ
                         var weap_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[2];
-                        weap_xyz.Data = weapon.weap_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        weap_xyz.Data = weapon.position;
 
                         // Rotation
                         var weap_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[3];
-                        weap_orient.Data = weapon.weap_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        weap_orient.Data = weapon.rotation;
 
                         // Type
                         var weap_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[1];
@@ -1026,8 +1000,8 @@ class ScenData
                         int current_count = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[20]).AddElement();
                         var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[1];
-                        int index = int.Parse(scenery.scen_type.ToString()) + totalScenCount;
-                        type_ref.Value = int.Parse(scenery.scen_type) + totalScenCount;
+                        int index = scenery.type_index + totalScenCount;
+                        type_ref.Value = scenery.type_index + totalScenCount;
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -1038,16 +1012,16 @@ class ScenData
                         // Position
                         var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
                         var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = scenery.scen_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        xyz_pos.Data = scenery.position;
 
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = scenery.scen_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        rotation.Data = scenery.rotation;
 
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                         var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = scenery.scen_vrnt;
+                        variant.Data = scenery.var_name;
                     }
 
                     Console.WriteLine("Done scenery");
@@ -1113,11 +1087,11 @@ class ScenData
                         int current_count = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[118]).AddElement();
                         var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[1];
-                        type_ref.Value = int.Parse(crate.crate_type);
+                        type_ref.Value = crate.type_index;
 
                         // Name
                         var name_field = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[3];
-                        name_field.Value = int.Parse(crate.crate_name);
+                        name_field.Value = crate.name_index;
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -1128,16 +1102,16 @@ class ScenData
                         // Position
                         var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
                         var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = crate.crate_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        xyz_pos.Data = crate.position;
 
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = crate.crate_orient.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        rotation.Data = crate.rotation;
 
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                         var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = crate.crate_vrnt;
+                        variant.Data = crate.var_name;
                     }
 
                     Dictionary<string, int> existing_gametype_crates = new Dictionary<string, int>();
@@ -1250,6 +1224,32 @@ class ScenData
 
                     x++;
                 }
+
+                loadingForm.UpdateOutputBox("Done SP weapons", false);
+
+                // SP scenery section
+                ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements();
+                x = 0;
+
+                foreach (Scenery scenery in all_scen_entries)
+                {
+                    ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).AddElement();
+
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/ShortBlockIndex:type")).Value = scenery.type_index;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/ShortBlockIndex:name")).Value = scenery.name_index;
+                    ((TagFieldFlags)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Flags:placement flags")).RawValue = scenery.flags;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/RealPoint3d:position")).Data = scenery.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/RealEulerAngles3d:rotation")).Data = scenery.rotation;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Real:scale")).Data = scenery.scale;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{x}]/Struct:permutation data/StringId:variant name")).Data = scenery.var_name;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfinding_type;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmapping_type;
+
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 for scenery
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+                }
+
+                loadingForm.UpdateOutputBox("Done SP scenery", false);
             }
 
 
@@ -1367,7 +1367,16 @@ class ScenData
                 rotation.Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
-            tagFile.Save();
+            try
+            {
+                tagFile.Save();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Tag save failure: {ex}");
+                loadingForm.UpdateOutputBox("Tag failed to save. Usually it isn't necessary, but close Sapien/TagTest and try again.", false);
+            }
+            
 
             Console.WriteLine("Done decals");
             loadingForm.UpdateOutputBox("Done decals", false);
