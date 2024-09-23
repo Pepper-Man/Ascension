@@ -33,6 +33,9 @@ class ObjectPlacement
     public float[] rotation { get; set; }
     public float scale { get; set; }
     public string var_name { get; set; }
+    public uint manual_bsp {  get; set; }
+    public int origin_bsp { get; set; }
+    public int bsp_policy { get; set; }
 }
 
 class MpWeapLoc : ObjectPlacement
@@ -250,6 +253,9 @@ class ScenData
                         weapon.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                         weapon.spawn_time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
                         weapon.collection_type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
+                        weapon.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                        weapon.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                        weapon.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
                         all_mp_weapon_locs.Add(weapon);
                         Console.WriteLine("Process netgame equipment " + i);
@@ -292,6 +298,9 @@ class ScenData
                         weapon.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
                         weapon.rounds_left = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
                         weapon.rounds_loaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
+                        weapon.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                        weapon.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                        weapon.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
                         all_sp_weapon_locs.Add(weapon);
                         loadingForm.UpdateOutputBox($"Processed weapon placement {i}.", false);
@@ -350,6 +359,9 @@ class ScenData
                     scenery.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
                     scenery.pathfinding_type = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
                     scenery.lightmapping_type = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
+                    scenery.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                    scenery.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                    scenery.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
                     all_scen_entries.Add(scenery);
                     i++;
@@ -419,6 +431,9 @@ class ScenData
                     vehicle.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                     vehicle.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
                     vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+                    vehicle.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                    vehicle.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                    vehicle.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
                     all_vehi_entries.Add(vehicle);
                     i++;
@@ -473,6 +488,9 @@ class ScenData
                     crate.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                     crate.position = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(); ;
                     crate.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                    crate.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                    crate.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                    crate.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
                     all_crate_entries.Add(crate);
                     i++;
@@ -1228,6 +1246,19 @@ class ScenData
                 loadingForm.UpdateOutputBox("Done SP weapons", false);
 
                 // SP scenery section
+
+                // Scenery palette
+                ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements();
+                x = 0;
+
+                foreach (TagPath scenery_type in all_scen_types)
+                {
+                    ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).AddElement();
+                    ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[{x}]/Reference:name")).Path = scenery_type;
+                    x++;
+                }
+
+                // Scenery placements
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements();
                 x = 0;
 
@@ -1247,6 +1278,8 @@ class ScenData
 
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 for scenery
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+
+                    x++;
                 }
 
                 loadingForm.UpdateOutputBox("Done SP scenery", false);
@@ -1275,9 +1308,10 @@ class ScenData
 
             Console.WriteLine("Done vehicles");
             loadingForm.UpdateOutputBox("Done vehicles", false);
-                    
+
 
             // Trigger volumes section
+            ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).RemoveAllElements();
             foreach (TrigVol vol in all_trig_vols)
             {
                 int current_count = ((TagFieldBlock)tagFile.Fields[55]).Elements.Count();
