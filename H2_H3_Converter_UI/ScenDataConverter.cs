@@ -695,6 +695,9 @@ class ScenData
                 int totalScenCount = 0;
                 int totalVehiCount = 0;
 
+                ((TagFieldBlock)tagFile.Fields[21]).RemoveAllElements(); // Remove all scenery from palette
+                ((TagFieldBlock)tagFile.Fields[20]).RemoveAllElements(); // Remove all scenery
+
                 // Add respawn point scenery, if it doesn't already exist
                 if (((TagFieldBlock)tagFile.Fields[21]).Elements.Count() != 0)
                 {
@@ -770,6 +773,12 @@ class ScenData
                 loadingForm.UpdateOutputBox("Done spawns", false);
 
                 // MP Weapons section
+                ((TagFieldBlock)tagFile.Fields[27]).RemoveAllElements(); // Remove all equip palette entries
+                ((TagFieldBlock)tagFile.Fields[26]).RemoveAllElements(); // Remove all equipment
+                ((TagFieldBlock)tagFile.Fields[25]).RemoveAllElements(); // Remove all vehicle palette entries
+                ((TagFieldBlock)tagFile.Fields[24]).RemoveAllElements(); // Remove all vehicles
+                ((TagFieldBlock)tagFile.Fields[29]).RemoveAllElements(); // Remove all weapon palette entries
+                ((TagFieldBlock)tagFile.Fields[28]).RemoveAllElements(); // Remove all weapons
                 Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
 
                 foreach (var weapon in weap_data)
@@ -1053,10 +1062,13 @@ class ScenData
 
                     Console.WriteLine("Done scenery");
                     loadingForm.UpdateOutputBox("Done scenery", false);
-                    
+
                     // Crates section
 
                     // Begin with creating the editor folders
+                    ((TagFieldBlock)tagFile.Fields[125]).RemoveAllElements(); // Remove all editor folders
+                    ((TagFieldBlock)tagFile.Fields[118]).RemoveAllElements(); // Remove all crates
+                    ((TagFieldBlock)tagFile.Fields[119]).RemoveAllElements(); // Remove all crate types from palette
                     for (int z = 0; z < 5; z++)
                     {
                         int current_count = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
@@ -1344,7 +1356,6 @@ class ScenData
                 loadingForm.UpdateOutputBox("Done SP crates", false);
             }
 
-
             // Vehicle section
             int j = 0;
             ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
@@ -1370,7 +1381,6 @@ class ScenData
 
             Console.WriteLine("Done vehicles");
             loadingForm.UpdateOutputBox("Done vehicles", false);
-
 
             // Trigger volumes section
             ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).RemoveAllElements();
@@ -1404,6 +1414,8 @@ class ScenData
             loadingForm.UpdateOutputBox("Done trigger volumes", false);
 
             // Decals section
+            ((TagFieldBlock)tagFile.Fields[78]).RemoveAllElements(); // Remove all decals from palette
+            ((TagFieldBlock)tagFile.Fields[77]).RemoveAllElements(); // Remove all decals
             foreach (TagPath dec_type in all_dec_types)
             {
                 // Check if current type exists in palette
