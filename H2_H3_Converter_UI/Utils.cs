@@ -234,6 +234,60 @@ namespace H2_H3_Converter_UI
 
             return objPlacement;
         }
+
+        public static Dictionary<string, int> objTypeToIndex = new Dictionary<string, int>()
+        {
+            { "weapons", 2 },
+            { "scenery", 6 },
+            { "crates", 10 },
+            { "vehicles", 1 }
+        };
+        
+        public static void WriteObjectData<T>(TagFile tagFile, List<T> allObjPlacements, string type, Loading loadingForm) where T : ObjectPlacement
+        {
+            loadingForm.UpdateOutputBox($"Begin writing {type} data to scenario tag", false);
+            ((TagFieldBlock)tagFile.SelectField($"Block:{type}")).RemoveAllElements();
+            int index = 0;
+
+            foreach (ObjectPlacement placement in allObjPlacements)
+            {
+                ((TagFieldBlock)tagFile.SelectField($"Block:{type}")).AddElement();
+
+                // Common properties
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:type")).Value = placement.type_index;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:name")).Value = placement.name_index;
+                ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Flags:placement flags")).RawValue = placement.flags;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealPoint3d:position")).Data = placement.position;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = placement.rotation;
+                ((TagFieldElementSingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Real:scale")).Data = placement.scale;
+                ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.var_name;
+                ((TagFieldBlockFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = placement.manual_bsp;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = placement.origin_bsp;
+                ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/CharEnum:bsp policy")).Value = placement.bsp_policy;
+                ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objTypeToIndex[type]; // 2 for weapon
+                ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+
+                // SP weapon properties
+                if (placement is SpWeapLoc weapon)
+                {
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.rounds_left;
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.rounds_loaded;
+                }
+                else if (placement is Scenery scenery)
+                {
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfinding_type;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmapping_type;
+                }
+                else if (placement is Vehicle vehicle)
+                {
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{index}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
+                }
+                else if (placement is Crate crate) { }
+
+                index++;
+            }
+            loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
+        }
         
         public Dictionary<string, TagPath> characterMapping = new Dictionary<string, TagPath>()
         {

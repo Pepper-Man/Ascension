@@ -1191,40 +1191,14 @@ class ScenData
             }
             else if (scenario_type == "0,solo")
             {
-                // SP weapons section
-                ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).RemoveAllElements();
-                int x = 0;
-
-                foreach (SpWeapLoc weapon in all_sp_weap_locs)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).AddElement();
-
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{x}]/ShortBlockIndex:type")).Value = weapon.type_index;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{x}]/ShortBlockIndex:name")).Value = weapon.name_index;
-                    ((TagFieldFlags)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Flags:placement flags")).RawValue = weapon.flags;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/RealPoint3d:position")).Data = weapon.position;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/RealEulerAngles3d:rotation")).Data = weapon.rotation;
-                    ((TagFieldElementSingle)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Real:scale")).Data = weapon.scale;
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:weapons[{x}]/Struct:permutation data/StringId:variant name")).Data = weapon.var_name;
-                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{x}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.rounds_left;
-                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{x}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.rounds_loaded;
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = weapon.manual_bsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = weapon.origin_bsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/CharEnum:bsp policy")).Value = weapon.bsp_policy;
-
-                    ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 2; // 2 for weapon
-                    ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
-
-                    x++;
-                }
-
-                loadingForm.UpdateOutputBox("Done SP weapons", false);
+                // SP weapons
+                Utils.WriteObjectData(tagFile, all_sp_weap_locs, "weapons", loadingForm);
 
                 // SP scenery section
 
                 // Scenery palette
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements();
-                x = 0;
+                int x = 0;
 
                 foreach (TagPath scenery_type in all_scen_types)
                 {
@@ -1233,34 +1207,7 @@ class ScenData
                     x++;
                 }
 
-                // Scenery placements
-                ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements();
-                x = 0;
-
-                foreach (Scenery scenery in all_scen_entries)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).AddElement();
-
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/ShortBlockIndex:type")).Value = scenery.type_index;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/ShortBlockIndex:name")).Value = scenery.name_index;
-                    ((TagFieldFlags)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Flags:placement flags")).RawValue = scenery.flags;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/RealPoint3d:position")).Data = scenery.position;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/RealEulerAngles3d:rotation")).Data = scenery.rotation;
-                    ((TagFieldElementSingle)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Real:scale")).Data = scenery.scale;
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{x}]/Struct:permutation data/StringId:variant name")).Data = scenery.var_name;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfinding_type;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmapping_type;
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manual_bsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.origin_bsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bsp_policy;
-
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 for scenery
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
-
-                    x++;
-                }
-
-                loadingForm.UpdateOutputBox("Done SP scenery", false);
+                Utils.WriteObjectData(tagFile, all_scen_entries, "scenery", loadingForm);
 
                 // SP crate section
 
@@ -1275,58 +1222,10 @@ class ScenData
                     x++;
                 }
 
-                // Crate placements
-                ((TagFieldBlock)tagFile.SelectField($"Block:crates")).RemoveAllElements();
-                x = 0;
-
-                foreach (Crate crate in all_crate_entries)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:crates")).AddElement();
-
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/ShortBlockIndex:type")).Value = crate.type_index;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/ShortBlockIndex:name")).Value = crate.name_index;
-                    ((TagFieldFlags)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Flags:placement flags")).RawValue = crate.flags;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/RealPoint3d:position")).Data = crate.position;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/RealEulerAngles3d:rotation")).Data = crate.rotation;
-                    ((TagFieldElementSingle)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Real:scale")).Data = crate.scale;
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:crates[{x}]/Struct:permutation data/StringId:variant name")).Data = crate.var_name;
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manual_bsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.origin_bsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bsp_policy;
-
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 for crate
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{x}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
-
-                    x++;
-                }
-
-                loadingForm.UpdateOutputBox("Done SP crates", false);
+                Utils.WriteObjectData(tagFile, all_crate_entries, "crates", loadingForm);
 
                 // Vehicle section
-                int j = 0;
-                ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
-                foreach (Vehicle vehicle in all_vehi_entries)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).AddElement();
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:type")).Value = vehicle.type_index;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:name")).Value = vehicle.name_index;
-                    ((TagFieldFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Flags:placement flags")).RawValue = vehicle.flags;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealPoint3d:position")).Data = vehicle.position;
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealEulerAngles3d:rotation")).Data = vehicle.rotation;
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:vehicles[{j}]/Struct:permutation data/StringId:variant name")).Data = vehicle.var_name;
-                    ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = vehicle.manual_bsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = vehicle.origin_bsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/CharEnum:bsp policy")).Value = vehicle.bsp_policy;
-
-                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
-                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
-
-                    j++;
-                }
-
-                Console.WriteLine("Done SP vehicles");
-                loadingForm.UpdateOutputBox("Done SP vehicles", false);
+                Utils.WriteObjectData(tagFile, all_vehi_entries, "vehicles", loadingForm);
             }
 
             // Trigger volumes section
