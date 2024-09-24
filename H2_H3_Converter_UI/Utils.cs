@@ -22,11 +22,17 @@ namespace H2_H3_Converter_UI
             {
                 string[] lines = File.ReadAllLines(xmlPath);
                 bool removeLines = false;
+                bool multiplayer = false;
 
                 using (StreamWriter writer = new StreamWriter(newFilePath))
                 {
                     foreach (string line in lines)
                     {
+                        if (line == "\t<field name=\"type\" type=\"enum\">1,multiplayer</field>")
+                        {
+                            multiplayer = true;
+                        }
+
                         if (line.Contains("<block name=\"source files\">"))
                         {
                             removeLines = true;
@@ -34,6 +40,10 @@ namespace H2_H3_Converter_UI
                         }
                         else if (line.Contains("<block name=\"scripting data\">"))
                         {
+                            if (multiplayer == true)
+                            {
+                                writer.WriteLine(line);
+                            }
                             removeLines = false;
                         }
                         else if (!removeLines)
