@@ -92,23 +92,19 @@ class Decal
 
 class ScenData
 {
-    public static void ScenarioConverter(string scenPath, string xmlPath, Loading loadingForm)
+    public static void ConvertScenarioData(string scen_path, string xmlPath, Loading loadingForm)
     {
-        string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
+        string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
 
         // Make sure we have a scenario backup
-        Utils.BackupScenario(scenPath, xmlPath, loadingForm);
+        Utils.BackupScenario(scen_path, xmlPath, loadingForm);
 
+        // Initialise MB
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-        ConvertScenData(xmlPath, h3ek_path, scenPath, loadingForm);
-    }
 
-    static void ConvertScenData(string xml_path, string h3ek_path, string scen_path, Loading loadingForm)
-    {
-        xml_path = Utils.ConvertXML(xml_path, loadingForm);
-
+        xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
-        scenfile.Load(xml_path);
+        scenfile.Load(xmlPath);
 
         XmlNode root = scenfile.DocumentElement;
 
@@ -271,7 +267,7 @@ class ScenData
         else if (scenario_type == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "weapon");
+            Utils.ConvertPalette(scen_path, xmlPath, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
 
             foreach (XmlNode weapon_entry in weapon_sp_entries_block)
@@ -302,7 +298,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "vehicle");
+            Utils.ConvertPalette(scen_path, xmlPath, loadingForm, scenfile, "vehicle");
             foreach (XmlNode vehicle_entry in vehi_entries_block)
             {
                 bool vehi_end = false;
@@ -548,11 +544,12 @@ class ScenData
             }
         }
 
-        ManagedBlamHandler(all_object_names, all_starting_locs, all_netgame_equip_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
+        XmlToTag(all_object_names, all_starting_locs, all_netgame_equip_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
     }
 
-    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<NetEquip> netgame_equip_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
+    static void XmlToTag(List<string> all_object_names, List<StartLoc> spawn_data, List<NetEquip> netgame_equip_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
     {
+        Utils utilsInstance = new Utils();
         var tag_path = TagPath.FromPathAndType(Path.ChangeExtension(scen_path.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
         var respawn_scen_path = TagPath.FromPathAndType(@"objects\multi\spawning\respawn_point", "scen*");
         int respawn_scen_index = 0;
@@ -682,7 +679,7 @@ class ScenData
                         bool equip_entry_exists = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
                         {
-                            var temp_type = Utils.mpWeapMapping[eqip_type];
+                            var temp_type = utilsInstance.mpWeapMapping[eqip_type];
                             if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
                             {
                                 equip_entry_exists = true;
@@ -695,7 +692,7 @@ class ScenData
                             int current_count = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[27]).AddElement();
                             var equip_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[current_count].Fields[0];
-                            equip_tag_ref.Path = Utils.mpWeapMapping[eqip_type];
+                            equip_tag_ref.Path = utilsInstance.mpWeapMapping[eqip_type];
                             weapPaletteMapping.Add(eqip_type, current_count);
                         }
 
@@ -744,7 +741,7 @@ class ScenData
                         bool equip_entry_exists = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
                         {
-                            var temp_type = Utils.mpWeapMapping["powerup"];
+                            var temp_type = utilsInstance.mpWeapMapping["powerup"];
                             if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
                             {
                                 equip_entry_exists = true;
@@ -757,7 +754,7 @@ class ScenData
                             int current_count = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[27]).AddElement();
                             var equip_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[current_count].Fields[0];
-                            equip_tag_ref.Path = Utils.mpWeapMapping["powerup"];
+                            equip_tag_ref.Path = utilsInstance.mpWeapMapping["powerup"];
                             weapPaletteMapping.Add("powerup", current_count);
                         }
 
@@ -790,7 +787,7 @@ class ScenData
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[25]).Elements)
                         {
                             var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                            if (x == Utils.netVehiMapping[eqip_type])
+                            if (x == utilsInstance.netVehiMapping[eqip_type])
                             {
                                 type_exists_already = true;
                                 break;
@@ -803,7 +800,7 @@ class ScenData
                         {
                             ((TagFieldBlock)tagFile.Fields[25]).AddElement();
                             var vehi_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[25]).Elements[current_count].Fields[0];
-                            vehi_type_ref.Path = Utils.netVehiMapping[eqip_type];
+                            vehi_type_ref.Path = utilsInstance.netVehiMapping[eqip_type];
                             totalVehiCount++;
                         }
 
@@ -835,7 +832,7 @@ class ScenData
                         bool weap_entry_exists = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
                         {
-                            var temp_type = Utils.mpWeapMapping[eqip_type];
+                            var temp_type = utilsInstance.mpWeapMapping[eqip_type];
                             if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
                             {
                                 weap_entry_exists = true;
@@ -848,7 +845,7 @@ class ScenData
                             int current_count = ((TagFieldBlock)tagFile.Fields[29]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[29]).AddElement();
                             var weap_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[29]).Elements[current_count].Fields[0];
-                            weap_tag_ref.Path = Utils.mpWeapMapping[eqip_type];
+                            weap_tag_ref.Path = utilsInstance.mpWeapMapping[eqip_type];
                             weapPaletteMapping.Add(eqip_type, current_count);
                         }
 
@@ -1053,7 +1050,7 @@ class ScenData
                             type_index = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[119]).AddElement();
                             var crate_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[type_index].Fields[0];
-                            crate_type_ref.Path = Utils.netflagMapping[netflag.netflag_type];
+                            crate_type_ref.Path = utilsInstance.netflagMapping[netflag.netflag_type];
                             existing_gametype_crates.Add(name_stripped, type_index);
                         }
                         else

@@ -425,7 +425,7 @@ namespace H2_H3_Converter_UI
             { "objects\\vehicles\\wraith\\wraith", TagPath.FromPathAndExtension("objects\\vehicles\\wraith\\wraith", "vehicle") },
         };
 
-        public static Dictionary<string, TagPath> mpWeapMapping = new Dictionary<string, TagPath>
+        public Dictionary<string, TagPath> mpWeapMapping = new Dictionary<string, TagPath>
         {
             {"frag_grenades", TagPath.FromPathAndType(@"objects\weapons\grenade\frag_grenade\frag_grenade", "eqip*")},
             {"plasma_grenades", TagPath.FromPathAndType(@"objects\weapons\grenade\plasma_grenade\plasma_grenade", "eqip*")},
@@ -449,7 +449,7 @@ namespace H2_H3_Converter_UI
             {"powerup", TagPath.FromPathAndType(@"objects\multi\powerups\powerup_red\powerup_red", "eqip*")}
         };
 
-        public static Dictionary<string, TagPath> netflagMapping = new Dictionary<string, TagPath>
+        public Dictionary<string, TagPath> netflagMapping = new Dictionary<string, TagPath>
         {
             {"0,CTF flag spawn", TagPath.FromPathAndType(@"objects\multi\ctf\ctf_flag_spawn_point", "bloc*")},
             {"1,CTF flag return", TagPath.FromPathAndType(@"objects\multi\ctf\ctf_flag_return_area", "bloc*")},
@@ -472,7 +472,7 @@ namespace H2_H3_Converter_UI
             {"18,King Hill 7", TagPath.FromPathAndType(@"objects\multi\koth\koth_hill_static", "bloc*")},
         };
 
-        public static Dictionary<string, TagPath> netVehiMapping = new Dictionary<string, TagPath>
+        public Dictionary<string, TagPath> netVehiMapping = new Dictionary<string, TagPath>
         {
             {"banshee", TagPath.FromPathAndType(@"objects\vehicles\banshee\banshee", "vehi*")},
             {"banshee_heretic", TagPath.FromPathAndType(@"objects\vehicles\banshee\banshee", "vehu*")},
