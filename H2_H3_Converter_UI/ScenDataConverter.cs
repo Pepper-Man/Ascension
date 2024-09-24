@@ -38,7 +38,7 @@ class ObjectPlacement
     public int bsp_policy { get; set; }
 }
 
-class MpWeapLoc : ObjectPlacement
+class NetEquip : ObjectPlacement
 {
     public string spawn_time { get; set; }
     public string collection_type { get; set; }
@@ -114,7 +114,7 @@ class ScenData
 
         string scenario_type = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
         XmlNodeList player_start_loc_block = root.SelectNodes(".//block[@name='player starting locations']");
-        XmlNodeList weapon_mp_entries_block = root.SelectNodes(".//block[@name='netgame equipment']");
+        XmlNodeList netgame_objs_entries_block = root.SelectNodes(".//block[@name='netgame equipment']");
         XmlNodeList weapon_sp_entries_block = root.SelectNodes(".//block[@name='weapons']");
         XmlNodeList scen_palette_block = root.SelectNodes(".//block[@name='scenery palette']");
         XmlNodeList scen_entries_block = root.SelectNodes(".//block[@name='scenery']");
@@ -129,7 +129,7 @@ class ScenData
         XmlNodeList decal_entries_block = root.SelectNodes(".//block[@name='decals']");
 
         List<StartLoc> all_starting_locs = new List<StartLoc>();
-        List<MpWeapLoc> all_mp_weapon_locs = new List<MpWeapLoc>();
+        List<NetEquip> all_netgame_equip_locs = new List<NetEquip>();
         List<SpWeapLoc> all_sp_weapon_locs = new List<SpWeapLoc>();
         List<TagPath> all_scen_types = new List<TagPath>();
         List<Scenery> all_scen_entries = new List<Scenery>();
@@ -235,38 +235,35 @@ class ScenData
             }
         }
 
-        // Have to handle weapons differently for solo vs mult
+        // Have to handle weapons/vehicles/equipment differently for solo vs mult
         if (scenario_type == "1,multiplayer")
         {
-            foreach (XmlNode weapon_entry in weapon_mp_entries_block)
+            foreach (XmlNode netgame_entry in netgame_objs_entries_block)
             {
-                bool weaps_end = false;
+                bool netgame_end = false;
                 int i = 0;
-                while (!weaps_end)
+                while (!netgame_end)
                 {
                     string search_string = "./element[@index='" + i + "']";
-                    XmlNode element = weapon_entry.SelectSingleNode(search_string);
+                    XmlNode element = netgame_entry.SelectSingleNode(search_string);
                     if (element != null)
                     {
-                        MpWeapLoc weapon = new MpWeapLoc();
-                        weapon.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        weapon.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        weapon.spawn_time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
-                        weapon.collection_type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
-                        weapon.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                        weapon.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                        weapon.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
+                        NetEquip netgame_equip = new NetEquip();
+                        netgame_equip.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        netgame_equip.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        netgame_equip.spawn_time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
+                        netgame_equip.collection_type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
 
-                        all_mp_weapon_locs.Add(weapon);
+                        all_netgame_equip_locs.Add(netgame_equip);
                         Console.WriteLine("Process netgame equipment " + i);
                         loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
                         i++;
                     }
                     else
                     {
-                        weaps_end = true;
-                        Console.WriteLine("\nFinished processing netgame equipment (weapon) data.");
-                        loadingForm.UpdateOutputBox("\nFinished processing netgame equipment (weapon) data.", false);
+                        netgame_end = true;
+                        Console.WriteLine("\nFinished processing netgame equipment data.");
+                        loadingForm.UpdateOutputBox("\nFinished processing netgame equipment data.", false);
                     }
                 }
             }
@@ -311,6 +308,44 @@ class ScenData
                         weaps_end = true;
                         Console.WriteLine("\nFinished processing weapon data.");
                         loadingForm.UpdateOutputBox("\nFinished processing weapon placement data.", false);
+                    }
+                }
+            }
+
+            // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
+
+            // Transfer the vehicle palette data so the indices line up
+            SquadsConverter.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "vehicle");
+            foreach (XmlNode vehicle_entry in vehi_entries_block)
+            {
+                bool vehi_end = false;
+                int i = 0;
+                while (!vehi_end)
+                {
+                    string search_string = "./element[@index='" + i + "']";
+                    XmlNode element = vehicle_entry.SelectSingleNode(search_string);
+                    if (element != null)
+                    {
+                        Vehicle vehicle = new Vehicle();
+                        vehicle.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
+                        vehicle.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
+                        vehicle.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
+                        vehicle.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        vehicle.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        vehicle.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+                        vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+                        vehicle.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+                        vehicle.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+                        vehicle.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
+
+                        all_vehi_entries.Add(vehicle);
+                        i++;
+                    }
+                    else
+                    {
+                        vehi_end = true;
+                        Console.WriteLine("Finished processing vehicle placement data.");
+                        loadingForm.UpdateOutputBox("Finished processing vehicle placement data.", false);
                     }
                 }
             }
@@ -411,41 +446,7 @@ class ScenData
             }
         }
 
-        // Transfer the vehicle palette data so the indices line up
-        SquadsConverter.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "vehicle");
-        foreach (XmlNode vehicle_entry in vehi_entries_block)
-        {
-            bool vehi_end = false;
-            int i = 0;
-            while (!vehi_end)
-            {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = vehicle_entry.SelectSingleNode(search_string);
-                if (element != null)
-                {
-                    Vehicle vehicle = new Vehicle();
-                    vehicle.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
-                    vehicle.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
-                    vehicle.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-                    vehicle.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    vehicle.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    vehicle.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-                    vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
-                    vehicle.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                    vehicle.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                    vehicle.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
-
-                    all_vehi_entries.Add(vehicle);
-                    i++;
-                }
-                else
-                {
-                    vehi_end = true;
-                    Console.WriteLine("Finished processing vehicle placement data.");
-                    loadingForm.UpdateOutputBox("Finished processing vehicle placement data.", false);
-                }
-            }
-        }
+        
 
         foreach (XmlNode crate in crate_palette_block)
         {
@@ -596,10 +597,10 @@ class ScenData
             }
         }
 
-        ManagedBlamHandler(all_object_names, all_starting_locs, all_mp_weapon_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
+        ManagedBlamHandler(all_object_names, all_starting_locs, all_netgame_equip_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
     }
 
-    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<MpWeapLoc> weap_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
+    static void ManagedBlamHandler(List<string> all_object_names, List<StartLoc> spawn_data, List<NetEquip> netgame_equip_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
     {
         // Weapons dictionary
         Dictionary<string, TagPath> mpWeapMapping = new Dictionary<string, TagPath>
@@ -772,7 +773,7 @@ class ScenData
                 Console.WriteLine("Done spawns");
                 loadingForm.UpdateOutputBox("Done spawns", false);
 
-                // MP Weapons section
+                // MP netgame equipment
                 ((TagFieldBlock)tagFile.Fields[27]).RemoveAllElements(); // Remove all equip palette entries
                 ((TagFieldBlock)tagFile.Fields[26]).RemoveAllElements(); // Remove all equipment
                 ((TagFieldBlock)tagFile.Fields[25]).RemoveAllElements(); // Remove all vehicle palette entries
@@ -781,21 +782,21 @@ class ScenData
                 ((TagFieldBlock)tagFile.Fields[28]).RemoveAllElements(); // Remove all weapons
                 Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
 
-                foreach (var weapon in weap_data)
+                foreach (NetEquip netgame_equip in netgame_equip_data)
                 {
-                    string weap_type = weapon.collection_type.Split('\\')[weapon.collection_type.Split('\\').Length - 1];
+                    string eqip_type = netgame_equip.collection_type.Split('\\')[netgame_equip.collection_type.Split('\\').Length - 1];
 
-                    if (weap_type == "frag_grenades" || weap_type == "plasma_grenades")
+                    if (eqip_type == "frag_grenades" || eqip_type == "plasma_grenades")
                     {
                         // Grenade stuff, need to treat as equipment not weapon
-                        Console.WriteLine("Adding " + weap_type + " equipment");
-                        loadingForm.UpdateOutputBox("Adding " + weap_type + " equipment", false);
+                        Console.WriteLine("Adding " + eqip_type + " netgame equipment");
+                        loadingForm.UpdateOutputBox("Adding " + eqip_type + " netgame equipment", false);
 
                         // Equipment, check if palette entry exists first
                         bool equip_entry_exists = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
                         {
-                            var temp_type = mpWeapMapping[weap_type];
+                            var temp_type = mpWeapMapping[eqip_type];
                             if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
                             {
                                 equip_entry_exists = true;
@@ -808,8 +809,8 @@ class ScenData
                             int current_count = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[27]).AddElement();
                             var equip_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[current_count].Fields[0];
-                            equip_tag_ref.Path = mpWeapMapping[weap_type];
-                            weapPaletteMapping.Add(weap_type, current_count);
+                            equip_tag_ref.Path = mpWeapMapping[eqip_type];
+                            weapPaletteMapping.Add(eqip_type, current_count);
                         }
 
                         // Now add the equipment itself
@@ -818,24 +819,19 @@ class ScenData
 
                         // XYZ
                         var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = weapon.position;
+                        equip_xyz.Data = netgame_equip.position;
 
                         // Rotation
                         var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = weapon.rotation;
+                        equip_orient.Data = netgame_equip.rotation;
 
                         // Type
                         var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
-                        equip_tag.Value = weapPaletteMapping[weap_type];
+                        equip_tag.Value = weapPaletteMapping[eqip_type];
 
                         // Spawn timer
                         var equip_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[6]).Elements[0].Fields[8];
-                        equip_stime.Data = uint.Parse(weapon.spawn_time);
-
-                        // BSP stuff
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = weapon.manual_bsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = weapon.origin_bsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{equip_count}]/Struct:object data/CharEnum:bsp policy")).Value = weapon.bsp_policy;
+                        equip_stime.Data = uint.Parse(netgame_equip.spawn_time);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -845,18 +841,18 @@ class ScenData
 
                         continue;
                     }
-                    else if (weap_type == "")
+                    else if (eqip_type == "")
                     {
                         // All games entries, ignore
                         Console.WriteLine("Ignoring blank weapon collection");
                         loadingForm.UpdateOutputBox("Ignoring blank weapon collection", false);
                         continue;
                     }
-                    else if (weap_type.Contains("ammo"))
+                    else if (eqip_type.Contains("ammo"))
                     {
                         // Ammo placement, ignore for now
                     }
-                    else if (weap_type.Contains("powerup"))
+                    else if (eqip_type.Contains("powerup"))
                     {
                         // Powerup, add equipment, check if palette entry exists first
                         bool equip_entry_exists = false;
@@ -885,11 +881,11 @@ class ScenData
 
                         // XYZ
                         var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = weapon.position;
+                        equip_xyz.Data = netgame_equip.position;
 
                         // Rotation
                         var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = weapon.rotation;
+                        equip_orient.Data = netgame_equip.rotation;
 
                         // Type
                         var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
@@ -901,14 +897,14 @@ class ScenData
                         dropdown_type.Value = 3; // 3 for equipment
                         dropdown_source.Value = 1; // 1 for editor
                     }
-                    else if (weapon.collection_type.Contains("vehicles"))
+                    else if (netgame_equip.collection_type.Contains("vehicles"))
                     {
                         // Check if current type exists in palette
                         bool type_exists_already = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[25]).Elements)
                         {
                             var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                            if (x == netVehiMapping[weap_type])
+                            if (x == netVehiMapping[eqip_type])
                             {
                                 type_exists_already = true;
                                 break;
@@ -921,7 +917,7 @@ class ScenData
                         {
                             ((TagFieldBlock)tagFile.Fields[25]).AddElement();
                             var vehi_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[25]).Elements[current_count].Fields[0];
-                            vehi_type_ref.Path = netVehiMapping[weap_type];
+                            vehi_type_ref.Path = netVehiMapping[eqip_type];
                             totalVehiCount++;
                         }
 
@@ -939,21 +935,21 @@ class ScenData
                         // Position
                         var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[0].FieldName;
                         var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = weapon.position;
+                        xyz_pos.Data = netgame_equip.position;
 
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = weapon.rotation;
+                        rotation.Data = netgame_equip.rotation;
                     }
                     else
                     {
                         // Weapon, check if palette entry exists first
-                        Console.WriteLine("Adding " + weap_type + " weapon");
-                        loadingForm.UpdateOutputBox("Adding " + weap_type + " weapon", false);
+                        Console.WriteLine("Adding " + eqip_type + " weapon");
+                        loadingForm.UpdateOutputBox("Adding " + eqip_type + " weapon", false);
                         bool weap_entry_exists = false;
                         foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
                         {
-                            var temp_type = mpWeapMapping[weap_type];
+                            var temp_type = mpWeapMapping[eqip_type];
                             if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
                             {
                                 weap_entry_exists = true;
@@ -966,8 +962,8 @@ class ScenData
                             int current_count = ((TagFieldBlock)tagFile.Fields[29]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[29]).AddElement();
                             var weap_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[29]).Elements[current_count].Fields[0];
-                            weap_tag_ref.Path = mpWeapMapping[weap_type];
-                            weapPaletteMapping.Add(weap_type, current_count);
+                            weap_tag_ref.Path = mpWeapMapping[eqip_type];
+                            weapPaletteMapping.Add(eqip_type, current_count);
                         }
 
                         // Now add the weapon itself
@@ -976,19 +972,19 @@ class ScenData
 
                         // XYZ
                         var weap_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[2];
-                        weap_xyz.Data = weapon.position;
+                        weap_xyz.Data = netgame_equip.position;
 
                         // Rotation
                         var weap_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[3];
-                        weap_orient.Data = weapon.rotation;
+                        weap_orient.Data = netgame_equip.rotation;
 
                         // Type
                         var weap_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[1];
-                        weap_tag.Value = weapPaletteMapping[weap_type];
+                        weap_tag.Value = weapPaletteMapping[eqip_type];
 
                         // Spawn timer
                         var weap_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[7]).Elements[0].Fields[8];
-                        weap_stime.Data = uint.Parse(weapon.spawn_time);
+                        weap_stime.Data = uint.Parse(netgame_equip.spawn_time);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -997,8 +993,8 @@ class ScenData
                         dropdown_source.Value = 1; // 1 for editor
                     }
 
-                    Console.WriteLine("Done weapons");
-                    loadingForm.UpdateOutputBox("Done weapons", false);
+                    Console.WriteLine("Done netgame equipment");
+                    loadingForm.UpdateOutputBox("Done netgame equipment", false);
 
                     // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
 
@@ -1354,33 +1350,33 @@ class ScenData
                 }
 
                 loadingForm.UpdateOutputBox("Done SP crates", false);
+
+                // Vehicle section
+                int j = 0;
+                ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
+                foreach (Vehicle vehicle in all_vehi_entries)
+                {
+                    ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).AddElement();
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:type")).Value = vehicle.type_index;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:name")).Value = vehicle.name_index;
+                    ((TagFieldFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Flags:placement flags")).RawValue = vehicle.flags;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealPoint3d:position")).Data = vehicle.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealEulerAngles3d:rotation")).Data = vehicle.rotation;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:vehicles[{j}]/Struct:permutation data/StringId:variant name")).Data = vehicle.var_name;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = vehicle.manual_bsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = vehicle.origin_bsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/CharEnum:bsp policy")).Value = vehicle.bsp_policy;
+
+                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
+                    ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+
+                    j++;
+                }
+
+                Console.WriteLine("Done SP vehicles");
+                loadingForm.UpdateOutputBox("Done SP vehicles", false);
             }
-
-            // Vehicle section
-            int j = 0;
-            ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
-            foreach (Vehicle vehicle in all_vehi_entries)
-            {
-                ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).AddElement();
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:type")).Value = vehicle.type_index;
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/ShortBlockIndex:name")).Value = vehicle.name_index;
-                ((TagFieldFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Flags:placement flags")).RawValue = vehicle.flags;
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealPoint3d:position")).Data = vehicle.position;
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/RealEulerAngles3d:rotation")).Data = vehicle.rotation;
-                ((TagFieldElementStringID)tagFile.SelectField($"Block:vehicles[{j}]/Struct:permutation data/StringId:variant name")).Data = vehicle.var_name;
-                ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{j}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
-                ((TagFieldBlockFlags)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = vehicle.manual_bsp;
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = vehicle.origin_bsp;
-                ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/CharEnum:bsp policy")).Value = vehicle.bsp_policy;
-
-            ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
-                ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{j}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
-
-                j++;
-            }
-
-            Console.WriteLine("Done vehicles");
-            loadingForm.UpdateOutputBox("Done vehicles", false);
 
             // Trigger volumes section
             ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).RemoveAllElements();
