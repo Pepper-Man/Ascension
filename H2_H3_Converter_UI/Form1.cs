@@ -415,13 +415,13 @@ namespace H2_H3_Converter_UI
                         ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
 
                         // Squads conversion
-                        SquadsConverter.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character");
+                        Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character");
 
                         // Only convert weapon and vehicle palettes if scenario data conversion was not already done, since it is done there too
                         if (!checkBox3.Checked)
                         {
-                            SquadsConverter.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon");
-                            SquadsConverter.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle");
+                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon");
+                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle");
                         }
                         
                         SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);

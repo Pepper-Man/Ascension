@@ -271,7 +271,7 @@ class ScenData
         else if (scenario_type == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            SquadsConverter.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "weapon");
+            Utils.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
 
             foreach (XmlNode weapon_entry in weapon_sp_entries_block)
@@ -315,7 +315,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            SquadsConverter.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "vehicle");
+            Utils.ConvertPalette(scen_path, xml_path, loadingForm, scenfile, "vehicle");
             foreach (XmlNode vehicle_entry in vehi_entries_block)
             {
                 bool vehi_end = false;
@@ -445,8 +445,6 @@ class ScenData
                 }
             }
         }
-
-        
 
         foreach (XmlNode crate in crate_palette_block)
         {
