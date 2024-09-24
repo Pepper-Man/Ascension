@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace H2_H3_Converter_UI
 {
@@ -203,6 +200,41 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        public static TPlacement GetObjectDataFromXML<TPlacement>(XmlNode element) where TPlacement : ObjectPlacement, new()
+        {
+            TPlacement objPlacement = new TPlacement();
+
+            objPlacement.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
+            objPlacement.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
+            objPlacement.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
+            objPlacement.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+            objPlacement.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+            objPlacement.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+            objPlacement.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+            objPlacement.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+            objPlacement.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
+
+            // Extra properties specific to certain object types
+            if (objPlacement is SpWeapLoc weapon)
+            {
+                weapon.rounds_left = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
+                weapon.rounds_loaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
+                weapon.scale = float.Parse(element.SelectSingleNode("./field[@name='scale']").InnerText.Trim());
+            }
+            else if (objPlacement is Scenery scenery)
+            {
+                scenery.pathfinding_type = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
+                scenery.lightmapping_type = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
+            }
+            else if (objPlacement is Vehicle vehicle)
+            {
+                vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+            }
+            else if (objPlacement is Crate crate) { } // No extra data for crates
+
+            return objPlacement;
+        }
+        
         public Dictionary<string, TagPath> characterMapping = new Dictionary<string, TagPath>()
         {
             // Marines

@@ -24,7 +24,7 @@ class StartLoc
     public string spawn_type_3 { get; set; }
 }
 
-class ObjectPlacement
+public class ObjectPlacement
 {
     public int type_index { get; set; }
     public int name_index { get; set; }
@@ -285,20 +285,7 @@ class ScenData
 
                     if (element != null)
                     {
-                        SpWeapLoc weapon = new SpWeapLoc();
-                        weapon.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
-                        weapon.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
-                        weapon.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-                        weapon.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        weapon.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        weapon.scale = float.Parse(element.SelectSingleNode("./field[@name='scale']").InnerText.Trim());
-                        weapon.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-                        weapon.rounds_left = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
-                        weapon.rounds_loaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
-                        weapon.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                        weapon.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                        weapon.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
-
+                        SpWeapLoc weapon = Utils.GetObjectDataFromXML<SpWeapLoc>(element);
                         all_sp_weapon_locs.Add(weapon);
                         loadingForm.UpdateOutputBox($"Processed weapon placement {i}.", false);
                         i++;
@@ -326,18 +313,7 @@ class ScenData
                     XmlNode element = vehicle_entry.SelectSingleNode(search_string);
                     if (element != null)
                     {
-                        Vehicle vehicle = new Vehicle();
-                        vehicle.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
-                        vehicle.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
-                        vehicle.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-                        vehicle.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        vehicle.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        vehicle.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-                        vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
-                        vehicle.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                        vehicle.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                        vehicle.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
-
+                        Vehicle vehicle = Utils.GetObjectDataFromXML<Vehicle>(element);
                         all_vehi_entries.Add(vehicle);
                         i++;
                     }
@@ -385,19 +361,7 @@ class ScenData
                 XmlNode element = scenery_entry.SelectSingleNode(search_string);
                 if (element != null)
                 {
-                    Scenery scenery = new Scenery();
-                    scenery.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
-                    scenery.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
-                    scenery.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-                    scenery.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    scenery.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    scenery.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-                    scenery.pathfinding_type = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
-                    scenery.lightmapping_type = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
-                    scenery.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                    scenery.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                    scenery.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
-
+                    Scenery scenery = Utils.GetObjectDataFromXML<Scenery>(element);
                     all_scen_entries.Add(scenery);
                     i++;
                 }
@@ -479,18 +443,7 @@ class ScenData
                 XmlNode element = crate_entry.SelectSingleNode(search_string);
                 if (element != null)
                 {
-                    Crate crate = new Crate();
-
-                    crate.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"].Value);
-                    crate.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"].Value);
-                    crate.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-                    crate.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    crate.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    crate.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-                    crate.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-                    crate.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-                    crate.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
-
+                    Crate crate = Utils.GetObjectDataFromXML<Crate>(element);
                     all_crate_entries.Add(crate);
                     i++;
                 }
