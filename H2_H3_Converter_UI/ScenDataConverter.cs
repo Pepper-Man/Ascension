@@ -11,96 +11,95 @@ using H2_H3_Converter_UI;
 
 class StartLoc
 {
-    public string position_xyz { get; set; }
-    public string facing_angle { get; set; }
-    public string team_enum { get; set; }
-    public string type_0 { get; set; }
-    public string type_1 { get; set; }
-    public string type_2 { get; set; }
-    public string type_3 { get; set; }
-    public string spawn_type_0 { get; set; }
-    public string spawn_type_1 { get; set; }
-    public string spawn_type_2 { get; set; }
-    public string spawn_type_3 { get; set; }
+    public string position { get; set; }
+    public string facing { get; set; }
+    public string team { get; set; }
+    public string type0 { get; set; }
+    public string type1 { get; set; }
+    public string type2 { get; set; }
+    public string type3 { get; set; }
+    public string spawnType0 { get; set; }
+    public string spawnType1 { get; set; }
+    public string spawnType2 { get; set; }
+    public string spawnType3 { get; set; }
 }
 
 public class ObjectPlacement
 {
-    public int type_index { get; set; }
-    public int name_index { get; set; }
+    public int typeIndex { get; set; }
+    public int nameIndex { get; set; }
     public uint flags { get; set; }
     public float[] position { get; set; }
     public float[] rotation { get; set; }
     public float scale { get; set; }
-    public string var_name { get; set; }
-    public uint manual_bsp {  get; set; }
-    public int origin_bsp { get; set; }
-    public int bsp_policy { get; set; }
+    public string varName { get; set; }
+    public uint manualBsp {  get; set; }
+    public int originBsp { get; set; }
+    public int bspPolicy { get; set; }
 }
 
 class NetEquip : ObjectPlacement
 {
-    public string spawn_time { get; set; }
-    public string collection_type { get; set; }
+    public string spawnTime { get; set; }
+    public string collectionType { get; set; }
 }
 
 class SpWeapLoc : ObjectPlacement
 {
-    public int rounds_left { get; set; }
-    public int rounds_loaded { get; set; }
+    public int roundsLeft { get; set; }
+    public int roundsLoaded { get; set; }
 }
 
 class Scenery : ObjectPlacement
 {
-    public int pathfinding_type { get; set; }
-    public int lightmapping_type { get; set; }
+    public int pathfindingType { get; set; }
+    public int lightmappingType { get; set; }
 }
 
 class TrigVol
 {
-    public string vol_name { get; set; }
-    public string vol_xyz { get; set; }
-    public string vol_ext { get; set; }
-    public string vol_fwd { get; set; }
-    public string vol_up { get; set; }
+    public string name { get; set; }
+    public string position { get; set; }
+    public string extents { get; set; }
+    public string forward { get; set; }
+    public string up { get; set; }
 }
 
 class Vehicle : ObjectPlacement
 {
-    public float body_vitality { get; set; }
+    public float bodyVitality { get; set; }
 }
 
 class Crate : ObjectPlacement {}
 
 class NetFlag
 {
-    public string netflag_name { get; set; }
-    public string netflag_xyz { get; set; }
-    public string netflag_orient { get; set; }
-    public string netflag_type { get; set; }
-    public string netflag_team { get; set; }
+    public string name { get; set; }
+    public string position { get; set; }
+    public string rotation { get; set; }
+    public string type { get; set; }
+    public string team { get; set; }
 }
 
 class Decal
 {
-    public string decal_type { get; set; }
-    public string decal_yaw { get; set; }
-    public string decal_pitch { get; set; }
-    public string decal_xyz { get; set; }
+    public string type { get; set; }
+    public string yaw { get; set; }
+    public string pitch { get; set; }
+    public string position { get; set; }
 }
-
 
 class ScenData
 {
-    public static void ConvertScenarioData(string scen_path, string xmlPath, Loading loadingForm)
+    public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
     {
-        string h3ek_path = scen_path.Substring(0, scen_path.IndexOf("H3EK") + "H3EK".Length);
+        string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
         // Make sure we have a scenario backup
-        Utils.BackupScenario(scen_path, xmlPath, loadingForm);
+        Utils.BackupScenario(scenPath, xmlPath, loadingForm);
 
         // Initialise MB
-        ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
+        ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
@@ -108,123 +107,109 @@ class ScenData
 
         XmlNode root = scenfile.DocumentElement;
 
-        string scenario_type = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
-        XmlNodeList player_start_loc_block = root.SelectNodes(".//block[@name='player starting locations']");
-        XmlNodeList netgame_objs_entries_block = root.SelectNodes(".//block[@name='netgame equipment']");
-        XmlNodeList weapon_sp_entries_block = root.SelectNodes(".//block[@name='weapons']");
-        XmlNodeList scen_palette_block = root.SelectNodes(".//block[@name='scenery palette']");
-        XmlNodeList scen_entries_block = root.SelectNodes(".//block[@name='scenery']");
-        XmlNodeList trig_vol_block = root.SelectNodes(".//block[@name='trigger volumes']");
-        XmlNodeList vehi_palette_block = root.SelectNodes(".//block[@name='vehicle palette']");
-        XmlNodeList vehi_entries_block = root.SelectNodes(".//block[@name='vehicles']");
-        XmlNodeList crate_palette_block = root.SelectNodes(".//block[@name='crate palette']");
-        XmlNodeList crate_entries_block = root.SelectNodes(".//block[@name='crates']");
-        XmlNodeList object_names_block = root.SelectNodes(".//block[@name='object names']");
-        XmlNodeList netgame_flags_block = root.SelectNodes(".//block[@name='netgame flags']");
-        XmlNodeList decal_palette_block = root.SelectNodes(".//block[@name='decal palette']");
-        XmlNodeList decal_entries_block = root.SelectNodes(".//block[@name='decals']");
+        string scenarioType = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
+        XmlNodeList playerStartLocBlock = root.SelectNodes(".//block[@name='player starting locations']");
+        XmlNodeList netgameObjEntriesBlock = root.SelectNodes(".//block[@name='netgame equipment']");
+        XmlNodeList weaponSpEntriesBlock = root.SelectNodes(".//block[@name='weapons']");
+        XmlNodeList scenPaletteBlock = root.SelectNodes(".//block[@name='scenery palette']");
+        XmlNodeList scenEntriesBlock = root.SelectNodes(".//block[@name='scenery']");
+        XmlNodeList trigVolBlock = root.SelectNodes(".//block[@name='trigger volumes']");
+        XmlNodeList vehiPaletteBlock = root.SelectNodes(".//block[@name='vehicle palette']");
+        XmlNodeList vehiEntriesBlock = root.SelectNodes(".//block[@name='vehicles']");
+        XmlNodeList cratePaletteBlock = root.SelectNodes(".//block[@name='crate palette']");
+        XmlNodeList crateEntriesBlock = root.SelectNodes(".//block[@name='crates']");
+        XmlNodeList objectNamesBlock = root.SelectNodes(".//block[@name='object names']");
+        XmlNodeList netgameFlagsBlock = root.SelectNodes(".//block[@name='netgame flags']");
+        XmlNodeList decalPaletteBlock = root.SelectNodes(".//block[@name='decal palette']");
+        XmlNodeList decalEntriesBlock = root.SelectNodes(".//block[@name='decals']");
 
-        List<StartLoc> all_starting_locs = new List<StartLoc>();
-        List<NetEquip> all_netgame_equip_locs = new List<NetEquip>();
-        List<SpWeapLoc> all_sp_weapon_locs = new List<SpWeapLoc>();
-        List<TagPath> all_scen_types = new List<TagPath>();
-        List<Scenery> all_scen_entries = new List<Scenery>();
-        List<TrigVol> all_trig_vols = new List<TrigVol>();
-        List<TagPath> all_vehi_types = new List<TagPath>();
-        List<Vehicle> all_vehi_entries = new List<Vehicle>();
-        List<TagPath> all_crate_types = new List<TagPath>();
-        List<Crate> all_crate_entries = new List<Crate>();
-        List<string> all_object_names = new List<string>();
-        List<NetFlag> all_netgame_flags = new List<NetFlag>();
-        List<Decal> all_dec_entries = new List<Decal>();
-        List<TagPath> all_dec_types = new List<TagPath>();
+        List<StartLoc> allStartingLocs = new List<StartLoc>();
+        List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
+        List<SpWeapLoc> allSpWeaponLocs = new List<SpWeapLoc>();
+        List<TagPath> allScenTypes = new List<TagPath>();
+        List<Scenery> allScenEntries = new List<Scenery>();
+        List<TrigVol> allTrigVols = new List<TrigVol>();
+        List<TagPath> allVehiTypes = new List<TagPath>();
+        List<Vehicle> allVehiEntries = new List<Vehicle>();
+        List<TagPath> allCrateTypes = new List<TagPath>();
+        List<Crate> allCrateEntries = new List<Crate>();
+        List<string> allObjectNames = new List<string>();
+        List<NetFlag> allNetgameFlags = new List<NetFlag>();
+        List<Decal> allDecalEntries = new List<Decal>();
+        List<TagPath> allDecalTypes = new List<TagPath>();
 
-        foreach (XmlNode name in object_names_block)
+        foreach (XmlNode name in objectNamesBlock)
         {
-            bool names_end = false;
+            bool objNamesEnd = false;
             int i = 0;
-            while (!names_end)
+            while (!objNamesEnd)
             {
                 XmlNode element = name.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    all_object_names.Add(element.SelectSingleNode("./field[@name='name']").InnerText.Trim());
+                    allObjectNames.Add(element.SelectSingleNode("./field[@name='name']").InnerText.Trim());
                     i++;
                 }
                 else
                 {
-                    names_end = true;
+                    objNamesEnd = true;
                     Console.WriteLine("Finished processing object name data.");
                     loadingForm.UpdateOutputBox("Finished processing object name data.", false);
                 }
             }
         }
 
-        foreach (XmlNode name in netgame_flags_block)
+        foreach (XmlNode name in netgameFlagsBlock)
         {
-            bool names_end = false;
+            bool netFlagsEnd = false;
             int i = 0;
-            while (!names_end)
+            while (!netFlagsEnd)
             {
                 XmlNode element = name.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    all_object_names.Add(element.Attributes["name"].Value);
+                    allObjectNames.Add(element.Attributes["name"].Value);
                     i++;
                 }
                 else
                 {
-                    names_end = true;
+                    netFlagsEnd = true;
                     Console.WriteLine("Finished processing netgame flag name data.");
                     loadingForm.UpdateOutputBox("Finished processing netgame flag name data.", false);
                 }
             }
         }
 
-        foreach (XmlNode location in player_start_loc_block)
+        foreach (XmlNode location in playerStartLocBlock)
         {
-            bool locs_end = false;
+            bool startLocsEnd = false;
             int i = 0;
-            while (!locs_end)
+            while (!startLocsEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = location.SelectSingleNode(search_string);
+                XmlNode element = location.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string facing = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
-                    string team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
-                    string type0 = element.SelectSingleNode("./field[@name='type 0']").InnerText.Trim();
-                    string type1 = element.SelectSingleNode("./field[@name='type 1']").InnerText.Trim();
-                    string type2 = element.SelectSingleNode("./field[@name='type 2']").InnerText.Trim();
-                    string type3 = element.SelectSingleNode("./field[@name='type 3']").InnerText.Trim();
-                    string spawn_type0 = element.SelectSingleNode("./field[@name='spawn type 0']").InnerText.Trim();
-                    string spawn_type1 = element.SelectSingleNode("./field[@name='spawn type 1']").InnerText.Trim();
-                    string spawn_type2 = element.SelectSingleNode("./field[@name='spawn type 2']").InnerText.Trim();
-                    string spawn_type3 = element.SelectSingleNode("./field[@name='spawn type 3']").InnerText.Trim();
+                    StartLoc startLocation = new StartLoc();
+                    startLocation.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                    startLocation.facing = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
+                    startLocation.team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
+                    startLocation.type0 = element.SelectSingleNode("./field[@name='type 0']").InnerText.Trim();
+                    startLocation.type1 = element.SelectSingleNode("./field[@name='type 1']").InnerText.Trim();
+                    startLocation.type2 = element.SelectSingleNode("./field[@name='type 2']").InnerText.Trim();
+                    startLocation.type3 = element.SelectSingleNode("./field[@name='type 3']").InnerText.Trim();
+                    startLocation.spawnType0 = element.SelectSingleNode("./field[@name='spawn type 0']").InnerText.Trim();
+                    startLocation.spawnType1 = element.SelectSingleNode("./field[@name='spawn type 1']").InnerText.Trim();
+                    startLocation.spawnType2 = element.SelectSingleNode("./field[@name='spawn type 2']").InnerText.Trim();
+                    startLocation.spawnType3 = element.SelectSingleNode("./field[@name='spawn type 3']").InnerText.Trim();
 
-                    all_starting_locs.Add(new StartLoc
-                    {
-                        position_xyz = xyz,
-                        facing_angle = facing,
-                        team_enum = team,
-                        type_0 = type0,
-                        type_1 = type1,
-                        type_2 = type2,
-                        type_3 = type3,
-                        spawn_type_0 = spawn_type0,
-                        spawn_type_1 = spawn_type1,
-                        spawn_type_2 = spawn_type2,
-                        spawn_type_3 = spawn_type3,
-                    });
-
+                    allStartingLocs.Add(startLocation);
                     Console.WriteLine("Processed starting position " + i);
                     loadingForm.UpdateOutputBox("Processed starting position " + i, false);
                     i++;
                 }
                 else
                 {
-                    locs_end = true;
+                    startLocsEnd = true;
                     Console.WriteLine("\nFinished processing starting positions data.");
                     loadingForm.UpdateOutputBox("\nFinished processing starting positions data.", false);
                 }
@@ -232,63 +217,61 @@ class ScenData
         }
 
         // Have to handle weapons/vehicles/equipment differently for solo vs mult
-        if (scenario_type == "1,multiplayer")
+        if (scenarioType == "1,multiplayer")
         {
-            foreach (XmlNode netgame_entry in netgame_objs_entries_block)
+            foreach (XmlNode netgameObjEntry in netgameObjEntriesBlock)
             {
-                bool netgame_end = false;
+                bool netgameObjsEnd = false;
                 int i = 0;
-                while (!netgame_end)
+                while (!netgameObjsEnd)
                 {
-                    string search_string = "./element[@index='" + i + "']";
-                    XmlNode element = netgame_entry.SelectSingleNode(search_string);
+                    XmlNode element = netgameObjEntry.SelectSingleNode("./element[@index='" + i + "']");
                     if (element != null)
                     {
-                        NetEquip netgame_equip = new NetEquip();
-                        netgame_equip.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        netgame_equip.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        netgame_equip.spawn_time = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
-                        netgame_equip.collection_type = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
+                        NetEquip netgameEquip = new NetEquip();
+                        netgameEquip.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        netgameEquip.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        netgameEquip.spawnTime = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
+                        netgameEquip.collectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
 
-                        all_netgame_equip_locs.Add(netgame_equip);
+                        allNetgameEquipLocs.Add(netgameEquip);
                         Console.WriteLine("Process netgame equipment " + i);
                         loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
                         i++;
                     }
                     else
                     {
-                        netgame_end = true;
+                        netgameObjsEnd = true;
                         Console.WriteLine("\nFinished processing netgame equipment data.");
                         loadingForm.UpdateOutputBox("\nFinished processing netgame equipment data.", false);
                     }
                 }
             }
         }
-        else if (scenario_type == "0,solo")
+        else if (scenarioType == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scen_path, xmlPath, loadingForm, scenfile, "weapon");
+            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
 
-            foreach (XmlNode weapon_entry in weapon_sp_entries_block)
+            foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
             {
-                bool weaps_end = false;
+                bool weaponsEnd = false;
                 int i = 0;
-                while (!weaps_end)
+                while (!weaponsEnd)
                 {
-                    string search_string = "./element[@index='" + i + "']";
-                    XmlNode element = weapon_entry.SelectSingleNode(search_string);
+                    XmlNode element = weaponEntry.SelectSingleNode("./element[@index='" + i + "']");
 
                     if (element != null)
                     {
                         SpWeapLoc weapon = Utils.GetObjectDataFromXML<SpWeapLoc>(element);
-                        all_sp_weapon_locs.Add(weapon);
+                        allSpWeaponLocs.Add(weapon);
                         loadingForm.UpdateOutputBox($"Processed weapon placement {i}.", false);
                         i++;
                     }
                     else
                     {
-                        weaps_end = true;
+                        weaponsEnd = true;
                         Console.WriteLine("\nFinished processing weapon data.");
                         loadingForm.UpdateOutputBox("\nFinished processing weapon placement data.", false);
                     }
@@ -298,24 +281,23 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scen_path, xmlPath, loadingForm, scenfile, "vehicle");
-            foreach (XmlNode vehicle_entry in vehi_entries_block)
+            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "vehicle");
+            foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
-                bool vehi_end = false;
+                bool vehiclesEnd = false;
                 int i = 0;
-                while (!vehi_end)
+                while (!vehiclesEnd)
                 {
-                    string search_string = "./element[@index='" + i + "']";
-                    XmlNode element = vehicle_entry.SelectSingleNode(search_string);
+                    XmlNode element = vehicleEntry.SelectSingleNode("./element[@index='" + i + "']");
                     if (element != null)
                     {
                         Vehicle vehicle = Utils.GetObjectDataFromXML<Vehicle>(element);
-                        all_vehi_entries.Add(vehicle);
+                        allVehiEntries.Add(vehicle);
                         i++;
                     }
                     else
                     {
-                        vehi_end = true;
+                        vehiclesEnd = true;
                         Console.WriteLine("Finished processing vehicle placement data.");
                         loadingForm.UpdateOutputBox("Finished processing vehicle placement data.", false);
                     }
@@ -324,227 +306,200 @@ class ScenData
         }
         
 
-        foreach (XmlNode entry in scen_palette_block)
+        foreach (XmlNode sceneryType in scenPaletteBlock)
         {
-            bool scen_end = false;
+            bool scenTypesEnd = false;
             int i = 0;
-            while (!scen_end)
+            while (!scenTypesEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = entry.SelectSingleNode(search_string);
+                XmlNode element = sceneryType.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string scen_type = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                    all_scen_types.Add(TagPath.FromPathAndType(scen_type, "scen*"));
+                    string scenRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                    allScenTypes.Add(TagPath.FromPathAndType(scenRef, "scen*"));
                     i++;
                 }
                 else
                 {
-                    scen_end = true;
+                    scenTypesEnd = true;
                     Console.WriteLine("Finished processing scenery palette data.");
                     loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
                 }
             }
         }
 
-        foreach (XmlNode scenery_entry in scen_entries_block)
+        foreach (XmlNode sceneryEntry in scenEntriesBlock)
         {
-            bool scen_end = false;
+            bool sceneriesEnd = false;
             int i = 0;
-            while (!scen_end)
+            while (!sceneriesEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = scenery_entry.SelectSingleNode(search_string);
+                XmlNode element = sceneryEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
                     Scenery scenery = Utils.GetObjectDataFromXML<Scenery>(element);
-                    all_scen_entries.Add(scenery);
+                    allScenEntries.Add(scenery);
                     i++;
                 }
                 else
                 {
-                    scen_end = true;
+                    sceneriesEnd = true;
                     Console.WriteLine("Finished processing scenery placement data.");
                     loadingForm.UpdateOutputBox("Finished processing scenery placement data.", false);
                 }
             }
         }
 
-        foreach (XmlNode volume in trig_vol_block)
+        foreach (XmlNode trigVolume in trigVolBlock)
         {
-            bool vols_end = false;
+            bool trigVolsEnd = false;
             int i = 0;
-            while (!vols_end)
+            while (!trigVolsEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = volume.SelectSingleNode(search_string);
+                XmlNode element = trigVolume.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string ext = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim();
-                    string fwd = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim();
-                    string up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim();
+                    TrigVol triggerVolume = new TrigVol();
+                    triggerVolume.name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                    triggerVolume.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                    triggerVolume.extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim();
+                    triggerVolume.forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim();
+                    triggerVolume.up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim();
 
-                    all_trig_vols.Add(new TrigVol
-                    {
-                        vol_name = name,
-                        vol_xyz = xyz,
-                        vol_ext = ext,
-                        vol_fwd = fwd,
-                        vol_up = up
-                    });
-
+                    allTrigVols.Add(triggerVolume);
                     i++;
                 }
                 else
                 {
-                    vols_end = true;
+                    trigVolsEnd = true;
                     Console.WriteLine("Finished processing trigger volume data.");
                     loadingForm.UpdateOutputBox("Finished processing trigger volume data.", false);
                 }
             }
         }
 
-        foreach (XmlNode crate in crate_palette_block)
+        foreach (XmlNode crateType in cratePaletteBlock)
         {
-            bool crates_end = false;
+            bool crateTypesEnd = false;
             int i = 0;
-            while (!crates_end)
+            while (!crateTypesEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = crate.SelectSingleNode(search_string);
+                XmlNode element = crateType.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string vehi_type = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                    all_crate_types.Add(TagPath.FromPathAndType(vehi_type, "bloc*"));
+                    string crateRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                    allCrateTypes.Add(TagPath.FromPathAndType(crateRef, "bloc*"));
                     i++;
                 }
                 else
                 {
-                    crates_end = true;
+                    crateTypesEnd = true;
                     Console.WriteLine("Finished processing crate palette data.");
                     loadingForm.UpdateOutputBox("Finished processing crate palette data.", false);
                 }
             }
         }
 
-        foreach (XmlNode crate_entry in crate_entries_block)
+        foreach (XmlNode crateEntry in crateEntriesBlock)
         {
-            bool crates_end = false;
+            bool cratesEnd = false;
             int i = 0;
-            while (!crates_end)
+            while (!cratesEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = crate_entry.SelectSingleNode(search_string);
+                XmlNode element = crateEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
                     Crate crate = Utils.GetObjectDataFromXML<Crate>(element);
-                    all_crate_entries.Add(crate);
+                    allCrateEntries.Add(crate);
                     i++;
                 }
                 else
                 {
-                    crates_end = true;
+                    cratesEnd = true;
                     Console.WriteLine("Finished processing crate placement data.");
                     loadingForm.UpdateOutputBox("Finished processing crate placement data.", false);
                 }
             }
         }
 
-        foreach (XmlNode netflag in netgame_flags_block)
+        foreach (XmlNode netFlagEntry in netgameFlagsBlock)
         {
-            bool netflags_end = false;
+            bool netFlagsEnd = false;
             int i = 0;
-            while (!netflags_end)
+            while (!netFlagsEnd)
             {
-                XmlNode element = netflag.SelectSingleNode("./element[@index='" + i + "']");
+                XmlNode element = netFlagEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string name = element.Attributes["name"].Value;
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    string orient = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
-                    string type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim();
-                    string team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
+                    NetFlag netFlag = new NetFlag();
+                    netFlag.name = element.Attributes["name"].Value;
+                    netFlag.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                    netFlag.rotation = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
+                    netFlag.type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim();
+                    netFlag.team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
 
-                    all_netgame_flags.Add(new NetFlag
-                    {
-                        netflag_name = name,
-                        netflag_xyz = xyz,
-                        netflag_orient = orient,
-                        netflag_type = type,
-                        netflag_team = team
-                    });
-
+                    allNetgameFlags.Add(netFlag);
                     i++;
                 }
                 else
                 {
-                    netflags_end = true;
+                    netFlagsEnd = true;
                     Console.WriteLine("Finished processing netgame flags data.");
                     loadingForm.UpdateOutputBox("Finished processing netgame flags data.", false);
                 }
             }
         }
 
-        foreach (XmlNode entry in decal_palette_block)
+        foreach (XmlNode decalType in decalPaletteBlock)
         {
-            bool decs_end = false;
+            bool decalTypesEnd = false;
             int i = 0;
-            while (!decs_end)
+            while (!decalTypesEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = entry.SelectSingleNode(search_string);
+                XmlNode element = decalType.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string dec_type = element.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
-                    all_dec_types.Add(TagPath.FromPathAndType(dec_type, "decs*"));
+                    string decRef = element.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
+                    allDecalTypes.Add(TagPath.FromPathAndType(decRef, "decs*"));
                     i++;
                 }
                 else
                 {
-                    decs_end = true;
+                    decalTypesEnd = true;
                     Console.WriteLine("Finished processing decal palette data.");
                     loadingForm.UpdateOutputBox("Finished processing decal palette data.", false);
                 }
             }
         }
 
-        foreach (XmlNode decal in decal_entries_block)
+        foreach (XmlNode decalEntry in decalEntriesBlock)
         {
-            bool decs_end = false;
+            bool decalsEnd = false;
             int i = 0;
-            while (!decs_end)
+            while (!decalsEnd)
             {
-                string search_string = "./element[@index='" + i + "']";
-                XmlNode element = decal.SelectSingleNode(search_string);
+                XmlNode element = decalEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    string type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString();
-                    string yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim();
-                    string pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim();
-                    string xyz = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                    Decal decal = new Decal();
+                    decal.type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString();
+                    decal.yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim();
+                    decal.pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim();
+                    decal.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
 
-                    all_dec_entries.Add(new Decal
-                    {
-                        decal_type = type,
-                        decal_xyz = xyz,
-                        decal_pitch = pitch,
-                        decal_yaw = yaw
-                    });
-
+                    allDecalEntries.Add(decal);
                     i++;
                 }
                 else
                 {
-                    decs_end = true;
+                    decalsEnd = true;
                     Console.WriteLine("Finished processing decal placement data.");
                     loadingForm.UpdateOutputBox("Finished processing decal placement data.", false);
                 }
             }
         }
 
-        XmlToTag(all_object_names, all_starting_locs, all_netgame_equip_locs, all_sp_weapon_locs, all_scen_types, all_scen_entries, all_trig_vols, all_vehi_entries, all_crate_types, all_crate_entries, all_netgame_flags, all_dec_types, all_dec_entries, h3ek_path, scen_path, loadingForm, scenario_type);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
     static void XmlToTag(List<string> all_object_names, List<StartLoc> spawn_data, List<NetEquip> netgame_equip_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
@@ -635,17 +590,17 @@ class ScenData
                     // Position
                     var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[0].FieldName;
                     var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[2];
-                    xyz_pos.Data = spawn.position_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    xyz_pos.Data = spawn.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                     // Rotation
                     var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[3];
-                    string angle_xyz = spawn.facing_angle + ",0,0";
+                    string angle_xyz = spawn.facing + ",0,0";
                     rotation.Data = angle_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                     // Team
                     var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[0].FieldName;
                     var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[3];
-                    team.Value = int.Parse(new string(spawn.team_enum.TakeWhile(c => c != ',').ToArray()));
+                    team.Value = int.Parse(new string(spawn.team.TakeWhile(c => c != ',').ToArray()));
 
 
                     i++;
@@ -667,7 +622,7 @@ class ScenData
 
                 foreach (NetEquip netgame_equip in netgame_equip_data)
                 {
-                    string eqip_type = netgame_equip.collection_type.Split('\\')[netgame_equip.collection_type.Split('\\').Length - 1];
+                    string eqip_type = netgame_equip.collectionType.Split('\\')[netgame_equip.collectionType.Split('\\').Length - 1];
 
                     if (eqip_type == "frag_grenades" || eqip_type == "plasma_grenades")
                     {
@@ -714,7 +669,7 @@ class ScenData
 
                         // Spawn timer
                         var equip_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[6]).Elements[0].Fields[8];
-                        equip_stime.Data = uint.Parse(netgame_equip.spawn_time);
+                        equip_stime.Data = uint.Parse(netgame_equip.spawnTime);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -780,7 +735,7 @@ class ScenData
                         dropdown_type.Value = 3; // 3 for equipment
                         dropdown_source.Value = 1; // 1 for editor
                     }
-                    else if (netgame_equip.collection_type.Contains("vehicles"))
+                    else if (netgame_equip.collectionType.Contains("vehicles"))
                     {
                         // Check if current type exists in palette
                         bool type_exists_already = false;
@@ -867,7 +822,7 @@ class ScenData
 
                         // Spawn timer
                         var weap_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[7]).Elements[0].Fields[8];
-                        weap_stime.Data = uint.Parse(netgame_equip.spawn_time);
+                        weap_stime.Data = uint.Parse(netgame_equip.spawnTime);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -911,8 +866,8 @@ class ScenData
                         int current_count = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[20]).AddElement();
                         var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[1];
-                        int index = scenery.type_index + totalScenCount;
-                        type_ref.Value = scenery.type_index + totalScenCount;
+                        int index = scenery.typeIndex + totalScenCount;
+                        type_ref.Value = scenery.typeIndex + totalScenCount;
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -929,14 +884,14 @@ class ScenData
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = scenery.rotation;
 
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manual_bsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.origin_bsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bsp_policy;
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
 
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                         var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = scenery.var_name;
+                        variant.Data = scenery.varName;
                     }
 
                     Console.WriteLine("Done scenery");
@@ -1005,11 +960,11 @@ class ScenData
                         int current_count = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[118]).AddElement();
                         var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[1];
-                        type_ref.Value = crate.type_index;
+                        type_ref.Value = crate.typeIndex;
 
                         // Name
                         var name_field = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[3];
-                        name_field.Value = crate.name_index;
+                        name_field.Value = crate.nameIndex;
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -1026,14 +981,14 @@ class ScenData
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = crate.rotation;
 
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manual_bsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.origin_bsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bsp_policy;
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
 
                         // Variant
                         var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
                         var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = crate.var_name;
+                        variant.Data = crate.varName;
                     }
 
                     Dictionary<string, int> existing_gametype_crates = new Dictionary<string, int>();
@@ -1042,7 +997,7 @@ class ScenData
                     foreach (NetFlag netflag in all_netgame_flags)
                     {
                         int type_index = 0;
-                        string temp = Regex.Replace(netflag.netflag_type, @"^.*?,\s*", "");
+                        string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
                         string name_stripped = Regex.Replace(temp, @"\d+$", "").Trim();
                         if (!existing_gametype_crates.ContainsKey(name_stripped))
                         {
@@ -1050,7 +1005,7 @@ class ScenData
                             type_index = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[119]).AddElement();
                             var crate_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[type_index].Fields[0];
-                            crate_type_ref.Path = utilsInstance.netflagMapping[netflag.netflag_type];
+                            crate_type_ref.Path = utilsInstance.netflagMapping[netflag.type];
                             existing_gametype_crates.Add(name_stripped, type_index);
                         }
                         else
@@ -1065,7 +1020,7 @@ class ScenData
 
                         // Name
                         var name_field = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[3];
-                        name_field.Value = all_object_names.IndexOf(netflag.netflag_name);
+                        name_field.Value = all_object_names.IndexOf(netflag.name);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
@@ -1076,16 +1031,16 @@ class ScenData
                         // Position
                         var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
                         var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = netflag.netflag_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        xyz_pos.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                         // Rotation
                         var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
-                        string angle_xyz = netflag.netflag_orient + ",0,0";
+                        string angle_xyz = netflag.rotation + ",0,0";
                         rotation.Data = angle_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                         // Team
                         var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[7]).Elements[0].Fields[3];
-                        team.Value = int.Parse(new string(netflag.netflag_team.TakeWhile(c => c != ',').ToArray()));
+                        team.Value = int.Parse(new string(netflag.team.TakeWhile(c => c != ',').ToArray()));
 
                         // Grab editor folder
                         var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[11];
@@ -1169,23 +1124,23 @@ class ScenData
 
                 // Name
                 var name = (TagFieldElementStringID)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[0];
-                name.Data = vol.vol_name;
+                name.Data = vol.name;
 
                 // Forward
                 var fwd = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[4];
-                fwd.Data = vol.vol_fwd.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                fwd.Data = vol.forward.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Up
                 var up = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[5];
-                up.Data = vol.vol_up.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                up.Data = vol.up.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Position
                 var xyz = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[6];
-                xyz.Data = vol.vol_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                xyz.Data = vol.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Extents
                 var ext = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[7];
-                ext.Data = vol.vol_ext.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ext.Data = vol.extents.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
             Console.WriteLine("Done trigger volumes");
@@ -1223,15 +1178,15 @@ class ScenData
                 int current_count = ((TagFieldBlock)tagFile.Fields[77]).Elements.Count();
                 ((TagFieldBlock)tagFile.Fields[77]).AddElement();
                 var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[77]).Elements[current_count].Fields[1];
-                type_ref.Value = int.Parse(decal.decal_type);
+                type_ref.Value = int.Parse(decal.type);
 
                 // Position
                 var xyz_pos = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[current_count].Fields[4];
-                xyz_pos.Data = decal.decal_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                xyz_pos.Data = decal.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Rotation stuff below - only god fucking knows what this is doing, and either way it doesnt work properly
-                double pitchDegrees = double.Parse(decal.decal_pitch);
-                double yawDegrees = double.Parse(decal.decal_yaw);
+                double pitchDegrees = double.Parse(decal.pitch);
+                double yawDegrees = double.Parse(decal.yaw);
 
                 // Convert pitch and yaw angles from degrees to radians
                 double pitchRadians = Math.PI * pitchDegrees / 180.0;

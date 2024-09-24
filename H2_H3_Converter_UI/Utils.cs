@@ -204,31 +204,31 @@ namespace H2_H3_Converter_UI
         {
             TPlacement objPlacement = new TPlacement();
 
-            objPlacement.type_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
-            objPlacement.name_index = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
+            objPlacement.typeIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
+            objPlacement.nameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
             objPlacement.flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
             objPlacement.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
             objPlacement.rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-            objPlacement.var_name = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-            objPlacement.manual_bsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-            objPlacement.origin_bsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-            objPlacement.bsp_policy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
+            objPlacement.varName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+            objPlacement.manualBsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
+            objPlacement.originBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
+            objPlacement.bspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
 
             // Extra properties specific to certain object types
             if (objPlacement is SpWeapLoc weapon)
             {
-                weapon.rounds_left = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
-                weapon.rounds_loaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
+                weapon.roundsLeft = Int32.Parse(element.SelectSingleNode("./field[@name='rounds left']").InnerText.Trim());
+                weapon.roundsLoaded = Int32.Parse(element.SelectSingleNode("./field[@name='rounds loaded']").InnerText.Trim());
                 weapon.scale = float.Parse(element.SelectSingleNode("./field[@name='scale']").InnerText.Trim());
             }
             else if (objPlacement is Scenery scenery)
             {
-                scenery.pathfinding_type = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
-                scenery.lightmapping_type = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
+                scenery.pathfindingType = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
+                scenery.lightmappingType = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
             }
             else if (objPlacement is Vehicle vehicle)
             {
-                vehicle.body_vitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+                vehicle.bodyVitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
             }
             else if (objPlacement is Crate crate) { } // No extra data for crates
 
@@ -254,33 +254,33 @@ namespace H2_H3_Converter_UI
                 ((TagFieldBlock)tagFile.SelectField($"Block:{type}")).AddElement();
 
                 // Common properties
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:type")).Value = placement.type_index;
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:name")).Value = placement.name_index;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:type")).Value = placement.typeIndex;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/ShortBlockIndex:name")).Value = placement.nameIndex;
                 ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Flags:placement flags")).RawValue = placement.flags;
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealPoint3d:position")).Data = placement.position;
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = placement.rotation;
                 ((TagFieldElementSingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Real:scale")).Data = placement.scale;
-                ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.var_name;
-                ((TagFieldBlockFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = placement.manual_bsp;
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = placement.origin_bsp;
-                ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/CharEnum:bsp policy")).Value = placement.bsp_policy;
+                ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.varName;
+                ((TagFieldBlockFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = placement.manualBsp;
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = placement.originBsp;
+                ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/CharEnum:bsp policy")).Value = placement.bspPolicy;
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objTypeToIndex[type]; // 2 for weapon
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
                 // SP weapon properties
                 if (placement is SpWeapLoc weapon)
                 {
-                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.rounds_left;
-                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.rounds_loaded;
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.roundsLeft;
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.roundsLoaded;
                 }
                 else if (placement is Scenery scenery)
                 {
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfinding_type;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmapping_type;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.pathfindingType;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.lightmappingType;
                 }
                 else if (placement is Vehicle vehicle)
                 {
-                    ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{index}]/Struct:unit data/Real:body vitality")).Data = vehicle.body_vitality;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{index}]/Struct:unit data/Real:body vitality")).Data = vehicle.bodyVitality;
                 }
                 else if (placement is Crate crate) { }
 
