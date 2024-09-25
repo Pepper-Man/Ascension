@@ -406,7 +406,7 @@ namespace H2_H3_Converter_UI
                     if (checkBox4.Checked)
                     {
                         // Hint conversion
-                        XmlDocument scenFile = HintConverter.JumpHintsToXML(scen_path, h2_xml_path, loadingForm);
+                        XmlDocument scenFile = HintConverter.HintsToXML(scen_path, h2_xml_path, loadingForm);
 
                         // Flags conversion
                         FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm, scenFile);

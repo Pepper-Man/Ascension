@@ -10,6 +10,11 @@ using System.Xml;
 
 namespace H2_H3_Converter_UI
 {
+    public class FlightHint
+    {
+        public List<float[]> Points { get; set; }
+    }
+
     public class JumpHint
     {
         public string Flags { get; set; }
@@ -32,7 +37,7 @@ namespace H2_H3_Converter_UI
 
     // At some point I should really redo these names, this is not good for readability
 
-    public class BspHints
+    public class BspJumpHints
     {
         public List<JumpHint> jumpHints { get; set; }
     }
@@ -44,7 +49,7 @@ namespace H2_H3_Converter_UI
 
     public class ScenarioHints
     {
-        public List<BspHints> scenarioHints { get; set; }
+        public List<BspJumpHints> scenarioHints { get; set; }
     }
 
     public class ScenarioParallelos
@@ -54,7 +59,7 @@ namespace H2_H3_Converter_UI
 
     public class HintConverter
     {
-        public static XmlDocument JumpHintsToXML(string scenPath, string xmlPath, Loading loadingForm)
+        public static XmlDocument HintsToXML(string scenPath, string xmlPath, Loading loadingForm)
         {
             // Make sure we have a scenario backup
             Utils.BackupScenario(scenPath, xmlPath, loadingForm);
@@ -72,8 +77,9 @@ namespace H2_H3_Converter_UI
 
             ScenarioHints scenarioHints = new ScenarioHints();
             ScenarioParallelos scenarioParallelos = new ScenarioParallelos();
-            List<BspHints> bspsH = new List<BspHints>();
+            List<BspJumpHints> bspsJH = new List<BspJumpHints>();
             List<BspParallelos> bspsP = new List<BspParallelos>();
+            List<List<FlightHint>> scenarioFlightHints = new List<List<FlightHint>>();
             foreach (XmlNode aiPathfinding in aiPathDataBlock)
             {
                 // Each BSP has its own element
@@ -85,7 +91,7 @@ namespace H2_H3_Converter_UI
                     if (bsp != null)
                     {
                         loadingForm.UpdateOutputBox($"Reading pathfinding data for BSP index {i}.", false);
-                        BspHints bspHints = new BspHints();
+                        BspJumpHints bspHints = new BspJumpHints();
                         List<JumpHint> jumpHints = new List<JumpHint>();
                         XmlNode jumpHintsBlock = bsp.SelectSingleNode(".//block[@name='user-placed hints']/element[@index='0']/block[@name='jump hints']");
 
@@ -138,8 +144,33 @@ namespace H2_H3_Converter_UI
                             bspParallelos.parallelograms = parallelograms;
                         }
 
-                        bspsH.Add(bspHints);
+                        bspsJH.Add(bspHints);
                         bspsP.Add(bspParallelos);
+
+                        // Flight hint section
+                        List<FlightHint> allFlightHintsForBsp = new List<FlightHint>();
+                        XmlNode flightHintsBlock = bsp.SelectSingleNode(".//block[@name='user-placed hints']/element[@index='0']/block[@name='flight hints']");
+
+                        if (flightHintsBlock != null)
+                        {
+                            XmlNodeList flightHintElements = flightHintsBlock.SelectNodes("./element");
+                            int j = 0;
+                            foreach (XmlNode flightHintEntry in flightHintElements)
+                            {
+                                FlightHint flightHint = new FlightHint();
+                                List<float[]> flightHintPoints = new List<float[]>();
+                                XmlNodeList flightHintPointElements = flightHintEntry.SelectNodes($"./block[@name='points']/element/field[@name='point']");
+                                foreach (XmlNode point in flightHintPointElements)
+                                {
+                                    flightHintPoints.Add(point.InnerText.Trim().Split(',').Select(float.Parse).ToArray());
+                                }
+                                flightHint.Points = flightHintPoints;
+                                allFlightHintsForBsp.Add(flightHint);
+                                j++;
+                            }
+                        }
+
+                        scenarioFlightHints.Add(allFlightHintsForBsp);
                         loadingForm.UpdateOutputBox($"Successfully read hint data for BSP index {i}.", false);
                         i++;
                     }
@@ -150,14 +181,14 @@ namespace H2_H3_Converter_UI
                     }
                 }
             }
-            scenarioHints.scenarioHints = bspsH;
+            scenarioHints.scenarioHints = bspsJH;
             scenarioParallelos.scenarioParallelos = bspsP;
             loadingForm.UpdateOutputBox($"Successfully read hint data for all BSPs.", false);
-            JumpHintstoH3(scenPath, loadingForm, scenarioHints, scenarioParallelos);
+            HintstoH3(scenPath, loadingForm, scenarioHints, scenarioParallelos, scenarioFlightHints);
             return scenfile;
         }
 
-        public static void JumpHintstoH3(string scenPath, Loading loadingForm, ScenarioHints scenarioHintsContainer, ScenarioParallelos scenarioParallelosContainer)
+        public static void HintstoH3(string scenPath, Loading loadingForm, ScenarioHints scenarioHintsContainer, ScenarioParallelos scenarioParallelosContainer, List<List<FlightHint>> scenarioFlightHints)
         {
             string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
             ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
@@ -219,7 +250,7 @@ namespace H2_H3_Converter_UI
                 bspIndex = 0;
                 int hintStartIndex = 0;
                 ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).RemoveAllElements();
-                foreach (BspHints bsp in scenarioHintsContainer.scenarioHints)
+                foreach (BspJumpHints bsp in scenarioHintsContainer.scenarioHints)
                 {
                     loadingForm.UpdateOutputBox($"Start writing jump hint data for bsp {bspIndex}", false);
 
@@ -252,7 +283,27 @@ namespace H2_H3_Converter_UI
                     bspIndex++;
                 }
 
-                loadingForm.UpdateOutputBox($"Finished writing jump hint data", false);
+                // Flight hint data
+                int hintIndex = 0;
+                ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:flight hints")).RemoveAllElements();
+                foreach (List<FlightHint> flightHintList in scenarioFlightHints)
+                {
+                    foreach (FlightHint flightHint in flightHintList)
+                    {
+                        int pointIndex = 0;
+                        ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:flight hints")).AddElement();
+                        foreach (float[] point in flightHint.Points)
+                        {
+                            ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:flight hints[{hintIndex}]/Block:points")).AddElement();
+                            ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:flight hints[{hintIndex}]/Block:points[{pointIndex}]/RealVector3d:point")).Data = point;
+
+                            pointIndex++;
+                        }
+                        hintIndex++;
+                    }
+                }
+
+                loadingForm.UpdateOutputBox($"Finished writing hint data", false);
             }
             catch
             {
