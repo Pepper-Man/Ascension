@@ -59,6 +59,7 @@
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.use_squad_folder_names = new System.Windows.Forms.CheckBox();
             this.help_squad_folders = new System.Windows.Forms.LinkLabel();
+            this.versionLabel = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.layout_h2_scen.SuspendLayout();
@@ -73,12 +74,12 @@
             this.title.AccessibleName = "";
             this.title.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.title.AutoSize = true;
-            this.title.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.title.Location = new System.Drawing.Point(123, 0);
+            this.title.Font = new System.Drawing.Font("Myanmar Text", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.title.Location = new System.Drawing.Point(236, 0);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(337, 25);
+            this.title.Size = new System.Drawing.Size(110, 30);
             this.title.TabIndex = 0;
-            this.title.Text = "Pepper\'s H2 to H3 Converter Tool";
+            this.title.Text = "Ascension";
             this.title.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.title.Click += new System.EventHandler(this.label1_Click);
             // 
@@ -494,15 +495,26 @@
             this.help_squad_folders.Text = "help";
             this.help_squad_folders.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.help_squad_folders_LinkClicked);
             // 
+            // versionLabel
+            // 
+            this.versionLabel.AutoSize = true;
+            this.versionLabel.Location = new System.Drawing.Point(526, 706);
+            this.versionLabel.Name = "versionLabel";
+            this.versionLabel.Size = new System.Drawing.Size(44, 16);
+            this.versionLabel.TabIndex = 4;
+            this.versionLabel.Text = "label1";
+            // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(582, 731);
+            this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "form1";
+            this.Text = "Ascension";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
@@ -517,6 +529,7 @@
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -551,6 +564,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.CheckBox use_squad_folder_names;
         private System.Windows.Forms.LinkLabel help_squad_folders;
+        private System.Windows.Forms.Label versionLabel;
     }
 }
 

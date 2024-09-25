@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,8 @@ namespace H2_H3_Converter_UI
         public form1()
         {
             InitializeComponent();
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            versionLabel.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
         }
 
         private void label1_Click(object sender, EventArgs e)
