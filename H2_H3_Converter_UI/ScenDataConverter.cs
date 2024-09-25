@@ -502,21 +502,20 @@ class ScenData
         XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> all_object_names, List<StartLoc> spawn_data, List<NetEquip> netgame_equip_data, List<SpWeapLoc> all_sp_weap_locs, List<TagPath> all_scen_types, List<Scenery> all_scen_entries, List<TrigVol> all_trig_vols, List<Vehicle> all_vehi_entries, List<TagPath> all_crate_types, List<Crate> all_crate_entries, List<NetFlag> all_netgame_flags, List<TagPath> all_dec_types, List<Decal> all_dec_entries, string h3ek_path, string scen_path, Loading loadingForm, string scenario_type)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
-        var tag_path = TagPath.FromPathAndType(Path.ChangeExtension(scen_path.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
-        var respawn_scen_path = TagPath.FromPathAndType(@"objects\multi\spawning\respawn_point", "scen*");
-        int respawn_scen_index = 0;
+        var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
+        var respawnScenPath = TagPath.FromPathAndType(@"objects\multi\spawning\respawn_point", "scen*");
+        int respawnScenIndex = 0;
+        ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
-        ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
-
-        using (var tagFile = new TagFile(tag_path))
+        using (var tagFile = new TagFile(tagPath))
         {
             // Object names section
             ((TagFieldBlock)tagFile.SelectField($"Block:object names")).RemoveAllElements();
             int nameIndex = 0;
-            foreach (string name in all_object_names)
+            foreach (string name in allObjectNames)
             {
                 // Add new
                 ((TagFieldBlock)tagFile.SelectField($"Block:object names")).AddElement();
@@ -525,12 +524,12 @@ class ScenData
                 nameIndex++;
             }
 
-            if (scenario_type == "1,multiplayer")
+            if (scenarioType == "1,multiplayer")
             {
                 // Spawns Section
                 int i = 0;
-                int temp_index = 0;
-                bool respawn_found = false;
+                int tempIndex = 0;
+                bool respawnFound = false;
                 int totalScenCount = 0;
                 int totalVehiCount = 0;
 
@@ -540,24 +539,24 @@ class ScenData
                 // Add respawn point scenery, if it doesn't already exist
                 if (((TagFieldBlock)tagFile.Fields[21]).Elements.Count() != 0)
                 {
-                    foreach (var scen_type in ((TagFieldBlock)tagFile.Fields[21]).Elements)
+                    foreach (var scenType in ((TagFieldBlock)tagFile.Fields[21]).Elements)
                     {
-                        if (((TagFieldReference)scen_type.Fields[0]).Path == respawn_scen_path)
+                        if (((TagFieldReference)scenType.Fields[0]).Path == respawnScenPath)
                         {
                             // Respawn point scenery already in palette, set index
-                            respawn_scen_index = temp_index;
-                            respawn_found = true;
+                            respawnScenIndex = tempIndex;
+                            respawnFound = true;
                             break;
                         }
-                        temp_index++;
+                        tempIndex++;
                     }
-                    if (respawn_found == false)
+                    if (respawnFound == false)
                     {
                         // Respawn point is not in the palette, add it and set the index
-                        respawn_scen_index = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
+                        respawnScenIndex = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                        var scen_tag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[respawn_scen_index].Fields[0];
-                        scen_tag.Path = respawn_scen_path;
+                        var sceneryTag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[respawnScenIndex].Fields[0];
+                        sceneryTag.Path = respawnScenPath;
                         totalScenCount++;
                     }
                 }
@@ -566,46 +565,43 @@ class ScenData
                     Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
                     loadingForm.UpdateOutputBox("\nNo existing sceneries, adding respawn point\n", false);
                     ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                    var scen_tag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[0].Fields[0];
-                    scen_tag.Path = respawn_scen_path;
+                    var sceneryTag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[0].Fields[0];
+                    sceneryTag.Path = respawnScenPath;
                 }
 
 
 
-                foreach (var spawn in spawn_data)
+                foreach (var spawn in startLocations)
                 {
                     // Add new
                     ((TagFieldBlock)tagFile.Fields[20]).AddElement();
 
                     // Type
-                    var scen_type = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[1];
-                    scen_type.Value = respawn_scen_index;
+                    var sceneryType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[1];
+                    sceneryType.Value = respawnScenIndex;
 
                     // Dropdown type and source (won't be valid without these)
-                    var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                    var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                    dropdown_type.Value = 6; // 6 for scenery
-                    dropdown_source.Value = 1; // 1 for editor
+                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                    dropdownType.Value = 6; // 6 for scenery
+                    dropdownSource.Value = 1; // 1 for editor
 
                     // Position
                     var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[0].FieldName;
-                    var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[2];
-                    xyz_pos.Data = spawn.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    var xyzPos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[2];
+                    xyzPos.Data = spawn.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                     // Rotation
                     var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[3];
-                    string angle_xyz = spawn.facing + ",0,0";
-                    rotation.Data = angle_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    string xyzAngle = spawn.facing + ",0,0";
+                    rotation.Data = xyzAngle.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                     // Team
                     var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[0].FieldName;
                     var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[3];
                     team.Value = int.Parse(new string(spawn.team.TakeWhile(c => c != ',').ToArray()));
 
-
                     i++;
-
-
                 }
 
                 Console.WriteLine("Done spawns");
@@ -620,215 +616,215 @@ class ScenData
                 ((TagFieldBlock)tagFile.Fields[28]).RemoveAllElements(); // Remove all weapons
                 Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
 
-                foreach (NetEquip netgame_equip in netgame_equip_data)
+                foreach (NetEquip netgameEquipEntry in netgameEquipment)
                 {
-                    string eqip_type = netgame_equip.collectionType.Split('\\')[netgame_equip.collectionType.Split('\\').Length - 1];
+                    string equipType = netgameEquipEntry.collectionType.Split('\\')[netgameEquipEntry.collectionType.Split('\\').Length - 1];
 
-                    if (eqip_type == "frag_grenades" || eqip_type == "plasma_grenades")
+                    if (equipType == "frag_grenades" || equipType == "plasma_grenades")
                     {
                         // Grenade stuff, need to treat as equipment not weapon
-                        Console.WriteLine("Adding " + eqip_type + " netgame equipment");
-                        loadingForm.UpdateOutputBox("Adding " + eqip_type + " netgame equipment", false);
+                        Console.WriteLine("Adding " + equipType + " netgame equipment");
+                        loadingForm.UpdateOutputBox("Adding " + equipType + " netgame equipment", false);
 
                         // Equipment, check if palette entry exists first
-                        bool equip_entry_exists = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
+                        bool equipEntryExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
                         {
-                            var temp_type = utilsInstance.mpWeapMapping[eqip_type];
-                            if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
+                            var tempType = utilsInstance.mpWeapMapping[equipType];
+                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
                             {
-                                equip_entry_exists = true;
+                                equipEntryExists = true;
                             }
                         }
 
                         // Add palette entry if needed
-                        if (!equip_entry_exists)
+                        if (!equipEntryExists)
                         {
-                            int current_count = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
+                            int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[27]).AddElement();
-                            var equip_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[current_count].Fields[0];
-                            equip_tag_ref.Path = utilsInstance.mpWeapMapping[eqip_type];
-                            weapPaletteMapping.Add(eqip_type, current_count);
+                            var equipRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[currentPaletteCount].Fields[0];
+                            equipRef.Path = utilsInstance.mpWeapMapping[equipType];
+                            weapPaletteMapping.Add(equipType, currentPaletteCount);
                         }
 
                         // Now add the equipment itself
-                        int equip_count = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
+                        int equipCount = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[26]).AddElement(); // Add new equipment entry
 
                         // XYZ
-                        var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = netgame_equip.position;
+                        var equipXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[2];
+                        equipXyz.Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = netgame_equip.rotation;
+                        var equipRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[3];
+                        equipRotation.Data = netgameEquipEntry.rotation;
 
                         // Type
-                        var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
-                        equip_tag.Value = weapPaletteMapping[eqip_type];
+                        var equipTagType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[1];
+                        equipTagType.Value = weapPaletteMapping[equipType];
 
                         // Spawn timer
-                        var equip_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[6]).Elements[0].Fields[8];
-                        equip_stime.Data = uint.Parse(netgame_equip.spawnTime);
+                        var equipTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[6]).Elements[0].Fields[8];
+                        equipTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 3; // 3 for equipment
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 3; // 3 for equipment
+                        dropdownSource.Value = 1; // 1 for editor
 
                         continue;
                     }
-                    else if (eqip_type == "")
+                    else if (equipType == "")
                     {
                         // All games entries, ignore
                         Console.WriteLine("Ignoring blank weapon collection");
                         loadingForm.UpdateOutputBox("Ignoring blank weapon collection", false);
                         continue;
                     }
-                    else if (eqip_type.Contains("ammo"))
+                    else if (equipType.Contains("ammo"))
                     {
                         // Ammo placement, ignore for now
                     }
-                    else if (eqip_type.Contains("powerup"))
+                    else if (equipType.Contains("powerup"))
                     {
                         // Powerup, add equipment, check if palette entry exists first
-                        bool equip_entry_exists = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
+                        bool equipEntryExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
                         {
-                            var temp_type = utilsInstance.mpWeapMapping["powerup"];
-                            if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
+                            var tempType = utilsInstance.mpWeapMapping["powerup"];
+                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
                             {
-                                equip_entry_exists = true;
+                                equipEntryExists = true;
                             }
                         }
 
                         // Add palette entry if needed
-                        if (!equip_entry_exists)
+                        if (!equipEntryExists)
                         {
-                            int current_count = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
+                            int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[27]).AddElement();
-                            var equip_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[current_count].Fields[0];
-                            equip_tag_ref.Path = utilsInstance.mpWeapMapping["powerup"];
-                            weapPaletteMapping.Add("powerup", current_count);
+                            var equipRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[currentPaletteCount].Fields[0];
+                            equipRef.Path = utilsInstance.mpWeapMapping["powerup"];
+                            weapPaletteMapping.Add("powerup", currentPaletteCount);
                         }
 
                         // Now add the equipment itself
-                        int equip_count = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
+                        int equipCount = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[26]).AddElement(); // Add new equipment entry
 
                         // XYZ
-                        var equip_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[2];
-                        equip_xyz.Data = netgame_equip.position;
+                        var equipXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[2];
+                        equipXyz.Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var equip_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[3];
-                        equip_orient.Data = netgame_equip.rotation;
+                        var equipRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[3];
+                        equipRotation.Data = netgameEquipEntry.rotation;
 
                         // Type
-                        var equip_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[1];
-                        equip_tag.Value = weapPaletteMapping["powerup"];
+                        var equipTagType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[1];
+                        equipTagType.Value = weapPaletteMapping["powerup"];
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equip_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 3; // 3 for equipment
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 3; // 3 for equipment
+                        dropdownSource.Value = 1; // 1 for editor
                     }
-                    else if (netgame_equip.collectionType.Contains("vehicles"))
+                    else if (netgameEquipEntry.collectionType.Contains("vehicles"))
                     {
                         // Check if current type exists in palette
-                        bool type_exists_already = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[25]).Elements)
+                        bool typeAlreadyExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[25]).Elements)
                         {
-                            var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                            if (x == utilsInstance.netVehiMapping[eqip_type])
+                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                            if (x == utilsInstance.netVehiMapping[equipType])
                             {
-                                type_exists_already = true;
+                                typeAlreadyExists = true;
                                 break;
                             }
                         }
 
                         // Add palette entry if needed
-                        int current_count = ((TagFieldBlock)tagFile.Fields[25]).Elements.Count();
-                        if (!type_exists_already)
+                        int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[25]).Elements.Count();
+                        if (!typeAlreadyExists)
                         {
                             ((TagFieldBlock)tagFile.Fields[25]).AddElement();
-                            var vehi_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[25]).Elements[current_count].Fields[0];
-                            vehi_type_ref.Path = utilsInstance.netVehiMapping[eqip_type];
+                            var vehiRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[25]).Elements[currentPaletteCount].Fields[0];
+                            vehiRef.Path = utilsInstance.netVehiMapping[equipType];
                             totalVehiCount++;
                         }
 
-                        int vehi_count = ((TagFieldBlock)tagFile.Fields[24]).Elements.Count();
+                        int vehiCount = ((TagFieldBlock)tagFile.Fields[24]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[24]).AddElement();
-                        var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[1];
-                        type_ref.Value = current_count;
+                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[1];
+                        typeRef.Value = currentPaletteCount;
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 1; // 1 for vehicle
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 1; // 1 for vehicle
+                        dropdownSource.Value = 1; // 1 for editor
 
                         // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = netgame_equip.position;
+                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[2];
+                        position.Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehi_count].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = netgame_equip.rotation;
+                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[3];
+                        rotation.Data = netgameEquipEntry.rotation;
                     }
                     else
                     {
                         // Weapon, check if palette entry exists first
-                        Console.WriteLine("Adding " + eqip_type + " weapon");
-                        loadingForm.UpdateOutputBox("Adding " + eqip_type + " weapon", false);
-                        bool weap_entry_exists = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
+                        Console.WriteLine("Adding " + equipType + " weapon");
+                        loadingForm.UpdateOutputBox("Adding " + equipType + " weapon", false);
+                        bool weapEntryExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
                         {
-                            var temp_type = utilsInstance.mpWeapMapping[eqip_type];
-                            if (((TagFieldReference)palette_entry.Fields[0]).Path == temp_type)
+                            var tempType = utilsInstance.mpWeapMapping[equipType];
+                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
                             {
-                                weap_entry_exists = true;
+                                weapEntryExists = true;
                             }
                         }
 
                         // Add palette entry if needed
-                        if (!weap_entry_exists)
+                        if (!weapEntryExists)
                         {
-                            int current_count = ((TagFieldBlock)tagFile.Fields[29]).Elements.Count();
+                            int currentCount = ((TagFieldBlock)tagFile.Fields[29]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[29]).AddElement();
-                            var weap_tag_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[29]).Elements[current_count].Fields[0];
-                            weap_tag_ref.Path = utilsInstance.mpWeapMapping[eqip_type];
-                            weapPaletteMapping.Add(eqip_type, current_count);
+                            var weapRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[29]).Elements[currentCount].Fields[0];
+                            weapRef.Path = utilsInstance.mpWeapMapping[equipType];
+                            weapPaletteMapping.Add(equipType, currentCount);
                         }
 
                         // Now add the weapon itself
-                        int weapon_count = ((TagFieldBlock)tagFile.Fields[28]).Elements.Count();
+                        int weapCount = ((TagFieldBlock)tagFile.Fields[28]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[28]).AddElement(); // Add new weapon entry
 
                         // XYZ
-                        var weap_xyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[2];
-                        weap_xyz.Data = netgame_equip.position;
+                        var weapXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[2];
+                        weapXyz.Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var weap_orient = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[3];
-                        weap_orient.Data = netgame_equip.rotation;
+                        var weapRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[3];
+                        weapRotation.Data = netgameEquipEntry.rotation;
 
                         // Type
-                        var weap_tag = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[1];
-                        weap_tag.Value = weapPaletteMapping[eqip_type];
+                        var weapTagRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[1];
+                        weapTagRef.Value = weapPaletteMapping[equipType];
 
                         // Spawn timer
-                        var weap_stime = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[7]).Elements[0].Fields[8];
-                        weap_stime.Data = uint.Parse(netgame_equip.spawnTime);
+                        var weapTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[7]).Elements[0].Fields[8];
+                        weapTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapon_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 2; // 2 for weapon
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 2; // 2 for weapon
+                        dropdownSource.Value = 1; // 1 for editor
                     }
 
                     Console.WriteLine("Done netgame equipment");
@@ -836,61 +832,61 @@ class ScenData
 
                     // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
 
-                    foreach (TagPath scen_type in all_scen_types)
+                    foreach (TagPath scenType in allScenTypes)
                     {
                         // Check if current type exists in palette
-                        bool type_exists_already = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[21]).Elements)
+                        bool typeAlreadyExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[21]).Elements)
                         {
-                            var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                            if (x == scen_type)
+                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                            if (x == scenType)
                             {
-                                type_exists_already = true;
+                                typeAlreadyExists = true;
                                 break;
                             }
                         }
 
                         // Add palette entry if needed
-                        if (!type_exists_already)
+                        if (!typeAlreadyExists)
                         {
-                            int current_count = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
+                            int currentCount = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                            var scen_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[current_count].Fields[0];
-                            scen_type_ref.Path = scen_type;
+                            var scenTypeRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[currentCount].Fields[0];
+                            scenTypeRef.Path = scenType;
                         }
                     }
 
                     // Now add all of the scenery placements
-                    foreach (Scenery scenery in all_scen_entries)
+                    foreach (Scenery scenery in allScenEntries)
                     {
-                        int current_count = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[20]).AddElement();
-                        var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[1];
+                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[1];
                         int index = scenery.typeIndex + totalScenCount;
-                        type_ref.Value = scenery.typeIndex + totalScenCount;
+                        typeRef.Value = scenery.typeIndex + totalScenCount;
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 6; // 6 for scenery
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 6; // 6 for scenery
+                        dropdownSource.Value = 1; // 1 for editor
 
                         // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = scenery.position;
+                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                        position.Data = scenery.position;
 
                         // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
+                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = scenery.rotation;
 
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
 
                         // Variant
-                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
-                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
+                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
+                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
                         variant.Data = scenery.varName;
                     }
 
@@ -905,10 +901,10 @@ class ScenData
                     ((TagFieldBlock)tagFile.Fields[119]).RemoveAllElements(); // Remove all crate types from palette
                     for (int z = 0; z < 5; z++)
                     {
-                        int current_count = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[125]).AddElement();
                         // Name
-                        var name = (TagFieldElementLongString)((TagFieldBlock)tagFile.Fields[125]).Elements[current_count].Fields[1];
+                        var name = (TagFieldElementLongString)((TagFieldBlock)tagFile.Fields[125]).Elements[currentCount].Fields[1];
                         if (z == 0)
                         {
                             name.Data = "oddball";
@@ -931,138 +927,138 @@ class ScenData
                         }
                     }
 
-                    foreach (TagPath crate_type in all_crate_types)
+                    foreach (TagPath crateType in allCrateTypes)
                     {
                         // Check if current type exists in palette
-                        bool type_exists_already = false;
-                        foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[119]).Elements)
+                        bool typeAlreadyExists = false;
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[119]).Elements)
                         {
-                            var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                            if (x == crate_type)
+                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                            if (x == crateType)
                             {
-                                type_exists_already = true;
+                                typeAlreadyExists = true;
                                 break;
                             }
                         }
 
                         // Add palette entry if needed
-                        if (!type_exists_already)
+                        if (!typeAlreadyExists)
                         {
-                            int current_count = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
+                            int currentCount = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                            var crate_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[current_count].Fields[0];
-                            crate_type_ref.Path = crate_type;
+                            var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[currentCount].Fields[0];
+                            crateRef.Path = crateType;
                         }
                     }
 
-                    foreach (Crate crate in all_crate_entries)
+                    foreach (Crate crate in allCrateEntries)
                     {
-                        int current_count = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
                         ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                        var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[1];
-                        type_ref.Value = crate.typeIndex;
+                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
+                        typeRef.Value = crate.typeIndex;
 
                         // Name
-                        var name_field = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[3];
-                        name_field.Value = crate.nameIndex;
+                        var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
+                        name.Value = crate.nameIndex;
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 10; // 1 for crate
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 10; // 1 for crate
+                        dropdownSource.Value = 1; // 1 for editor
 
                         // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = crate.position;
+                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                        position.Data = crate.position;
 
                         // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
+                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
                         rotation.Data = crate.rotation;
 
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{current_count}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
+                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
+                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
 
                         // Variant
-                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0].FieldName;
-                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[5]).Elements[0].Fields[0];
+                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
+                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
                         variant.Data = crate.varName;
                     }
 
-                    Dictionary<string, int> existing_gametype_crates = new Dictionary<string, int>();
+                    Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
 
                     // Netgame flags to gametype crates section
-                    foreach (NetFlag netflag in all_netgame_flags)
+                    foreach (NetFlag netflag in allNetgameFlags)
                     {
-                        int type_index = 0;
+                        int typeIndex = 0;
                         string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
-                        string name_stripped = Regex.Replace(temp, @"\d+$", "").Trim();
-                        if (!existing_gametype_crates.ContainsKey(name_stripped))
+                        string strippedName = Regex.Replace(temp, @"\d+$", "").Trim();
+                        if (!existingGametypeCrates.ContainsKey(strippedName))
                         {
                             // Add type to crate palette
-                            type_index = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
+                            typeIndex = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
                             ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                            var crate_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[type_index].Fields[0];
-                            crate_type_ref.Path = utilsInstance.netflagMapping[netflag.type];
-                            existing_gametype_crates.Add(name_stripped, type_index);
+                            var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[typeIndex].Fields[0];
+                            crateRef.Path = utilsInstance.netflagMapping[netflag.type];
+                            existingGametypeCrates.Add(strippedName, typeIndex);
                         }
                         else
                         {
-                            type_index = existing_gametype_crates[name_stripped];
+                            typeIndex = existingGametypeCrates[strippedName];
                         }
 
-                        int current_count = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count(); // Get current crate count
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count(); // Get current crate count
                         ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                        var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[1];
-                        type_ref.Value = existing_gametype_crates[name_stripped];
+                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
+                        typeRef.Value = existingGametypeCrates[strippedName];
 
                         // Name
-                        var name_field = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[3];
-                        name_field.Value = all_object_names.IndexOf(netflag.name);
+                        var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
+                        name.Value = allObjectNames.IndexOf(netflag.name);
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdown_type = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdown_source = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdown_type.Value = 10; // 1 for crate
-                        dropdown_source.Value = 1; // 1 for editor
+                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                        dropdownType.Value = 10; // 1 for crate
+                        dropdownSource.Value = 1; // 1 for editor
 
                         // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var xyz_pos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[2];
-                        xyz_pos.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                        position.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                         // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[3];
-                        string angle_xyz = netflag.rotation + ",0,0";
-                        rotation.Data = angle_xyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
+                        string angleXyz = netflag.rotation + ",0,0";
+                        rotation.Data = angleXyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                         // Team
-                        var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[7]).Elements[0].Fields[3];
+                        var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[7]).Elements[0].Fields[3];
                         team.Value = int.Parse(new string(netflag.team.TakeWhile(c => c != ',').ToArray()));
 
                         // Grab editor folder
-                        var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[current_count].Fields[4]).Elements[0].Fields[11];
+                        var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[11];
 
                         // Choose folder based on type
-                        if (name_stripped.ToLower().Contains("oddball"))
+                        if (strippedName.ToLower().Contains("oddball"))
                         {
                             folder.Value = 0;
                         }
-                        else if (name_stripped.ToLower().Contains("ctf"))
+                        else if (strippedName.ToLower().Contains("ctf"))
                         {
                             folder.Value = 1;
                         }
-                        else if (name_stripped.ToLower().Contains("hill"))
+                        else if (strippedName.ToLower().Contains("hill"))
                         {
                             folder.Value = 2;
                         }
-                        else if (name_stripped.ToLower().Contains("assault"))
+                        else if (strippedName.ToLower().Contains("assault"))
                         {
                             folder.Value = 3;
                         }
-                        else if (name_stripped.ToLower().Contains("territories"))
+                        else if (strippedName.ToLower().Contains("territories"))
                         {
                             folder.Value = 4;
                         }
@@ -1076,10 +1072,10 @@ class ScenData
                     loadingForm.UpdateOutputBox("Done crates", false);
                 }
             }
-            else if (scenario_type == "0,solo")
+            else if (scenarioType == "0,solo")
             {
                 // SP weapons
-                Utils.WriteObjectData(tagFile, all_sp_weap_locs, "weapons", loadingForm);
+                Utils.WriteObjectData(tagFile, allSpWeapLocs, "weapons", loadingForm);
 
                 // SP scenery section
 
@@ -1087,14 +1083,14 @@ class ScenData
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements();
                 int x = 0;
 
-                foreach (TagPath scenery_type in all_scen_types)
+                foreach (TagPath sceneryType in allScenTypes)
                 {
                     ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).AddElement();
-                    ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[{x}]/Reference:name")).Path = scenery_type;
+                    ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[{x}]/Reference:name")).Path = sceneryType;
                     x++;
                 }
 
-                Utils.WriteObjectData(tagFile, all_scen_entries, "scenery", loadingForm);
+                Utils.WriteObjectData(tagFile, allScenEntries, "scenery", loadingForm);
 
                 // SP crate section
 
@@ -1102,45 +1098,45 @@ class ScenData
                 ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).RemoveAllElements();
                 x = 0;
 
-                foreach (TagPath crate_type in all_crate_types)
+                foreach (TagPath crateType in allCrateTypes)
                 {
                     ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).AddElement();
-                    ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{x}]/Reference:name")).Path = crate_type;
+                    ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{x}]/Reference:name")).Path = crateType;
                     x++;
                 }
 
-                Utils.WriteObjectData(tagFile, all_crate_entries, "crates", loadingForm);
+                Utils.WriteObjectData(tagFile, allCrateEntries, "crates", loadingForm);
 
                 // Vehicle section
-                Utils.WriteObjectData(tagFile, all_vehi_entries, "vehicles", loadingForm);
+                Utils.WriteObjectData(tagFile, allVehiEntries, "vehicles", loadingForm);
             }
 
             // Trigger volumes section
             ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).RemoveAllElements();
-            foreach (TrigVol vol in all_trig_vols)
+            foreach (TrigVol vol in allTrigVols)
             {
-                int current_count = ((TagFieldBlock)tagFile.Fields[55]).Elements.Count();
+                int currentCount = ((TagFieldBlock)tagFile.Fields[55]).Elements.Count();
                 ((TagFieldBlock)tagFile.Fields[55]).AddElement();
 
                 // Name
-                var name = (TagFieldElementStringID)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[0];
+                var name = (TagFieldElementStringID)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[0];
                 name.Data = vol.name;
 
                 // Forward
-                var fwd = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[4];
-                fwd.Data = vol.forward.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                var forward = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[4];
+                forward.Data = vol.forward.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Up
-                var up = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[5];
+                var up = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[5];
                 up.Data = vol.up.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Position
-                var xyz = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[6];
-                xyz.Data = vol.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                var position = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[6];
+                position.Data = vol.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Extents
-                var ext = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[current_count].Fields[7];
-                ext.Data = vol.extents.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                var extents = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[7];
+                extents.Data = vol.extents.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
             Console.WriteLine("Done trigger volumes");
@@ -1149,44 +1145,44 @@ class ScenData
             // Decals section
             ((TagFieldBlock)tagFile.Fields[78]).RemoveAllElements(); // Remove all decals from palette
             ((TagFieldBlock)tagFile.Fields[77]).RemoveAllElements(); // Remove all decals
-            foreach (TagPath dec_type in all_dec_types)
+            foreach (TagPath decalType in allDecalTypes)
             {
                 // Check if current type exists in palette
-                bool type_exists_already = false;
-                foreach (var palette_entry in ((TagFieldBlock)tagFile.Fields[78]).Elements)
+                bool typeAlreadyExists = false;
+                foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[78]).Elements)
                 {
-                    var x = ((TagFieldReference)palette_entry.Fields[0]).Path;
-                    if (x == dec_type)
+                    var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                    if (x == decalType)
                     {
-                        type_exists_already = true;
+                        typeAlreadyExists = true;
                         break;
                     }
                 }
 
                 // Add palette entry if needed
-                if (!type_exists_already)
+                if (!typeAlreadyExists)
                 {
-                    int current_count = ((TagFieldBlock)tagFile.Fields[78]).Elements.Count();
+                    int currentCount = ((TagFieldBlock)tagFile.Fields[78]).Elements.Count();
                     ((TagFieldBlock)tagFile.Fields[78]).AddElement();
-                    var scen_type_ref = (TagFieldReference)((TagFieldBlock)tagFile.Fields[78]).Elements[current_count].Fields[0];
-                    scen_type_ref.Path = dec_type;
+                    var sceneryRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[78]).Elements[currentCount].Fields[0];
+                    sceneryRef.Path = decalType;
                 }
             }
 
-            foreach (Decal decal in all_dec_entries)
+            foreach (Decal decalEntry in allDecalEntries)
             {
-                int current_count = ((TagFieldBlock)tagFile.Fields[77]).Elements.Count();
+                int currentCount = ((TagFieldBlock)tagFile.Fields[77]).Elements.Count();
                 ((TagFieldBlock)tagFile.Fields[77]).AddElement();
-                var type_ref = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[77]).Elements[current_count].Fields[1];
-                type_ref.Value = int.Parse(decal.type);
+                var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[1];
+                typeRef.Value = int.Parse(decalEntry.type);
 
                 // Position
-                var xyz_pos = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[current_count].Fields[4];
-                xyz_pos.Data = decal.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                var position = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[4];
+                position.Data = decalEntry.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                 // Rotation stuff below - only god fucking knows what this is doing, and either way it doesnt work properly
-                double pitchDegrees = double.Parse(decal.pitch);
-                double yawDegrees = double.Parse(decal.yaw);
+                double pitchDegrees = double.Parse(decalEntry.pitch);
+                double yawDegrees = double.Parse(decalEntry.yaw);
 
                 // Convert pitch and yaw angles from degrees to radians
                 double pitchRadians = Math.PI * pitchDegrees / 180.0;
@@ -1204,7 +1200,7 @@ class ScenData
                 );
 
                 string quaternionString = $"{finalRotation.X},{finalRotation.Y},{finalRotation.Z},{finalRotation.W}";
-                var rotation = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[current_count].Fields[3];
+                var rotation = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[3];
                 rotation.Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
@@ -1218,7 +1214,6 @@ class ScenData
                 loadingForm.UpdateOutputBox("Tag failed to save. Usually it isn't necessary, but close Sapien/TagTest and try again.", false);
             }
             
-
             Console.WriteLine("Done decals");
             loadingForm.UpdateOutputBox("Done decals", false);
 
