@@ -672,7 +672,7 @@ class ScenData
                         ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
 
                         // Dropdown type and source (won't be valid without these)
-                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 3 for vehicle
+                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
                         ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
                     }
                     else
@@ -681,10 +681,10 @@ class ScenData
                         Console.WriteLine("Adding " + equipType + " weapon");
                         loadingForm.UpdateOutputBox("Adding " + equipType + " weapon", false);
                         bool weapEntryExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[29]).Elements)
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).Elements)
                         {
                             var tempType = utilsInstance.mpWeapMapping[equipType];
-                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
+                            if (((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path == tempType)
                             {
                                 weapEntryExists = true;
                             }
@@ -693,38 +693,31 @@ class ScenData
                         // Add palette entry if needed
                         if (!weapEntryExists)
                         {
-                            int currentCount = ((TagFieldBlock)tagFile.Fields[29]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[29]).AddElement();
-                            var weapRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[29]).Elements[currentCount].Fields[0];
-                            weapRef.Path = utilsInstance.mpWeapMapping[equipType];
+                            int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).Elements.Count();
+                            ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).AddElement();
+                            ((TagFieldReference)tagFile.SelectField($"Block:weapon palette[{currentCount}]/Reference:name")).Path = utilsInstance.mpWeapMapping[equipType];
                             weapPaletteMapping.Add(equipType, currentCount);
                         }
 
                         // Now add the weapon itself
-                        int weapCount = ((TagFieldBlock)tagFile.Fields[28]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[28]).AddElement(); // Add new weapon entry
+                        int weapCount = ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).AddElement(); // Add new weapon entry
 
-                        // XYZ
-                        var weapXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[2];
-                        weapXyz.Data = netgameEquipEntry.position;
+                        // Position
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var weapRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[3];
-                        weapRotation.Data = netgameEquipEntry.rotation;
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
 
                         // Type
-                        var weapTagRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[1];
-                        weapTagRef.Value = weapPaletteMapping[equipType];
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{weapCount}]/ShortBlockIndex:type")).Value = weapPaletteMapping[equipType];
 
                         // Spawn timer
-                        //TEMP var weapTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[7]).Elements[0].Fields[8];
-                        //TEMP weapTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
+                        ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 2; // 2 for weapon
-                        dropdownSource.Value = 1; // 1 for editor
+                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 2; // 2 for weapon
+                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
                     }
 
                     Console.WriteLine("Done netgame equipment");
