@@ -567,11 +567,16 @@ class ScenData
                 {
                     string equipType = netgameEquipEntry.collectionType.Split('\\')[netgameEquipEntry.collectionType.Split('\\').Length - 1];
 
-                    if (equipType == "frag_grenades" || equipType == "plasma_grenades")
+                    if (equipType == "frag_grenades" || equipType == "plasma_grenades" || equipType.Contains("powerup"))
                     {
                         // Grenade stuff, need to treat as equipment not weapon
                         Console.WriteLine("Adding " + equipType + " netgame equipment");
                         loadingForm.UpdateOutputBox("Adding " + equipType + " netgame equipment", false);
+
+                        if (equipType.Contains("powerup"))
+                        {
+                            equipType = "powerup";
+                        }
 
                         // Equipment, check if palette entry exists first
                         bool equipEntryExists = false;
@@ -604,7 +609,15 @@ class ScenData
                         ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
 
                         // Type
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = netgameEquipEntry.typeIndex;
+                        if (equipType != "powerup")
+                        {
+                            ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = netgameEquipEntry.typeIndex;
+                        }
+                        else
+                        {
+                            ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = weapPaletteMapping["powerup"];
+                        }
+                        
 
                         // Spawn timer
                         ((TagFieldElementInteger)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
@@ -625,52 +638,7 @@ class ScenData
                     else if (equipType.Contains("ammo"))
                     {
                         // Ammo placement, ignore for now
-                    }
-                    else if (equipType.Contains("powerup"))
-                    {
-                        // Powerup, add equipment, check if palette entry exists first
-                        bool equipEntryExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
-                        {
-                            var tempType = utilsInstance.mpWeapMapping["powerup"];
-                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
-                            {
-                                equipEntryExists = true;
-                            }
-                        }
-
-                        // Add palette entry if needed
-                        if (!equipEntryExists)
-                        {
-                            int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[27]).AddElement();
-                            var equipRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[currentPaletteCount].Fields[0];
-                            equipRef.Path = utilsInstance.mpWeapMapping["powerup"];
-                            weapPaletteMapping.Add("powerup", currentPaletteCount);
-                        }
-
-                        // Now add the equipment itself
-                        int equipCount = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[26]).AddElement(); // Add new equipment entry
-
-                        // XYZ
-                        var equipXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[2];
-                        equipXyz.Data = netgameEquipEntry.position;
-
-                        // Rotation
-                        var equipRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[3];
-                        equipRotation.Data = netgameEquipEntry.rotation;
-
-                        // Type
-                        var equipTagType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[1];
-                        equipTagType.Value = weapPaletteMapping["powerup"];
-
-                        // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 3; // 3 for equipment
-                        dropdownSource.Value = 1; // 1 for editor
-                    }
+                    }        
                     else if (netgameEquipEntry.collectionType.Contains("vehicles"))
                     {
                         // Check if current type exists in palette
