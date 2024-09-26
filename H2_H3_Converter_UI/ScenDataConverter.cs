@@ -602,7 +602,7 @@ class ScenData
                         int equipCount = ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).Elements.Count();
                         ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).AddElement(); // Add new equipment entry
 
-                        // XYZ
+                        // Position
                         ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
 
                         // Rotation
@@ -618,7 +618,6 @@ class ScenData
                             ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = weapPaletteMapping["powerup"];
                         }
                         
-
                         // Spawn timer
                         ((TagFieldElementInteger)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
 
@@ -643,10 +642,10 @@ class ScenData
                     {
                         // Check if current type exists in palette
                         bool typeAlreadyExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[25]).Elements)
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).Elements)
                         {
-                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
-                            if (x == utilsInstance.netVehiMapping[equipType])
+                            var typePath = ((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path;
+                            if (typePath == utilsInstance.netVehiMapping[equipType])
                             {
                                 typeAlreadyExists = true;
                                 break;
@@ -654,34 +653,27 @@ class ScenData
                         }
 
                         // Add palette entry if needed
-                        int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[25]).Elements.Count();
+                        int currentPaletteCount = ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).Elements.Count();
                         if (!typeAlreadyExists)
                         {
-                            ((TagFieldBlock)tagFile.Fields[25]).AddElement();
-                            var vehiRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[25]).Elements[currentPaletteCount].Fields[0];
-                            vehiRef.Path = utilsInstance.netVehiMapping[equipType];
+                            ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).AddElement();
+                            ((TagFieldReference)tagFile.SelectField($"Block:vehicle palette[{currentPaletteCount}]/Reference:name")).Path = utilsInstance.netVehiMapping[equipType];
                             totalVehiCount++;
                         }
 
-                        int vehiCount = ((TagFieldBlock)tagFile.Fields[24]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[24]).AddElement();
-                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[1];
-                        typeRef.Value = currentPaletteCount;
-
-                        // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 1; // 1 for vehicle
-                        dropdownSource.Value = 1; // 1 for editor
+                        int vehiCount = ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).AddElement();
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{vehiCount}]/ShortBlockIndex:type")).Value = currentPaletteCount;
 
                         // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[2];
-                        position.Data = netgameEquipEntry.position;
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[24]).Elements[vehiCount].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = netgameEquipEntry.rotation;
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
+
+                        // Dropdown type and source (won't be valid without these)
+                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 3 for vehicle
+                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
                     }
                     else
                     {
