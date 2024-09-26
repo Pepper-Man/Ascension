@@ -33,7 +33,7 @@ public class ObjectPlacement
 
 class NetEquip : ObjectPlacement
 {
-    public string spawnTime { get; set; }
+    public long spawnTime { get; set; }
     public string collectionType { get; set; }
 }
 
@@ -217,7 +217,7 @@ class ScenData
                         NetEquip netgameEquip = new NetEquip();
                         netgameEquip.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                         netgameEquip.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        netgameEquip.spawnTime = element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim();
+                        netgameEquip.spawnTime = long.Parse(element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim());
                         netgameEquip.collectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
 
                         allNetgameEquipLocs.Add(netgameEquip);
@@ -552,13 +552,15 @@ class ScenData
                 Console.WriteLine("Done spawns");
                 loadingForm.UpdateOutputBox("Done spawns", false);
 
-                // MP netgame equipment
-                ((TagFieldBlock)tagFile.Fields[27]).RemoveAllElements(); // Remove all equip palette entries
-                ((TagFieldBlock)tagFile.Fields[26]).RemoveAllElements(); // Remove all equipment
-                ((TagFieldBlock)tagFile.Fields[25]).RemoveAllElements(); // Remove all vehicle palette entries
-                ((TagFieldBlock)tagFile.Fields[24]).RemoveAllElements(); // Remove all vehicles
-                ((TagFieldBlock)tagFile.Fields[29]).RemoveAllElements(); // Remove all weapon palette entries
-                ((TagFieldBlock)tagFile.Fields[28]).RemoveAllElements(); // Remove all weapons
+                // MP netgame equipment section
+                // First, remove all palette and entry data for equipment, vehicles and weapon
+                ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).RemoveAllElements();
+
                 Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
 
                 foreach (NetEquip netgameEquipEntry in netgameEquipment)
@@ -573,10 +575,10 @@ class ScenData
 
                         // Equipment, check if palette entry exists first
                         bool equipEntryExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[27]).Elements)
+                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).Elements)
                         {
                             var tempType = utilsInstance.mpWeapMapping[equipType];
-                            if (((TagFieldReference)paletteEntry.Fields[0]).Path == tempType)
+                            if (((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path == tempType)
                             {
                                 equipEntryExists = true;
                             }
@@ -585,38 +587,31 @@ class ScenData
                         // Add palette entry if needed
                         if (!equipEntryExists)
                         {
-                            int currentPaletteCount = ((TagFieldBlock)tagFile.Fields[27]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[27]).AddElement();
-                            var equipRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[27]).Elements[currentPaletteCount].Fields[0];
-                            equipRef.Path = utilsInstance.mpWeapMapping[equipType];
+                            int currentPaletteCount = ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).Elements.Count();
+                            ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).AddElement();
+                            var equipRef = ((TagFieldReference)tagFile.SelectField($"Block:equipment palette[{currentPaletteCount}]/Reference:name")).Path = utilsInstance.mpWeapMapping[equipType];
                             weapPaletteMapping.Add(equipType, currentPaletteCount);
                         }
 
                         // Now add the equipment itself
-                        int equipCount = ((TagFieldBlock)tagFile.Fields[26]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[26]).AddElement(); // Add new equipment entry
+                        int equipCount = ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).AddElement(); // Add new equipment entry
 
                         // XYZ
-                        var equipXyz = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[2];
-                        equipXyz.Data = netgameEquipEntry.position;
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
 
                         // Rotation
-                        var equipRotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[3];
-                        equipRotation.Data = netgameEquipEntry.rotation;
+                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
 
                         // Type
-                        var equipTagType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[1];
-                        equipTagType.Value = weapPaletteMapping[equipType];
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = netgameEquipEntry.typeIndex;
 
                         // Spawn timer
-                        var equipTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[6]).Elements[0].Fields[8];
-                        equipTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
+                        ((TagFieldElementInteger)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
 
                         // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[26]).Elements[equipCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 3; // 3 for equipment
-                        dropdownSource.Value = 1; // 1 for editor
+                        ((TagFieldEnum)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 3; // 3 for equipment
+                        ((TagFieldEnum)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
                         continue;
                     }
@@ -762,8 +757,8 @@ class ScenData
                         weapTagRef.Value = weapPaletteMapping[equipType];
 
                         // Spawn timer
-                        var weapTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[7]).Elements[0].Fields[8];
-                        weapTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
+                        //TEMP var weapTimer = (TagFieldElementInteger)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[7]).Elements[0].Fields[8];
+                        //TEMP weapTimer.Data = uint.Parse(netgameEquipEntry.spawnTime);
 
                         // Dropdown type and source (won't be valid without these)
                         var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[28]).Elements[weapCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
