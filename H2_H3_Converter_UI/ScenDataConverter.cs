@@ -11,17 +11,10 @@ using H2_H3_Converter_UI;
 
 class StartLoc
 {
-    public string position { get; set; }
-    public string facing { get; set; }
-    public string team { get; set; }
-    public string type0 { get; set; }
-    public string type1 { get; set; }
-    public string type2 { get; set; }
-    public string type3 { get; set; }
-    public string spawnType0 { get; set; }
-    public string spawnType1 { get; set; }
-    public string spawnType2 { get; set; }
-    public string spawnType3 { get; set; }
+    public float[] position { get; set; }
+    public float facing { get; set; }
+    public int team { get; set; }
+    public int playerType { get; set; }
 }
 
 public class ObjectPlacement
@@ -190,17 +183,10 @@ class ScenData
                 if (element != null)
                 {
                     StartLoc startLocation = new StartLoc();
-                    startLocation.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    startLocation.facing = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
-                    startLocation.team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
-                    startLocation.type0 = element.SelectSingleNode("./field[@name='type 0']").InnerText.Trim();
-                    startLocation.type1 = element.SelectSingleNode("./field[@name='type 1']").InnerText.Trim();
-                    startLocation.type2 = element.SelectSingleNode("./field[@name='type 2']").InnerText.Trim();
-                    startLocation.type3 = element.SelectSingleNode("./field[@name='type 3']").InnerText.Trim();
-                    startLocation.spawnType0 = element.SelectSingleNode("./field[@name='spawn type 0']").InnerText.Trim();
-                    startLocation.spawnType1 = element.SelectSingleNode("./field[@name='spawn type 1']").InnerText.Trim();
-                    startLocation.spawnType2 = element.SelectSingleNode("./field[@name='spawn type 2']").InnerText.Trim();
-                    startLocation.spawnType3 = element.SelectSingleNode("./field[@name='spawn type 3']").InnerText.Trim();
+                    startLocation.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                    startLocation.facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim());
+                    startLocation.team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1));
+                    startLocation.playerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1));
 
                     allStartingLocs.Add(startLocation);
                     Console.WriteLine("Processed starting position " + i);
@@ -507,7 +493,6 @@ class ScenData
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
         var respawnScenPath = TagPath.FromPathAndType(@"objects\multi\spawning\respawn_point", "scen*");
-        int respawnScenIndex = 0;
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
         using (var tagFile = new TagFile(tagPath))
@@ -527,79 +512,39 @@ class ScenData
             if (scenarioType == "1,multiplayer")
             {
                 // Spawns Section
-                int i = 0;
-                int tempIndex = 0;
-                bool respawnFound = false;
                 int totalScenCount = 0;
                 int totalVehiCount = 0;
+                ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements(); // Remove all scenery from palette
+                ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements(); // Remove all scenery
 
-                ((TagFieldBlock)tagFile.Fields[21]).RemoveAllElements(); // Remove all scenery from palette
-                ((TagFieldBlock)tagFile.Fields[20]).RemoveAllElements(); // Remove all scenery
+                // Add respawn point scenery to palette
+                Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
+                loadingForm.UpdateOutputBox("\nNo existing sceneries, adding respawn point\n", false);
+                ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).AddElement();
+                ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[0]/Reference:name")).Path = respawnScenPath;
 
-                // Add respawn point scenery, if it doesn't already exist
-                if (((TagFieldBlock)tagFile.Fields[21]).Elements.Count() != 0)
-                {
-                    foreach (var scenType in ((TagFieldBlock)tagFile.Fields[21]).Elements)
-                    {
-                        if (((TagFieldReference)scenType.Fields[0]).Path == respawnScenPath)
-                        {
-                            // Respawn point scenery already in palette, set index
-                            respawnScenIndex = tempIndex;
-                            respawnFound = true;
-                            break;
-                        }
-                        tempIndex++;
-                    }
-                    if (respawnFound == false)
-                    {
-                        // Respawn point is not in the palette, add it and set the index
-                        respawnScenIndex = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                        var sceneryTag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[respawnScenIndex].Fields[0];
-                        sceneryTag.Path = respawnScenPath;
-                        totalScenCount++;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
-                    loadingForm.UpdateOutputBox("\nNo existing sceneries, adding respawn point\n", false);
-                    ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                    var sceneryTag = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[0].Fields[0];
-                    sceneryTag.Path = respawnScenPath;
-                }
-
-
-
+                // Now add the spawn points
+                int i = 0;
                 foreach (var spawn in startLocations)
                 {
-                    // Add new
-                    ((TagFieldBlock)tagFile.Fields[20]).AddElement();
+                    ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).AddElement();
 
                     // Type
-                    var sceneryType = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[1];
-                    sceneryType.Value = respawnScenIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{i}]/ShortBlockIndex:type")).Value = 0;
 
                     // Dropdown type and source (won't be valid without these)
-                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                    dropdownType.Value = 6; // 6 for scenery
-                    dropdownSource.Value = 1; // 1 for editor
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 is scenery
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[0].FieldName;
-                    var xyzPos = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[2];
-                    xyzPos.Data = spawn.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/RealPoint3d:position")).Data = spawn.position;
 
                     // Rotation
-                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[4]).Elements[0].Fields[3];
-                    string xyzAngle = spawn.facing + ",0,0";
-                    rotation.Data = xyzAngle.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    float[] rotation = new float[3] { spawn.facing, 0.0f, 0.0f };
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/RealEulerAngles3d:rotation")).Data = rotation;
 
                     // Team
-                    var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[0].FieldName;
-                    var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[i].Fields[7]).Elements[0].Fields[3];
-                    team.Value = int.Parse(new string(spawn.team.TakeWhile(c => c != ',').ToArray()));
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:multiplayer data/ShortEnum:owner team")).Value = spawn.team;
 
                     i++;
                 }

@@ -443,11 +443,11 @@
             this.checkBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.checkBox4.AutoSize = true;
             this.checkBox4.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox4.Location = new System.Drawing.Point(100, 155);
+            this.checkBox4.Location = new System.Drawing.Point(84, 155);
             this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(383, 20);
+            this.checkBox4.Size = new System.Drawing.Size(414, 20);
             this.checkBox4.TabIndex = 16;
-            this.checkBox4.Text = "Scenario AI/script data (jump hints, flags, point sets, squads)";
+            this.checkBox4.Text = "Scenario AI/script data (jump/flight hints, flags, point sets, squads)";
             this.checkBox4.UseVisualStyleBackColor = true;
             this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 
