@@ -497,6 +497,40 @@ class ScenData
 
         using (var tagFile = new TagFile(tagPath))
         {
+            void AddToPaletteIfNotExists(string blockName, string fieldName, string itemType, Dictionary<string, int> paletteMapping, TagPath path)
+            {
+                // Check if the itemType has already been added using the paletteMapping dictionary
+                if (!paletteMapping.ContainsKey(itemType))
+                {
+                    loadingForm.UpdateOutputBox($"Adding {path} to {blockName}", false);
+
+                    int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:{blockName}")).Elements.Count();
+                    ((TagFieldBlock)tagFile.SelectField($"Block:{blockName}")).AddElement();
+                    ((TagFieldReference)tagFile.SelectField($"Block:{blockName}[{currentCount}]/Reference:{fieldName}")).Path = path;
+
+                    paletteMapping.Add(itemType, currentCount);
+                }
+            }
+
+            void AddElementToBlock(string blockName, int index, NetEquip netgameEquipEntry, int typeIndex, int sourceType, int objectType)
+            {
+                // Position
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
+
+                // Rotation
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
+
+                // Type
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:{blockName}[{index}]/ShortBlockIndex:type")).Value = typeIndex;
+
+                // Spawn timer
+                ((TagFieldElementInteger)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
+
+                // Dropdown type and source
+                ((TagFieldEnum)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objectType;
+                ((TagFieldEnum)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = sourceType;
+            }
+
             // Object names section
             ((TagFieldBlock)tagFile.SelectField($"Block:object names")).RemoveAllElements();
             int nameIndex = 0;
@@ -561,7 +595,7 @@ class ScenData
                 ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).RemoveAllElements();
 
-                Dictionary<string, int> weapPaletteMapping = new Dictionary<string, int>();
+                Dictionary<string, int> netgamePaletteMapping = new Dictionary<string, int>();
 
                 foreach (NetEquip netgameEquipEntry in netgameEquipment)
                 {
@@ -569,61 +603,17 @@ class ScenData
 
                     if (equipType == "frag_grenades" || equipType == "plasma_grenades" || equipType.Contains("powerup"))
                     {
-                        // Grenade stuff, need to treat as equipment not weapon
-                        Console.WriteLine("Adding " + equipType + " netgame equipment");
-                        loadingForm.UpdateOutputBox("Adding " + equipType + " netgame equipment", false);
-
                         if (equipType.Contains("powerup"))
                         {
                             equipType = "powerup";
                         }
 
-                        // Equipment, check if palette entry exists first
-                        bool equipEntryExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).Elements)
-                        {
-                            var tempType = utilsInstance.mpWeapMapping[equipType];
-                            if (((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path == tempType)
-                            {
-                                equipEntryExists = true;
-                            }
-                        }
+                        AddToPaletteIfNotExists("equipment palette", "name", equipType, netgamePaletteMapping, utilsInstance.mpWeapMapping[equipType]);
 
-                        // Add palette entry if needed
-                        if (!equipEntryExists)
-                        {
-                            int currentPaletteCount = ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).Elements.Count();
-                            ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).AddElement();
-                            var equipRef = ((TagFieldReference)tagFile.SelectField($"Block:equipment palette[{currentPaletteCount}]/Reference:name")).Path = utilsInstance.mpWeapMapping[equipType];
-                            weapPaletteMapping.Add(equipType, currentPaletteCount);
-                        }
-
-                        // Now add the equipment itself
-                        int equipCount = ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).AddElement(); // Add new equipment entry
-
-                        // Position
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
-
-                        // Rotation
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
-
-                        // Type
-                        if (equipType != "powerup")
-                        {
-                            ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = netgameEquipEntry.typeIndex;
-                        }
-                        else
-                        {
-                            ((TagFieldBlockIndex)tagFile.SelectField($"Block:equipment[{equipCount}]/ShortBlockIndex:type")).Value = weapPaletteMapping["powerup"];
-                        }
-                        
-                        // Spawn timer
-                        ((TagFieldElementInteger)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
-
-                        // Dropdown type and source (won't be valid without these)
-                        ((TagFieldEnum)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 3; // 3 for equipment
-                        ((TagFieldEnum)tagFile.SelectField($"Block:equipment[{equipCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+                        int equipCount = ((TagFieldBlock)tagFile.SelectField("Block:equipment")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:equipment")).AddElement();
+                        int typeIndex = equipType != "powerup" ? netgamePaletteMapping[equipType] : netgamePaletteMapping["powerup"];
+                        AddElementToBlock("equipment", equipCount, netgameEquipEntry, typeIndex, 1, 3);
 
                         continue;
                     }
@@ -640,92 +630,25 @@ class ScenData
                     }        
                     else if (netgameEquipEntry.collectionType.Contains("vehicles"))
                     {
-                        // Check if current type exists in palette
-                        bool typeAlreadyExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).Elements)
-                        {
-                            var typePath = ((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path;
-                            if (typePath == utilsInstance.netVehiMapping[equipType])
-                            {
-                                typeAlreadyExists = true;
-                                break;
-                            }
-                        }
+                        AddToPaletteIfNotExists("vehicle palette", "name", equipType, netgamePaletteMapping, utilsInstance.netVehiMapping[equipType]);
 
-                        // Add palette entry if needed
-                        int currentPaletteCount = ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).Elements.Count();
-                        if (!typeAlreadyExists)
-                        {
-                            ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).AddElement();
-                            ((TagFieldReference)tagFile.SelectField($"Block:vehicle palette[{currentPaletteCount}]/Reference:name")).Path = utilsInstance.netVehiMapping[equipType];
-                            totalVehiCount++;
-                        }
-
-                        int vehiCount = ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).AddElement();
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:vehicles[{vehiCount}]/ShortBlockIndex:type")).Value = currentPaletteCount;
-
-                        // Position
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
-
-                        // Rotation
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
-
-                        // Dropdown type and source (won't be valid without these)
-                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 1; // 1 for vehicle
-                        ((TagFieldEnum)tagFile.SelectField($"Block:vehicles[{vehiCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+                        int vehiCount = ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).AddElement();
+                        AddElementToBlock("vehicles", vehiCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 1);
                     }
                     else
                     {
-                        // Weapon, check if palette entry exists first
-                        Console.WriteLine("Adding " + equipType + " weapon");
-                        loadingForm.UpdateOutputBox("Adding " + equipType + " weapon", false);
-                        bool weapEntryExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).Elements)
-                        {
-                            var tempType = utilsInstance.mpWeapMapping[equipType];
-                            if (((TagFieldReference)paletteEntry.SelectField($"Reference:name")).Path == tempType)
-                            {
-                                weapEntryExists = true;
-                            }
-                        }
+                        AddToPaletteIfNotExists("weapon palette", "name", equipType, netgamePaletteMapping, utilsInstance.mpWeapMapping[equipType]);
 
-                        // Add palette entry if needed
-                        if (!weapEntryExists)
-                        {
-                            int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).Elements.Count();
-                            ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).AddElement();
-                            ((TagFieldReference)tagFile.SelectField($"Block:weapon palette[{currentCount}]/Reference:name")).Path = utilsInstance.mpWeapMapping[equipType];
-                            weapPaletteMapping.Add(equipType, currentCount);
-                        }
-
-                        // Now add the weapon itself
-                        int weapCount = ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).AddElement(); // Add new weapon entry
-
-                        // Position
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
-
-                        // Rotation
-                        ((TagFieldElementArraySingle)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
-
-                        // Type
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:weapons[{weapCount}]/ShortBlockIndex:type")).Value = weapPaletteMapping[equipType];
-
-                        // Spawn timer
-                        ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
-
-                        // Dropdown type and source (won't be valid without these)
-                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 2; // 2 for weapon
-                        ((TagFieldEnum)tagFile.SelectField($"Block:weapons[{weapCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
+                        int weapCount = ((TagFieldBlock)tagFile.SelectField("Block:weapons")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:weapons")).AddElement();
+                        AddElementToBlock("weapons", weapCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 2);
                     }
-
-                    Console.WriteLine("Done netgame equipment");
-                    loadingForm.UpdateOutputBox("Done netgame equipment", false);
                 }
+                Console.WriteLine("Done netgame equipment");
+                loadingForm.UpdateOutputBox("Done netgame equipment", false);
 
                 // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
-
                 foreach (TagPath scenType in allScenTypes)
                 {
                     // Check if current type exists in palette
