@@ -729,248 +729,248 @@ class ScenData
 
                     Console.WriteLine("Done netgame equipment");
                     loadingForm.UpdateOutputBox("Done netgame equipment", false);
-
-                    // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
-
-                    foreach (TagPath scenType in allScenTypes)
-                    {
-                        // Check if current type exists in palette
-                        bool typeAlreadyExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[21]).Elements)
-                        {
-                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
-                            if (x == scenType)
-                            {
-                                typeAlreadyExists = true;
-                                break;
-                            }
-                        }
-
-                        // Add palette entry if needed
-                        if (!typeAlreadyExists)
-                        {
-                            int currentCount = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                            var scenTypeRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[currentCount].Fields[0];
-                            scenTypeRef.Path = scenType;
-                        }
-                    }
-
-                    // Now add all of the scenery placements
-                    foreach (Scenery scenery in allScenEntries)
-                    {
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[20]).AddElement();
-                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[1];
-                        int index = scenery.typeIndex + totalScenCount;
-                        typeRef.Value = scenery.typeIndex + totalScenCount;
-
-                        // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 6; // 6 for scenery
-                        dropdownSource.Value = 1; // 1 for editor
-
-                        // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                        position.Data = scenery.position;
-
-                        // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = scenery.rotation;
-
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
-
-                        // Variant
-                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
-                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = scenery.varName;
-                    }
-
-                    Console.WriteLine("Done scenery");
-                    loadingForm.UpdateOutputBox("Done scenery", false);
-
-                    // Crates section
-
-                    // Begin with creating the editor folders
-                    ((TagFieldBlock)tagFile.Fields[125]).RemoveAllElements(); // Remove all editor folders
-                    ((TagFieldBlock)tagFile.Fields[118]).RemoveAllElements(); // Remove all crates
-                    ((TagFieldBlock)tagFile.Fields[119]).RemoveAllElements(); // Remove all crate types from palette
-                    for (int z = 0; z < 5; z++)
-                    {
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[125]).AddElement();
-                        // Name
-                        var name = (TagFieldElementLongString)((TagFieldBlock)tagFile.Fields[125]).Elements[currentCount].Fields[1];
-                        if (z == 0)
-                        {
-                            name.Data = "oddball";
-                        }
-                        else if (z == 1)
-                        {
-                            name.Data = "ctf";
-                        }
-                        else if (z == 2)
-                        {
-                            name.Data = "koth";
-                        }
-                        else if (z == 3)
-                        {
-                            name.Data = "assault";
-                        }
-                        else if (z == 4)
-                        {
-                            name.Data = "territories";
-                        }
-                    }
-
-                    foreach (TagPath crateType in allCrateTypes)
-                    {
-                        // Check if current type exists in palette
-                        bool typeAlreadyExists = false;
-                        foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[119]).Elements)
-                        {
-                            var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
-                            if (x == crateType)
-                            {
-                                typeAlreadyExists = true;
-                                break;
-                            }
-                        }
-
-                        // Add palette entry if needed
-                        if (!typeAlreadyExists)
-                        {
-                            int currentCount = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                            var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[currentCount].Fields[0];
-                            crateRef.Path = crateType;
-                        }
-                    }
-
-                    foreach (Crate crate in allCrateEntries)
-                    {
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
-                        typeRef.Value = crate.typeIndex;
-
-                        // Name
-                        var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
-                        name.Value = crate.nameIndex;
-
-                        // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 10; // 1 for crate
-                        dropdownSource.Value = 1; // 1 for editor
-
-                        // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                        position.Data = crate.position;
-
-                        // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                        rotation.Data = crate.rotation;
-
-                        ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
-                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
-                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
-
-                        // Variant
-                        var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
-                        var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
-                        variant.Data = crate.varName;
-                    }
-
-                    Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
-
-                    // Netgame flags to gametype crates section
-                    foreach (NetFlag netflag in allNetgameFlags)
-                    {
-                        int typeIndex = 0;
-                        string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
-                        string strippedName = Regex.Replace(temp, @"\d+$", "").Trim();
-                        if (!existingGametypeCrates.ContainsKey(strippedName))
-                        {
-                            // Add type to crate palette
-                            typeIndex = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
-                            ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                            var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[typeIndex].Fields[0];
-                            crateRef.Path = utilsInstance.netflagMapping[netflag.type];
-                            existingGametypeCrates.Add(strippedName, typeIndex);
-                        }
-                        else
-                        {
-                            typeIndex = existingGametypeCrates[strippedName];
-                        }
-
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count(); // Get current crate count
-                        ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                        var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
-                        typeRef.Value = existingGametypeCrates[strippedName];
-
-                        // Name
-                        var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
-                        name.Value = allObjectNames.IndexOf(netflag.name);
-
-                        // Dropdown type and source (won't be valid without these)
-                        var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                        var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                        dropdownType.Value = 10; // 1 for crate
-                        dropdownSource.Value = 1; // 1 for editor
-
-                        // Position
-                        var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                        var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                        position.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
-
-                        // Rotation
-                        var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                        string angleXyz = netflag.rotation + ",0,0";
-                        rotation.Data = angleXyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
-
-                        // Team
-                        var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[7]).Elements[0].Fields[3];
-                        team.Value = int.Parse(new string(netflag.team.TakeWhile(c => c != ',').ToArray()));
-
-                        // Grab editor folder
-                        var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[11];
-
-                        // Choose folder based on type
-                        if (strippedName.ToLower().Contains("oddball"))
-                        {
-                            folder.Value = 0;
-                        }
-                        else if (strippedName.ToLower().Contains("ctf"))
-                        {
-                            folder.Value = 1;
-                        }
-                        else if (strippedName.ToLower().Contains("hill"))
-                        {
-                            folder.Value = 2;
-                        }
-                        else if (strippedName.ToLower().Contains("assault"))
-                        {
-                            folder.Value = 3;
-                        }
-                        else if (strippedName.ToLower().Contains("territories"))
-                        {
-                            folder.Value = 4;
-                        }
-                        else
-                        {
-                            folder.Value = -1;
-                        }
-                    }
-
-                    Console.WriteLine("Done crates");
-                    loadingForm.UpdateOutputBox("Done crates", false);
                 }
+
+                // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
+
+                foreach (TagPath scenType in allScenTypes)
+                {
+                    // Check if current type exists in palette
+                    bool typeAlreadyExists = false;
+                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[21]).Elements)
+                    {
+                        var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                        if (x == scenType)
+                        {
+                            typeAlreadyExists = true;
+                            break;
+                        }
+                    }
+
+                    // Add palette entry if needed
+                    if (!typeAlreadyExists)
+                    {
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
+                        ((TagFieldBlock)tagFile.Fields[21]).AddElement();
+                        var scenTypeRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[currentCount].Fields[0];
+                        scenTypeRef.Path = scenType;
+                    }
+                }
+
+                // Now add all of the scenery placements
+                foreach (Scenery scenery in allScenEntries)
+                {
+                    int currentCount = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
+                    ((TagFieldBlock)tagFile.Fields[20]).AddElement();
+                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[1];
+                    int index = scenery.typeIndex + totalScenCount;
+                    typeRef.Value = scenery.typeIndex + totalScenCount;
+
+                    // Dropdown type and source (won't be valid without these)
+                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                    dropdownType.Value = 6; // 6 for scenery
+                    dropdownSource.Value = 1; // 1 for editor
+
+                    // Position
+                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                    position.Data = scenery.position;
+
+                    // Rotation
+                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
+                    rotation.Data = scenery.rotation;
+
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
+
+                    // Variant
+                    var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
+                    var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
+                    variant.Data = scenery.varName;
+                }
+
+                Console.WriteLine("Done scenery");
+                loadingForm.UpdateOutputBox("Done scenery", false);
+
+                // Crates section
+
+                // Begin with creating the editor folders
+                ((TagFieldBlock)tagFile.Fields[125]).RemoveAllElements(); // Remove all editor folders
+                ((TagFieldBlock)tagFile.Fields[118]).RemoveAllElements(); // Remove all crates
+                ((TagFieldBlock)tagFile.Fields[119]).RemoveAllElements(); // Remove all crate types from palette
+                for (int z = 0; z < 5; z++)
+                {
+                    int currentCount = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
+                    ((TagFieldBlock)tagFile.Fields[125]).AddElement();
+                    // Name
+                    var name = (TagFieldElementLongString)((TagFieldBlock)tagFile.Fields[125]).Elements[currentCount].Fields[1];
+                    if (z == 0)
+                    {
+                        name.Data = "oddball";
+                    }
+                    else if (z == 1)
+                    {
+                        name.Data = "ctf";
+                    }
+                    else if (z == 2)
+                    {
+                        name.Data = "koth";
+                    }
+                    else if (z == 3)
+                    {
+                        name.Data = "assault";
+                    }
+                    else if (z == 4)
+                    {
+                        name.Data = "territories";
+                    }
+                }
+
+                foreach (TagPath crateType in allCrateTypes)
+                {
+                    // Check if current type exists in palette
+                    bool typeAlreadyExists = false;
+                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[119]).Elements)
+                    {
+                        var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                        if (x == crateType)
+                        {
+                            typeAlreadyExists = true;
+                            break;
+                        }
+                    }
+
+                    // Add palette entry if needed
+                    if (!typeAlreadyExists)
+                    {
+                        int currentCount = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
+                        ((TagFieldBlock)tagFile.Fields[119]).AddElement();
+                        var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[currentCount].Fields[0];
+                        crateRef.Path = crateType;
+                    }
+                }
+
+                foreach (Crate crate in allCrateEntries)
+                {
+                    int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
+                    ((TagFieldBlock)tagFile.Fields[118]).AddElement();
+                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
+                    typeRef.Value = crate.typeIndex;
+
+                    // Name
+                    var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
+                    name.Value = crate.nameIndex;
+
+                    // Dropdown type and source (won't be valid without these)
+                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                    dropdownType.Value = 10; // 1 for crate
+                    dropdownSource.Value = 1; // 1 for editor
+
+                    // Position
+                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                    position.Data = crate.position;
+
+                    // Rotation
+                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
+                    rotation.Data = crate.rotation;
+
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
+
+                    // Variant
+                    var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
+                    var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
+                    variant.Data = crate.varName;
+                }
+
+                Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
+
+                // Netgame flags to gametype crates section
+                foreach (NetFlag netflag in allNetgameFlags)
+                {
+                    int typeIndex = 0;
+                    string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
+                    string strippedName = Regex.Replace(temp, @"\d+$", "").Trim();
+                    if (!existingGametypeCrates.ContainsKey(strippedName))
+                    {
+                        // Add type to crate palette
+                        typeIndex = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
+                        ((TagFieldBlock)tagFile.Fields[119]).AddElement();
+                        var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[typeIndex].Fields[0];
+                        crateRef.Path = utilsInstance.netflagMapping[netflag.type];
+                        existingGametypeCrates.Add(strippedName, typeIndex);
+                    }
+                    else
+                    {
+                        typeIndex = existingGametypeCrates[strippedName];
+                    }
+
+                    int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count(); // Get current crate count
+                    ((TagFieldBlock)tagFile.Fields[118]).AddElement();
+                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
+                    typeRef.Value = existingGametypeCrates[strippedName];
+
+                    // Name
+                    var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
+                    name.Value = allObjectNames.IndexOf(netflag.name);
+
+                    // Dropdown type and source (won't be valid without these)
+                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
+                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
+                    dropdownType.Value = 10; // 1 for crate
+                    dropdownSource.Value = 1; // 1 for editor
+
+                    // Position
+                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
+                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
+                    position.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+
+                    // Rotation
+                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
+                    string angleXyz = netflag.rotation + ",0,0";
+                    rotation.Data = angleXyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+
+                    // Team
+                    var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[7]).Elements[0].Fields[3];
+                    team.Value = int.Parse(new string(netflag.team.TakeWhile(c => c != ',').ToArray()));
+
+                    // Grab editor folder
+                    var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[11];
+
+                    // Choose folder based on type
+                    if (strippedName.ToLower().Contains("oddball"))
+                    {
+                        folder.Value = 0;
+                    }
+                    else if (strippedName.ToLower().Contains("ctf"))
+                    {
+                        folder.Value = 1;
+                    }
+                    else if (strippedName.ToLower().Contains("hill"))
+                    {
+                        folder.Value = 2;
+                    }
+                    else if (strippedName.ToLower().Contains("assault"))
+                    {
+                        folder.Value = 3;
+                    }
+                    else if (strippedName.ToLower().Contains("territories"))
+                    {
+                        folder.Value = 4;
+                    }
+                    else
+                    {
+                        folder.Value = -1;
+                    }
+                }
+
+                Console.WriteLine("Done crates");
+                loadingForm.UpdateOutputBox("Done crates", false);
             }
             else if (scenarioType == "0,solo")
             {
