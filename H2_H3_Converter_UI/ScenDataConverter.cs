@@ -69,10 +69,10 @@ class Crate : ObjectPlacement {}
 class NetFlag
 {
     public string name { get; set; }
-    public string position { get; set; }
-    public string rotation { get; set; }
+    public float[] position { get; set; }
+    public float facing { get; set; }
     public string type { get; set; }
-    public string team { get; set; }
+    public int team { get; set; }
 }
 
 class Decal
@@ -420,10 +420,10 @@ class ScenData
                 {
                     NetFlag netFlag = new NetFlag();
                     netFlag.name = element.Attributes["name"].Value;
-                    netFlag.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    netFlag.rotation = element.SelectSingleNode("./field[@name='facing']").InnerText.Trim();
+                    netFlag.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                    netFlag.facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim());
                     netFlag.type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim();
-                    netFlag.team = element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim();
+                    netFlag.team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1));
 
                     allNetgameFlags.Add(netFlag);
                     i++;
@@ -789,81 +789,73 @@ class ScenData
                 Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
 
                 // Netgame flags to gametype crates section
+
                 foreach (NetFlag netflag in allNetgameFlags)
                 {
-                    int typeIndex = 0;
+                    int currentCount = 0;
                     string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
                     string strippedName = Regex.Replace(temp, @"\d+$", "").Trim();
                     if (!existingGametypeCrates.ContainsKey(strippedName))
                     {
                         // Add type to crate palette
-                        typeIndex = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                        var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[typeIndex].Fields[0];
-                        crateRef.Path = utilsInstance.netflagMapping[netflag.type];
-                        existingGametypeCrates.Add(strippedName, typeIndex);
+                        currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).AddElement();
+                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = utilsInstance.netflagMapping[netflag.type];
+                        existingGametypeCrates.Add(strippedName, currentCount);
                     }
                     else
                     {
-                        typeIndex = existingGametypeCrates[strippedName];
+                        currentCount = existingGametypeCrates[strippedName];
                     }
 
-                    int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count(); // Get current crate count
-                    ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
-                    typeRef.Value = existingGametypeCrates[strippedName];
+                    currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crates")).Elements.Count(); // Get current crate count
+                    ((TagFieldBlock)tagFile.SelectField("Block:crates")).AddElement();
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:type")).Value = existingGametypeCrates[strippedName];
 
                     // Name
-                    var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
-                    name.Value = allObjectNames.IndexOf(netflag.name);
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = allObjectNames.IndexOf(netflag.name);
 
                     // Dropdown type and source (won't be valid without these)
-                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                    dropdownType.Value = 10; // 1 for crate
-                    dropdownSource.Value = 1; // 1 for editor
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 is crate
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                    position.Data = netflag.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = netflag.position;
 
                     // Rotation
-                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                    string angleXyz = netflag.rotation + ",0,0";
-                    rotation.Data = angleXyz.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    float[] rotation = new float[3] { netflag.facing, 0.0f, 0.0f };
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = rotation;
 
                     // Team
-                    var team = (TagFieldEnum)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[7]).Elements[0].Fields[3];
-                    team.Value = int.Parse(new string(netflag.team.TakeWhile(c => c != ',').ToArray()));
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.team;
 
                     // Grab editor folder
-                    var folder = (TagFieldBlockIndex)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[11];
+                    var editorFolder = ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder"));
 
                     // Choose folder based on type
                     if (strippedName.ToLower().Contains("oddball"))
                     {
-                        folder.Value = 0;
+                        editorFolder.Value = 0;
                     }
                     else if (strippedName.ToLower().Contains("ctf"))
                     {
-                        folder.Value = 1;
+                        editorFolder.Value = 1;
                     }
                     else if (strippedName.ToLower().Contains("hill"))
                     {
-                        folder.Value = 2;
+                        editorFolder.Value = 2;
                     }
                     else if (strippedName.ToLower().Contains("assault"))
                     {
-                        folder.Value = 3;
+                        editorFolder.Value = 3;
                     }
                     else if (strippedName.ToLower().Contains("territories"))
                     {
-                        folder.Value = 4;
+                        editorFolder.Value = 4;
                     }
                     else
                     {
-                        folder.Value = -1;
+                        editorFolder.Value = -1;
                     }
                 }
 
