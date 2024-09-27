@@ -183,11 +183,13 @@ class ScenData
                 XmlNode element = location.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    StartLoc startLocation = new StartLoc();
-                    startLocation.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    startLocation.facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim());
-                    startLocation.team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1));
-                    startLocation.playerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1));
+                    StartLoc startLocation = new StartLoc
+                    {
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
+                        team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
+                        playerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1))
+                    };
 
                     allStartingLocs.Add(startLocation);
                     Console.WriteLine("Processed starting position " + i);
@@ -215,11 +217,13 @@ class ScenData
                     XmlNode element = netgameObjEntry.SelectSingleNode("./element[@index='" + i + "']");
                     if (element != null)
                     {
-                        NetEquip netgameEquip = new NetEquip();
-                        netgameEquip.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        netgameEquip.rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        netgameEquip.spawnTime = long.Parse(element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim());
-                        netgameEquip.collectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim();
+                        NetEquip netgameEquip = new NetEquip
+                        {
+                            position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                            rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                            spawnTime = long.Parse(element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim()),
+                            collectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim()
+                        };
 
                         allNetgameEquipLocs.Add(netgameEquip);
                         Console.WriteLine("Process netgame equipment " + i);
@@ -346,12 +350,14 @@ class ScenData
                 XmlNode element = trigVolume.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    TrigVol triggerVolume = new TrigVol();
-                    triggerVolume.name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                    triggerVolume.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
-                    triggerVolume.extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim();
-                    triggerVolume.forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim();
-                    triggerVolume.up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim();
+                    TrigVol triggerVolume = new TrigVol
+                    {
+                        name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim(),
+                        extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim(),
+                        forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim(),
+                        up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim()
+                    };
 
                     allTrigVols.Add(triggerVolume);
                     i++;
@@ -418,12 +424,14 @@ class ScenData
                 XmlNode element = netFlagEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    NetFlag netFlag = new NetFlag();
-                    netFlag.name = element.Attributes["name"].Value;
-                    netFlag.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    netFlag.facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim());
-                    netFlag.type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim();
-                    netFlag.team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1));
+                    NetFlag netFlag = new NetFlag
+                    {
+                        name = element.Attributes["name"].Value,
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
+                        type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim(),
+                        team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1))
+                    };
 
                     allNetgameFlags.Add(netFlag);
                     i++;
@@ -468,11 +476,13 @@ class ScenData
                 XmlNode element = decalEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Decal decal = new Decal();
-                    decal.type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString();
-                    decal.yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim();
-                    decal.pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim();
-                    decal.position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim();
+                    Decal decal = new Decal
+                    {
+                        type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString(),
+                        yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim(),
+                        pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim(),
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim()
+                    };
 
                     allDecalEntries.Add(decal);
                     i++;
