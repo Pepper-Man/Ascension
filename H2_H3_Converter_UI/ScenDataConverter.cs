@@ -11,75 +11,75 @@ using H2_H3_Converter_UI;
 
 class StartLoc
 {
-    public float[] position { get; set; }
-    public float facing { get; set; }
-    public int team { get; set; }
-    public int playerType { get; set; }
+    public float[] Position { get; set; }
+    public float Facing { get; set; }
+    public int Team { get; set; }
+    public int PlayerType { get; set; }
 }
 
 public class ObjectPlacement
 {
-    public int typeIndex { get; set; }
-    public int nameIndex { get; set; }
-    public uint flags { get; set; }
-    public float[] position { get; set; }
-    public float[] rotation { get; set; }
-    public float scale { get; set; }
-    public string varName { get; set; }
-    public uint manualBsp {  get; set; }
-    public int originBsp { get; set; }
-    public int bspPolicy { get; set; }
+    public int TypeIndex { get; set; }
+    public int NameIndex { get; set; }
+    public uint Flags { get; set; }
+    public float[] Position { get; set; }
+    public float[] Rotation { get; set; }
+    public float Scale { get; set; }
+    public string VarName { get; set; }
+    public uint ManualBsp {  get; set; }
+    public int OriginBsp { get; set; }
+    public int BspPolicy { get; set; }
 }
 
 class NetEquip : ObjectPlacement
 {
-    public long spawnTime { get; set; }
-    public string collectionType { get; set; }
+    public long SpawnTime { get; set; }
+    public string CollectionType { get; set; }
 }
 
 class SpWeapLoc : ObjectPlacement
 {
-    public int roundsLeft { get; set; }
-    public int roundsLoaded { get; set; }
+    public int RoundsLeft { get; set; }
+    public int RoundsLoaded { get; set; }
 }
 
 class Scenery : ObjectPlacement
 {
-    public int pathfindingType { get; set; }
-    public int lightmappingType { get; set; }
+    public int PathfindingType { get; set; }
+    public int LightmappingType { get; set; }
 }
 
 class TrigVol
 {
-    public string name { get; set; }
-    public float[] position { get; set; }
-    public float[] extents { get; set; }
-    public float[] forward { get; set; }
-    public float[] up { get; set; }
+    public string Name { get; set; }
+    public float[] Position { get; set; }
+    public float[] Extents { get; set; }
+    public float[] Forward { get; set; }
+    public float[] Up { get; set; }
 }
 
 class Vehicle : ObjectPlacement
 {
-    public float bodyVitality { get; set; }
+    public float BodyVitality { get; set; }
 }
 
 class Crate : ObjectPlacement {}
 
 class NetFlag
 {
-    public string name { get; set; }
-    public float[] position { get; set; }
-    public float facing { get; set; }
-    public string type { get; set; }
-    public int team { get; set; }
+    public string Name { get; set; }
+    public float[] Position { get; set; }
+    public float Facing { get; set; }
+    public string Type { get; set; }
+    public int Team { get; set; }
 }
 
 class Decal
 {
-    public string type { get; set; }
-    public string yaw { get; set; }
-    public string pitch { get; set; }
-    public float[] position { get; set; }
+    public string Type { get; set; }
+    public string Yaw { get; set; }
+    public string Pitch { get; set; }
+    public float[] Position { get; set; }
 }
 
 class ScenData
@@ -184,10 +184,10 @@ class ScenData
                 {
                     StartLoc startLocation = new StartLoc
                     {
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
-                        team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
-                        playerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1))
+                        Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
+                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
+                        PlayerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1))
                     };
 
                     allStartingLocs.Add(startLocation);
@@ -218,10 +218,10 @@ class ScenData
                     {
                         NetEquip netgameEquip = new NetEquip
                         {
-                            position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                            rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                            spawnTime = long.Parse(element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim()),
-                            collectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim()
+                            Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                            Rotation = element.SelectSingleNode("./field[@name='orientation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                            SpawnTime = long.Parse(element.SelectSingleNode("./field[@name='spawn time (in seconds, 0 = default)']").InnerText.Trim()),
+                            CollectionType = element.SelectSingleNode("./tag_reference[@name='item/vehicle collection']").InnerText.Trim()
                         };
 
                         allNetgameEquipLocs.Add(netgameEquip);
@@ -351,11 +351,11 @@ class ScenData
                 {
                     TrigVol triggerVolume = new TrigVol
                     {
-                        name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
+                        Name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                        Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        Extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        Forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        Up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
                     };
 
                     allTrigVols.Add(triggerVolume);
@@ -425,11 +425,11 @@ class ScenData
                 {
                     NetFlag netFlag = new NetFlag
                     {
-                        name = element.Attributes["name"].Value,
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
-                        type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim(),
-                        team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1))
+                        Name = element.Attributes["name"].Value,
+                        Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
+                        Type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim(),
+                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1))
                     };
 
                     allNetgameFlags.Add(netFlag);
@@ -477,10 +477,10 @@ class ScenData
                 {
                     Decal decal = new Decal
                     {
-                        type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString(),
-                        yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim(),
-                        pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim(),
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
+                        Type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString(),
+                        Yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim(),
+                        Pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim(),
+                        Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
                     };
 
                     allDecalEntries.Add(decal);
@@ -525,16 +525,16 @@ class ScenData
             void AddElementToBlock(string blockName, int index, NetEquip netgameEquipEntry, int typeIndex, int sourceType, int objectType)
             {
                 // Position
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.position;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealPoint3d:position")).Data = netgameEquipEntry.Position;
 
                 // Rotation
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.rotation;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = netgameEquipEntry.Rotation;
 
                 // Type
                 ((TagFieldBlockIndex)tagFile.SelectField($"Block:{blockName}[{index}]/ShortBlockIndex:type")).Value = typeIndex;
 
                 // Spawn timer
-                ((TagFieldElementInteger)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.spawnTime;
+                ((TagFieldElementInteger)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:multiplayer data/ShortInteger:spawn time")).Data = netgameEquipEntry.SpawnTime;
 
                 // Dropdown type and source
                 ((TagFieldEnum)tagFile.SelectField($"Block:{blockName}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objectType;
@@ -580,14 +580,14 @@ class ScenData
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/RealPoint3d:position")).Data = spawn.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/RealPoint3d:position")).Data = spawn.Position;
 
                     // Rotation
-                    float[] rotation = new float[3] { spawn.facing, 0.0f, 0.0f };
+                    float[] rotation = new float[3] { spawn.Facing, 0.0f, 0.0f };
                     ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/RealEulerAngles3d:rotation")).Data = rotation;
 
                     // Team
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:multiplayer data/ShortEnum:owner team")).Value = spawn.team;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:multiplayer data/ShortEnum:owner team")).Value = spawn.Team;
 
                     i++;
                 }
@@ -608,7 +608,7 @@ class ScenData
 
                 foreach (NetEquip netgameEquipEntry in netgameEquipment)
                 {
-                    string equipType = netgameEquipEntry.collectionType.Split('\\')[netgameEquipEntry.collectionType.Split('\\').Length - 1];
+                    string equipType = netgameEquipEntry.CollectionType.Split('\\')[netgameEquipEntry.CollectionType.Split('\\').Length - 1];
 
                     if (equipType == "frag_grenades" || equipType == "plasma_grenades" || equipType.Contains("powerup"))
                     {
@@ -637,7 +637,7 @@ class ScenData
                     {
                         // Ammo placement, ignore for now
                     }        
-                    else if (netgameEquipEntry.collectionType.Contains("vehicles"))
+                    else if (netgameEquipEntry.CollectionType.Contains("vehicles"))
                     {
                         AddToPaletteIfNotExists("vehicle palette", "name", equipType, netgamePaletteMapping, utilsInstance.netVehiMapping[equipType]);
 
@@ -686,25 +686,25 @@ class ScenData
                 {
                     int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:scenery")).Elements.Count();
                     ((TagFieldBlock)tagFile.SelectField("Block:scenery")).AddElement();
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/ShortBlockIndex:type")).Value = scenery.typeIndex + totalScenCount;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/ShortBlockIndex:type")).Value = scenery.TypeIndex + totalScenCount;
 
                     // Dropdown type and source (won't be valid without these)
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 is scenery
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = scenery.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = scenery.Position;
 
                     // Rotation
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = scenery.rotation;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = scenery.Rotation;
 
                     // BSP placement related stuff
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.ManualBsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.OriginBsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.BspPolicy;
 
                     // Variant
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = scenery.varName;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = scenery.VarName;
                 }
 
                 Console.WriteLine("Done scenery");
@@ -771,28 +771,28 @@ class ScenData
                 {
                     int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crates")).Elements.Count();
                     ((TagFieldBlock)tagFile.SelectField("Block:crates")).AddElement();
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:type")).Value = crate.typeIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:type")).Value = crate.TypeIndex;
 
                     // Name
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = crate.nameIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = crate.NameIndex;
 
                     // Dropdown type and source (won't be valid without these)
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 is crate
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = crate.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = crate.Position;
 
                     // Rotation
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = crate.rotation;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = crate.Rotation;
 
                     // BSP placement related stuff
-                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
+                    ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.ManualBsp;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.OriginBsp;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.BspPolicy;
 
                     // Variant
-                    ((TagFieldElementStringID)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = crate.varName;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = crate.VarName;
                 }
 
                 Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
@@ -802,14 +802,14 @@ class ScenData
                 foreach (NetFlag netflag in allNetgameFlags)
                 {
                     int currentCount = 0;
-                    string temp = Regex.Replace(netflag.type, @"^.*?,\s*", "");
+                    string temp = Regex.Replace(netflag.Type, @"^.*?,\s*", "");
                     string strippedName = Regex.Replace(temp, @"\d+$", "").Trim();
                     if (!existingGametypeCrates.ContainsKey(strippedName))
                     {
                         // Add type to crate palette
                         currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements.Count();
                         ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).AddElement();
-                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = utilsInstance.netflagMapping[netflag.type];
+                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = utilsInstance.netflagMapping[netflag.Type];
                         existingGametypeCrates.Add(strippedName, currentCount);
                     }
                     else
@@ -822,21 +822,21 @@ class ScenData
                     ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:type")).Value = existingGametypeCrates[strippedName];
 
                     // Name
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = allObjectNames.IndexOf(netflag.name);
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = allObjectNames.IndexOf(netflag.Name);
 
                     // Dropdown type and source (won't be valid without these)
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 is crate
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = netflag.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = netflag.Position;
 
                     // Rotation
-                    float[] rotation = new float[3] { netflag.facing, 0.0f, 0.0f };
+                    float[] rotation = new float[3] { netflag.Facing, 0.0f, 0.0f };
                     ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = rotation;
 
                     // Team
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.team;
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.Team;
 
                     // Grab editor folder
                     var editorFolder = ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder"));
@@ -918,19 +918,19 @@ class ScenData
                 ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).AddElement();
 
                 // Name
-                ((TagFieldElementStringID)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/StringId:name")).Data = vol.name;
+                ((TagFieldElementStringID)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/StringId:name")).Data = vol.Name;
 
                 // Forward
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:forward")).Data = vol.forward;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:forward")).Data = vol.Forward;
 
                 // Up
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:up")).Data = vol.up;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:up")).Data = vol.Up;
 
                 // Position
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:position")).Data = vol.position;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:position")).Data = vol.Position;
 
                 // Extents
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:extents")).Data = vol.extents;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:extents")).Data = vol.Extents;
             }
 
             Console.WriteLine("Done trigger volumes");
@@ -966,14 +966,14 @@ class ScenData
             {
                 int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:decals")).Elements.Count();
                 ((TagFieldBlock)tagFile.SelectField($"Block:decals")).AddElement();
-                ((TagFieldBlockIndex)tagFile.SelectField($"Block:decals[{currentCount}]/ShortBlockIndex:decal palette index")).Value = int.Parse(decalEntry.type);
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:decals[{currentCount}]/ShortBlockIndex:decal palette index")).Value = int.Parse(decalEntry.Type);
 
                 // Position
-                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealPoint3d:position")).Data = decalEntry.position;
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealPoint3d:position")).Data = decalEntry.Position;
 
                 // Rotation stuff below - only god fucking knows what this is doing, and either way it doesnt work properly
-                double pitchDegrees = double.Parse(decalEntry.pitch);
-                double yawDegrees = double.Parse(decalEntry.yaw);
+                double pitchDegrees = double.Parse(decalEntry.Pitch);
+                double yawDegrees = double.Parse(decalEntry.Yaw);
 
                 // Convert pitch and yaw angles from degrees to radians
                 double pitchRadians = Math.PI * pitchDegrees / 180.0;
