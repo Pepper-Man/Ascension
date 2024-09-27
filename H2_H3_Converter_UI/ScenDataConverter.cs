@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 class StartLoc
 {
@@ -547,7 +548,6 @@ class ScenData
             {
                 // Spawns Section
                 int totalScenCount = 0;
-                int totalVehiCount = 0;
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements(); // Remove all scenery from palette
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements(); // Remove all scenery
 
@@ -653,7 +653,7 @@ class ScenData
                 {
                     // Check if current type exists in palette
                     bool typeAlreadyExists = false;
-                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[21]).Elements)
+                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField("Block:scenery palette")).Elements)
                     {
                         var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
                         if (x == scenType)
@@ -666,45 +666,36 @@ class ScenData
                     // Add palette entry if needed
                     if (!typeAlreadyExists)
                     {
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[21]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[21]).AddElement();
-                        var scenTypeRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[21]).Elements[currentCount].Fields[0];
-                        scenTypeRef.Path = scenType;
+                        int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:scenery palette")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:scenery palette")).AddElement();
+                        ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[{currentCount}]/Reference:name")).Path = scenType;
                     }
                 }
 
                 // Now add all of the scenery placements
                 foreach (Scenery scenery in allScenEntries)
                 {
-                    int currentCount = ((TagFieldBlock)tagFile.Fields[20]).Elements.Count();
-                    ((TagFieldBlock)tagFile.Fields[20]).AddElement();
-                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[1];
-                    int index = scenery.typeIndex + totalScenCount;
-                    typeRef.Value = scenery.typeIndex + totalScenCount;
+                    int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:scenery")).Elements.Count();
+                    ((TagFieldBlock)tagFile.SelectField("Block:scenery")).AddElement();
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/ShortBlockIndex:type")).Value = scenery.typeIndex + totalScenCount;
 
                     // Dropdown type and source (won't be valid without these)
-                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                    dropdownType.Value = 6; // 6 for scenery
-                    dropdownSource.Value = 1; // 1 for editor
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 is scenery
+                    ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                    position.Data = scenery.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = scenery.position;
 
                     // Rotation
-                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                    rotation.Data = scenery.rotation;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = scenery.rotation;
 
+                    // BSP placement related stuff
                     ((TagFieldBlockFlags)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = scenery.manualBsp;
                     ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = scenery.originBsp;
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = scenery.bspPolicy;
 
                     // Variant
-                    var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
-                    var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[20]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
-                    variant.Data = scenery.varName;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = scenery.varName;
                 }
 
                 Console.WriteLine("Done scenery");
