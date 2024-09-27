@@ -1,4 +1,4 @@
-# Pepper's H2 to H3 Converter UI
+# Ascension
 A C# program for converting H2 scenario and shader data into H3 format. 
 This is a UI-based compilation of all my previously released H2-to-H3 converters.
 This is primarily built for use by the porting team I am in, but feel free to use it for you own ports.
