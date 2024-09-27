@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 class StartLoc
 {
@@ -53,10 +52,10 @@ class Scenery : ObjectPlacement
 class TrigVol
 {
     public string name { get; set; }
-    public string position { get; set; }
-    public string extents { get; set; }
-    public string forward { get; set; }
-    public string up { get; set; }
+    public float[] position { get; set; }
+    public float[] extents { get; set; }
+    public float[] forward { get; set; }
+    public float[] up { get; set; }
 }
 
 class Vehicle : ObjectPlacement
@@ -353,10 +352,10 @@ class ScenData
                     TrigVol triggerVolume = new TrigVol
                     {
                         name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim(),
-                        extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim(),
-                        forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim(),
-                        up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim()
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        extents = element.SelectSingleNode("./field[@name='extents']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        forward = element.SelectSingleNode("./field[@name='forward']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                        up = element.SelectSingleNode("./field[@name='up']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
                     };
 
                     allTrigVols.Add(triggerVolume);
@@ -915,28 +914,23 @@ class ScenData
             ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).RemoveAllElements();
             foreach (TrigVol vol in allTrigVols)
             {
-                int currentCount = ((TagFieldBlock)tagFile.Fields[55]).Elements.Count();
-                ((TagFieldBlock)tagFile.Fields[55]).AddElement();
+                int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).Elements.Count();
+                ((TagFieldBlock)tagFile.SelectField($"Block:trigger volumes")).AddElement();
 
                 // Name
-                var name = (TagFieldElementStringID)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[0];
-                name.Data = vol.name;
+                ((TagFieldElementStringID)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/StringId:name")).Data = vol.name;
 
                 // Forward
-                var forward = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[4];
-                forward.Data = vol.forward.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:forward")).Data = vol.forward;
 
                 // Up
-                var up = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[5];
-                up.Data = vol.up.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealVector3d:up")).Data = vol.up;
 
                 // Position
-                var position = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[6];
-                position.Data = vol.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:position")).Data = vol.position;
 
                 // Extents
-                var extents = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[55]).Elements[currentCount].Fields[7];
-                extents.Data = vol.extents.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:extents")).Data = vol.extents;
             }
 
             Console.WriteLine("Done trigger volumes");
