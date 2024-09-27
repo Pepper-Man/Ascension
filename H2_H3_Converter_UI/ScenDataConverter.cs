@@ -79,7 +79,7 @@ class Decal
     public string type { get; set; }
     public string yaw { get; set; }
     public string pitch { get; set; }
-    public string position { get; set; }
+    public float[] position { get; set; }
 }
 
 class ScenData
@@ -480,7 +480,7 @@ class ScenData
                         type = element.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"].Value.ToString(),
                         yaw = element.SelectSingleNode("./field[@name='yaw[-127,127]']").InnerText.Trim(),
                         pitch = element.SelectSingleNode("./field[@name='pitch[-127,127]']").InnerText.Trim(),
-                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim()
+                        position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
                     };
 
                     allDecalEntries.Add(decal);
@@ -937,15 +937,15 @@ class ScenData
             loadingForm.UpdateOutputBox("Done trigger volumes", false);
 
             // Decals section
-            ((TagFieldBlock)tagFile.Fields[78]).RemoveAllElements(); // Remove all decals from palette
-            ((TagFieldBlock)tagFile.Fields[77]).RemoveAllElements(); // Remove all decals
+            ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).RemoveAllElements(); // Remove all decals from palette
+            ((TagFieldBlock)tagFile.SelectField($"Block:decals")).RemoveAllElements(); // Remove all decals
             foreach (TagPath decalType in allDecalTypes)
             {
                 // Check if current type exists in palette
                 bool typeAlreadyExists = false;
-                foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[78]).Elements)
+                foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).Elements)
                 {
-                    var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                    var x = ((TagFieldReference)paletteEntry.SelectField($"Reference:reference")).Path;
                     if (x == decalType)
                     {
                         typeAlreadyExists = true;
@@ -956,23 +956,20 @@ class ScenData
                 // Add palette entry if needed
                 if (!typeAlreadyExists)
                 {
-                    int currentCount = ((TagFieldBlock)tagFile.Fields[78]).Elements.Count();
-                    ((TagFieldBlock)tagFile.Fields[78]).AddElement();
-                    var sceneryRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[78]).Elements[currentCount].Fields[0];
-                    sceneryRef.Path = decalType;
+                    int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).Elements.Count();
+                    ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).AddElement();
+                    ((TagFieldReference)tagFile.SelectField($"Block:decal palette[{currentCount}]/Reference:reference")).Path = decalType;
                 }
             }
 
             foreach (Decal decalEntry in allDecalEntries)
             {
-                int currentCount = ((TagFieldBlock)tagFile.Fields[77]).Elements.Count();
-                ((TagFieldBlock)tagFile.Fields[77]).AddElement();
-                var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[1];
-                typeRef.Value = int.Parse(decalEntry.type);
+                int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:decals")).Elements.Count();
+                ((TagFieldBlock)tagFile.SelectField($"Block:decals")).AddElement();
+                ((TagFieldBlockIndex)tagFile.SelectField($"Block:decals[{currentCount}]/ShortBlockIndex:decal palette index")).Value = int.Parse(decalEntry.type);
 
                 // Position
-                var position = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[4];
-                position.Data = decalEntry.position.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealPoint3d:position")).Data = decalEntry.position;
 
                 // Rotation stuff below - only god fucking knows what this is doing, and either way it doesnt work properly
                 double pitchDegrees = double.Parse(decalEntry.pitch);
@@ -994,8 +991,7 @@ class ScenData
                 );
 
                 string quaternionString = $"{finalRotation.X},{finalRotation.Y},{finalRotation.Z},{finalRotation.W}";
-                var rotation = (TagFieldElementArraySingle)((TagFieldBlock)tagFile.Fields[77]).Elements[currentCount].Fields[3];
-                rotation.Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealQuaternion:rotation")).Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
             try
