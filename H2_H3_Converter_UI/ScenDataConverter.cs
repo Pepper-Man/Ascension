@@ -704,15 +704,15 @@ class ScenData
                 // Crates section
 
                 // Begin with creating the editor folders
-                ((TagFieldBlock)tagFile.Fields[125]).RemoveAllElements(); // Remove all editor folders
-                ((TagFieldBlock)tagFile.Fields[118]).RemoveAllElements(); // Remove all crates
-                ((TagFieldBlock)tagFile.Fields[119]).RemoveAllElements(); // Remove all crate types from palette
+                ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).RemoveAllElements(); // Remove all editor folders
+                ((TagFieldBlock)tagFile.SelectField("Block:crates")).RemoveAllElements(); // Remove all crates
+                ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).RemoveAllElements(); // Remove all crate types from palette
                 for (int z = 0; z < 5; z++)
                 {
-                    int currentCount = ((TagFieldBlock)tagFile.Fields[125]).Elements.Count();
-                    ((TagFieldBlock)tagFile.Fields[125]).AddElement();
+                    int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).Elements.Count();
+                    ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).AddElement();
                     // Name
-                    var name = (TagFieldElementLongString)((TagFieldBlock)tagFile.Fields[125]).Elements[currentCount].Fields[1];
+                    var name = (TagFieldElementLongString)tagFile.SelectField($"Block:editor folders[{currentCount}]/LongString:name");
                     if (z == 0)
                     {
                         name.Data = "oddball";
@@ -739,9 +739,9 @@ class ScenData
                 {
                     // Check if current type exists in palette
                     bool typeAlreadyExists = false;
-                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.Fields[119]).Elements)
+                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements)
                     {
-                        var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                        var x = ((TagFieldReference)paletteEntry.SelectField("Reference:name")).Path;
                         if (x == crateType)
                         {
                             typeAlreadyExists = true;
@@ -752,47 +752,38 @@ class ScenData
                     // Add palette entry if needed
                     if (!typeAlreadyExists)
                     {
-                        int currentCount = ((TagFieldBlock)tagFile.Fields[119]).Elements.Count();
-                        ((TagFieldBlock)tagFile.Fields[119]).AddElement();
-                        var crateRef = (TagFieldReference)((TagFieldBlock)tagFile.Fields[119]).Elements[currentCount].Fields[0];
-                        crateRef.Path = crateType;
+                        int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).AddElement();
+                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = crateType;
                     }
                 }
 
                 foreach (Crate crate in allCrateEntries)
                 {
-                    int currentCount = ((TagFieldBlock)tagFile.Fields[118]).Elements.Count();
-                    ((TagFieldBlock)tagFile.Fields[118]).AddElement();
-                    var typeRef = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[1];
-                    typeRef.Value = crate.typeIndex;
+                    int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crates")).Elements.Count();
+                    ((TagFieldBlock)tagFile.SelectField("Block:crates")).AddElement();
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:type")).Value = crate.typeIndex;
 
                     // Name
-                    var name = (TagFieldBlockIndex)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[3];
-                    name.Value = crate.nameIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/ShortBlockIndex:name")).Value = crate.nameIndex;
 
                     // Dropdown type and source (won't be valid without these)
-                    var dropdownType = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[2];
-                    var dropdownSource = (TagFieldEnum)((TagFieldStruct)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[9]).Elements[0].Fields[3];
-                    dropdownType.Value = 10; // 1 for crate
-                    dropdownSource.Value = 1; // 1 for editor
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 10; // 10 is crate
+                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 is editor
 
                     // Position
-                    var y = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[0].FieldName;
-                    var position = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[2];
-                    position.Data = crate.position;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealPoint3d:position")).Data = crate.position;
 
                     // Rotation
-                    var rotation = (TagFieldElementArraySingle)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[4]).Elements[0].Fields[3];
-                    rotation.Data = crate.rotation;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = crate.rotation;
 
+                    // BSP placement related stuff
                     ((TagFieldBlockFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = crate.manualBsp;
                     ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = crate.originBsp;
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/CharEnum:bsp policy")).Value = crate.bspPolicy;
 
                     // Variant
-                    var z = ((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0].FieldName;
-                    var variant = (TagFieldElementStringID)((TagFieldStruct)((TagFieldBlock)tagFile.Fields[118]).Elements[currentCount].Fields[5]).Elements[0].Fields[0];
-                    variant.Data = crate.varName;
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = crate.varName;
                 }
 
                 Dictionary<string, int> existingGametypeCrates = new Dictionary<string, int>();
