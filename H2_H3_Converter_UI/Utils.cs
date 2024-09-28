@@ -35,7 +35,14 @@ namespace H2_H3_Converter_UI
                         if (line.Contains("<block name=\"source files\">"))
                         {
                             removeLines = true;
-                            writer.WriteLine(line);
+                            if (multiplayer)
+                            {
+                                writer.WriteLine(line + "</block>");
+                            }
+                            else
+                            {
+                                writer.WriteLine(line);
+                            }
                         }
                         else if (line.Contains("<block name=\"scripting data\">"))
                         {
