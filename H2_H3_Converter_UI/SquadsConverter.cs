@@ -70,24 +70,31 @@ namespace H2_H3_Converter_UI
             bool groupDataEnd = false;
             int i = 0;
 
-            while (!groupDataEnd)
+            if (squadGroupsBlock.Count > 0)
             {
-                XmlNode groupEntry = squadGroupsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (groupEntry != null)
+                while (!groupDataEnd)
                 {
-                    loadingForm.UpdateOutputBox($"Reading data for squad group {i}.", false);
-                    SquadGroup sqGroup = new SquadGroup();
-                    sqGroup.Name = groupEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                    sqGroup.ParentIndex = Int32.Parse(groupEntry.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value);
+                    XmlNode groupEntry = squadGroupsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                    if (groupEntry != null)
+                    {
+                        loadingForm.UpdateOutputBox($"Reading data for squad group {i}.", false);
+                        SquadGroup sqGroup = new SquadGroup();
+                        sqGroup.Name = groupEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                        sqGroup.ParentIndex = Int32.Parse(groupEntry.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value);
 
-                    allGroups.Add(sqGroup);
-                    i++;
+                        allGroups.Add(sqGroup);
+                        i++;
+                    }
+                    else
+                    {
+                        groupDataEnd = true;
+                        loadingForm.UpdateOutputBox("Finished processing squad group data.", false);
+                    }
                 }
-                else
-                {
-                    groupDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished processing squad group data.", false);
-                }
+            }
+            else
+            {
+                loadingForm.UpdateOutputBox("No squad group data!", false);
             }
 
             // Now for the managedblam stuff
@@ -166,101 +173,109 @@ namespace H2_H3_Converter_UI
             bool squadDataEnd = false;
             int i = 0;
 
-            while (!squadDataEnd)
+            if (squadsBlock.Count > 0)
             {
-                XmlNode squadEntry = squadsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (squadEntry != null)
+                while (!squadDataEnd)
                 {
-                    // Squad stuff
-                    Squad squad = new Squad();
-                    squad.Name = squadEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                    loadingForm.UpdateOutputBox($"Reading data for squad {i} ({squad.Name}).", false);
-                    squad.Flags = UInt32.Parse(squadEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1));
-                    squad.ParentIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='parent']").Attributes["index"]?.Value);
-                    squad.NormalDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='normal diff count']").InnerText.Trim());
-                    squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
-                    squad.Upgrade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText.Trim().Substring(0, 1));
-                    squad.VehiIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
-                    squad.CharIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
-                    squad.WeapIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
-                    squad.WeapIndex2 = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
-                    squad.Zone = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial zone']").Attributes["index"]?.Value);
-                    squad.Grenade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
-                    squad.VehiVariant = squadEntry.SelectSingleNode("./field[@name='vehicle variant']").InnerText.Trim();
-                    squad.PlaceScript = squadEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
-                    
-                    // Determine editor folder based on user-provided txt of folder names, matching against squad names
-                    if (squadFolderNames != null)
+                    XmlNode squadEntry = squadsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                    if (squadEntry != null)
                     {
-                        bool foundFolder = false;
-                        for (int x = 0; x < squadFolderNames.Length; x++)
+                        // Squad stuff
+                        Squad squad = new Squad();
+                        squad.Name = squadEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                        loadingForm.UpdateOutputBox($"Reading data for squad {i} ({squad.Name}).", false);
+                        squad.Flags = UInt32.Parse(squadEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1));
+                        squad.ParentIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='parent']").Attributes["index"]?.Value);
+                        squad.NormalDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='normal diff count']").InnerText.Trim());
+                        squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
+                        squad.Upgrade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText.Trim().Substring(0, 1));
+                        squad.VehiIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
+                        squad.CharIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
+                        squad.WeapIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
+                        squad.WeapIndex2 = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
+                        squad.Zone = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial zone']").Attributes["index"]?.Value);
+                        squad.Grenade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
+                        squad.VehiVariant = squadEntry.SelectSingleNode("./field[@name='vehicle variant']").InnerText.Trim();
+                        squad.PlaceScript = squadEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
+
+                        // Determine editor folder based on user-provided txt of folder names, matching against squad names
+                        if (squadFolderNames != null)
                         {
-                            string line = squadFolderNames[x];
-                            if (squad.Name.ToLower().Contains(line.ToLower()))
+                            bool foundFolder = false;
+                            for (int x = 0; x < squadFolderNames.Length; x++)
                             {
-                                loadingForm.UpdateOutputBox($"Squad {squad.Name} using editor folder index {x} ({line}).", false);
-                                squad.EditorFolder = x;
-                                foundFolder = true;
-                                break;
+                                string line = squadFolderNames[x];
+                                if (squad.Name.ToLower().Contains(line.ToLower()))
+                                {
+                                    loadingForm.UpdateOutputBox($"Squad {squad.Name} using editor folder index {x} ({line}).", false);
+                                    squad.EditorFolder = x;
+                                    foundFolder = true;
+                                    break;
+                                }
+                            }
+
+                            if (!foundFolder)
+                            {
+                                loadingForm.UpdateOutputBox($"Squad {squad.Name} has no corresponding editor folder", false);
+                                squad.EditorFolder = -1;
                             }
                         }
-
-                        if (!foundFolder)
+                        else
                         {
-                            loadingForm.UpdateOutputBox($"Squad {squad.Name} has no corresponding editor folder", false);
                             squad.EditorFolder = -1;
                         }
+
+                        // Squad's starting locations stuff
+                        List<StartLoc> startLocs = new List<StartLoc>();
+                        XmlNode startLocsBlock = root.SelectSingleNode($".//block[@name='squads']/element[@index='{i}']/block[@name='starting locations']");
+
+                        int j = 0;
+                        XmlNodeList startLocsElements = startLocsBlock.SelectNodes("./element");
+                        foreach (XmlNode locEntry in startLocsElements)
+                        {
+                            StartLoc startLoc = new StartLoc();
+                            startLoc.Name = locEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                            loadingForm.UpdateOutputBox($"Squad {squad.Name} starting position {j} ({startLoc.Name})", false);
+                            startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                            startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+
+                            // Figure out flag value using conversion dictionary defined at the start of this function
+                            string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
+                            startLoc.Flags = flagMapping[flagsString];
+
+                            startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
+                            startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
+                            startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
+                            startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
+                            startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
+                            startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
+                            startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
+                            startLoc.ActorVar = locEntry.SelectSingleNode("./field[@name='actor variant name']").InnerText.Trim();
+                            startLoc.VehiVar = locEntry.SelectSingleNode("./field[@name='vehicle variant name']").InnerText.Trim();
+                            startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
+                            startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
+                            startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
+
+                            startLocs.Add(startLoc);
+                            j++;
+                        }
+
+                        squad.StartingLocations = startLocs;
+                        allSquads.Add(squad);
+                        i++;
                     }
                     else
                     {
-                        squad.EditorFolder = -1;
+                        squadDataEnd = true;
+                        loadingForm.UpdateOutputBox("Finished processing scenario squad data.", false);
                     }
-                    
-                    // Squad's starting locations stuff
-                    List<StartLoc> startLocs = new List<StartLoc>();
-                    XmlNode startLocsBlock = root.SelectSingleNode($".//block[@name='squads']/element[@index='{i}']/block[@name='starting locations']");
-
-                    int j = 0;
-                    XmlNodeList startLocsElements = startLocsBlock.SelectNodes("./element");
-                    foreach (XmlNode locEntry in startLocsElements)
-                    {
-                        StartLoc startLoc = new StartLoc();
-                        startLoc.Name = locEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                        loadingForm.UpdateOutputBox($"Squad {squad.Name} starting position {j} ({startLoc.Name})", false);
-                        startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-
-                        // Figure out flag value using conversion dictionary defined at the start of this function
-                        string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
-                        startLoc.Flags = flagMapping[flagsString];
-
-                        startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
-                        startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
-                        startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
-                        startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
-                        startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
-                        startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
-                        startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
-                        startLoc.ActorVar = locEntry.SelectSingleNode("./field[@name='actor variant name']").InnerText.Trim();
-                        startLoc.VehiVar = locEntry.SelectSingleNode("./field[@name='vehicle variant name']").InnerText.Trim();
-                        startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
-                        startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
-                        startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
-
-                        startLocs.Add(startLoc);
-                        j++;
-                    }
-
-                    squad.StartingLocations = startLocs;
-                    allSquads.Add(squad);
-                    i++;
-                }
-                else
-                {
-                    squadDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished processing scenario squad data.", false);
                 }
             }
+            else
+            {
+                loadingForm.UpdateOutputBox("No squad data!", false);
+            }
+            
 
             // Now time to write all that data with MB!
             string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);

@@ -96,6 +96,12 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
 
             XmlNode root = scenfile.DocumentElement;
+            string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
+            if (scenarioType.Contains("multiplayer"))
+            {
+                loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
+                return;
+            }
             XmlNodeList paletteBlock = root.SelectNodes($".//block[@name='{paletteType} palette']");
             loadingForm.UpdateOutputBox($"Located {paletteType} palette data block.", false);
 
@@ -103,30 +109,37 @@ namespace H2_H3_Converter_UI
             bool h2DataEnd = false;
             int i = 0;
 
-            while (!h2DataEnd)
+            if (paletteBlock.Count > 0)
             {
-                XmlNode paletteEntry = paletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (paletteEntry != null)
+                while (!h2DataEnd)
                 {
-                    string objRef = null;
-                    if (paletteType == "character")
+                    XmlNode paletteEntry = paletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                    if (paletteEntry != null)
                     {
-                        objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
+                        string objRef = null;
+                        if (paletteType == "character")
+                        {
+                            objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
+                        }
+                        else
+                        {
+                            objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        }
+
+                        h2ObjRefs.Add(objRef);
+                        loadingForm.UpdateOutputBox($"{i}: {paletteType} reference {i}: \"{objRef}\".", false);
+                        i++;
                     }
                     else
                     {
-                        objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        h2DataEnd = true;
+                        loadingForm.UpdateOutputBox($"Finished reading {paletteType} palette data.", false);
                     }
-
-                    h2ObjRefs.Add(objRef);
-                    loadingForm.UpdateOutputBox($"{i}: {paletteType} reference {i}: \"{objRef}\".", false);
-                    i++;
                 }
-                else
-                {
-                    h2DataEnd = true;
-                    loadingForm.UpdateOutputBox($"Finished reading {paletteType} palette data.", false);
-                }
+            }
+            else
+            {
+                loadingForm.UpdateOutputBox($"No {paletteType} palette data!", false);
             }
 
             // MB tiem

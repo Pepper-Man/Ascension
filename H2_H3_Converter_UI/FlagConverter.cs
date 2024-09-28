@@ -30,28 +30,35 @@ namespace H2_H3_Converter_UI
             List<FlagElement> allFlags = new List<FlagElement>();
             bool flagDataEnd = false;
             int i = 0;
-
-            while (!flagDataEnd)
+            
+            if (cutFlagsBlock.Count > 0)
             {
-                XmlNode flagEntry = cutFlagsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
-                if (flagEntry != null)
+                while (!flagDataEnd)
                 {
-                    loadingForm.UpdateOutputBox($"Reading data for cutscene flag {i}.", false);
-                    FlagElement flag = new FlagElement();
-                    flag.Name = flagEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                    flag.Position = flagEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                    flag.Facing = flagEntry.SelectSingleNode("./field[@name='facing']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                
-                    allFlags.Add(flag);
-                    i++;
-                }
-                else
-                {
-                    flagDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished processing cutscene flag data.", false);
+                    XmlNode flagEntry = cutFlagsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
+                    if (flagEntry != null)
+                    {
+                        loadingForm.UpdateOutputBox($"Reading data for cutscene flag {i}.", false);
+                        FlagElement flag = new FlagElement();
+                        flag.Name = flagEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                        flag.Position = flagEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        flag.Facing = flagEntry.SelectSingleNode("./field[@name='facing']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+
+                        allFlags.Add(flag);
+                        i++;
+                    }
+                    else
+                    {
+                        flagDataEnd = true;
+                        loadingForm.UpdateOutputBox("Finished processing cutscene flag data.", false);
+                    }
                 }
             }
-
+            else
+            {
+                loadingForm.UpdateOutputBox("No cutscene flag data!", false);
+                return;
+            }
 
             // Now for the managedblam stuff
             string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);

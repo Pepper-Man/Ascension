@@ -36,45 +36,52 @@ namespace H2_H3_Converter_UI
             bool pointSetDataEnd = false;
             int i = 0;
 
-            while (!pointSetDataEnd)
+            if (pointSetsParentBlock.Count > 0)
             {
-                XmlNode setEntry = pointSetsParentBlock[0].SelectSingleNode($"./element[@index='0']/block[@name='point sets']/element[@index='{i}']");
-                if (setEntry != null)
+                while (!pointSetDataEnd)
                 {
-                    loadingForm.UpdateOutputBox($"Reading data for point set {i}.", false);
-                    PointSet set = new PointSet();
-                    List<PointElement> allPointsForSet = new List<PointElement>();
-                    set.SetName = setEntry.SelectSingleNode($".//field[@name='name']").InnerText.Trim();
-                    set.BspIndex = Int32.Parse(setEntry.SelectSingleNode($".//block_index[@name='short block index']").Attributes["index"]?.Value);
-                    XmlNode setPointsBlock = setEntry.SelectSingleNode($".//block[@name='points']");
-
-                    // Loop over all points within current point set
-                    if (setPointsBlock != null)
+                    XmlNode setEntry = pointSetsParentBlock[0].SelectSingleNode($"./element[@index='0']/block[@name='point sets']/element[@index='{i}']");
+                    if (setEntry != null)
                     {
-                        int j = 0;
-                        XmlNodeList setPointsElements = setPointsBlock.SelectNodes("./element");
-                        foreach (XmlNode point in setPointsElements)
-                        {
-                            PointElement pointElement = new PointElement();
-                            pointElement.Name = point.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                            pointElement.Position = point.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                            pointElement.Facing = point.SelectSingleNode("./field[@name='facing direction']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        
-                            allPointsForSet.Add(pointElement);
-                            loadingForm.UpdateOutputBox($"Read data for point set \"{set.SetName}\", point element {j}.", false);
-                            j++;
-                        }
-                    }
+                        loadingForm.UpdateOutputBox($"Reading data for point set {i}.", false);
+                        PointSet set = new PointSet();
+                        List<PointElement> allPointsForSet = new List<PointElement>();
+                        set.SetName = setEntry.SelectSingleNode($".//field[@name='name']").InnerText.Trim();
+                        set.BspIndex = Int32.Parse(setEntry.SelectSingleNode($".//block_index[@name='short block index']").Attributes["index"]?.Value);
+                        XmlNode setPointsBlock = setEntry.SelectSingleNode($".//block[@name='points']");
 
-                    set.Elements = allPointsForSet;
-                    allPointSets.Add(set);
-                    i++;
+                        // Loop over all points within current point set
+                        if (setPointsBlock != null)
+                        {
+                            int j = 0;
+                            XmlNodeList setPointsElements = setPointsBlock.SelectNodes("./element");
+                            foreach (XmlNode point in setPointsElements)
+                            {
+                                PointElement pointElement = new PointElement();
+                                pointElement.Name = point.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                                pointElement.Position = point.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                                pointElement.Facing = point.SelectSingleNode("./field[@name='facing direction']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+
+                                allPointsForSet.Add(pointElement);
+                                loadingForm.UpdateOutputBox($"Read data for point set \"{set.SetName}\", point element {j}.", false);
+                                j++;
+                            }
+                        }
+
+                        set.Elements = allPointsForSet;
+                        allPointSets.Add(set);
+                        i++;
+                    }
+                    else
+                    {
+                        pointSetDataEnd = true;
+                        loadingForm.UpdateOutputBox("Finished processing point set data.", false);
+                    }
                 }
-                else
-                {
-                    pointSetDataEnd = true;
-                    loadingForm.UpdateOutputBox("Finished processing point set data.", false);
-                }
+            }
+            else
+            {
+                loadingForm.UpdateOutputBox("No point set data!", false);
             }
 
             // Now for the managedblam stuff
