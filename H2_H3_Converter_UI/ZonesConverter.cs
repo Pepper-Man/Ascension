@@ -222,7 +222,18 @@ class MB_Zones
         int totalFposCount = 0;
         int totalAreaCount = 0;
         int fposFlagLineSkip = 0;
-        bool previousWasActualFlag = false;
+        int areaFlagLinesToSkip = 0;
+
+        Dictionary<String, int> flagIntToLinesSkip = new Dictionary<String, int>()
+        {
+            { "1", 1 }, // Vehicle area only
+            { "2", 1 }, // Perch only
+            { "4", 1 }, // Manual reference frame only
+            { "3", 2 }, // Perch and vehicle area
+            { "5", 2 }, // Manual reference frame and vehicle area
+            { "6", 2 }, // Manual reference frame and perch
+            { "7", 3 }, // All 3
+        };
 
         string[] text = File.ReadAllLines("temp_output.txt");
 
@@ -292,9 +303,9 @@ class MB_Zones
             }
             else if (areas)
             {
-                if (previousWasActualFlag)
+                if (areaFlagLinesToSkip != 0)
                 {
-                    previousWasActualFlag = false;
+                    areaFlagLinesToSkip--;
                     continue;
                 }
                 if (areaDataCount == 0)
@@ -320,7 +331,7 @@ class MB_Zones
                     areaDataCount++;
                     if (line.Trim() != "0")
                     {
-                        previousWasActualFlag = true;
+                        areaFlagLinesToSkip = flagIntToLinesSkip[line.Trim()];
                     }
                 }
                 else if (areaDataCount == 2)
