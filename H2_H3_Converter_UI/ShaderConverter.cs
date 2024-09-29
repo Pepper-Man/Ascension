@@ -1495,7 +1495,7 @@ namespace H2_H3_Converter_UI
                     }
 
                     // Dynamic env mapping?
-                    if (shader.env_tint != "" && shader.env_bitmap == "")
+                    if (shader.env_tint != "" && shader.env_bitmap == "" && shader.spec_col != "")
                     {
                         var env_mapping = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[5]/ShortInteger:short");
                         env_mapping.Data = 2; // 2 is dynamic
