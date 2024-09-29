@@ -230,36 +230,43 @@ namespace H2_H3_Converter_UI
                         XmlNode startLocsBlock = root.SelectSingleNode($".//block[@name='squads']/element[@index='{i}']/block[@name='starting locations']");
 
                         int j = 0;
-                        XmlNodeList startLocsElements = startLocsBlock.SelectNodes("./element");
-                        foreach (XmlNode locEntry in startLocsElements)
+                        if (startLocsBlock != null)
                         {
-                            StartLoc startLoc = new StartLoc();
-                            startLoc.Name = locEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                            loadingForm.UpdateOutputBox($"Squad {squad.Name} starting position {j} ({startLoc.Name})", false);
-                            startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                            startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                            XmlNodeList startLocsElements = startLocsBlock.SelectNodes("./element");
+                            foreach (XmlNode locEntry in startLocsElements)
+                            {
+                                StartLoc startLoc = new StartLoc();
+                                startLoc.Name = locEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
+                                loadingForm.UpdateOutputBox($"Squad {squad.Name} starting position {j} ({startLoc.Name})", false);
+                                startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                                startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
 
-                            // Figure out flag value using conversion dictionary defined at the start of this function
-                            string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
-                            startLoc.Flags = flagMapping[flagsString];
+                                // Figure out flag value using conversion dictionary defined at the start of this function
+                                string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
+                                startLoc.Flags = flagMapping[flagsString];
 
-                            startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
-                            startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
-                            startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
-                            startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
-                            startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
-                            startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
-                            startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
-                            startLoc.ActorVar = locEntry.SelectSingleNode("./field[@name='actor variant name']").InnerText.Trim();
-                            startLoc.VehiVar = locEntry.SelectSingleNode("./field[@name='vehicle variant name']").InnerText.Trim();
-                            startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
-                            startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
-                            startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
+                                startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
+                                startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
+                                startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
+                                startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
+                                startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
+                                startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
+                                startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
+                                startLoc.ActorVar = locEntry.SelectSingleNode("./field[@name='actor variant name']").InnerText.Trim();
+                                startLoc.VehiVar = locEntry.SelectSingleNode("./field[@name='vehicle variant name']").InnerText.Trim();
+                                startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
+                                startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
+                                startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
 
-                            startLocs.Add(startLoc);
-                            j++;
+                                startLocs.Add(startLoc);
+                                j++;
+                            }
                         }
-
+                        else
+                        {
+                            loadingForm.UpdateOutputBox($"Squad {squad.Name} has no starting locations.", false);
+                        }
+                        
                         squad.StartingLocations = startLocs;
                         allSquads.Add(squad);
                         i++;
