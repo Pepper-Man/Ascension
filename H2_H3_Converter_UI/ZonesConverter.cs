@@ -5,6 +5,7 @@ using System.Xml;
 using System.Linq;
 using System.Collections.Generic;
 using H2_H3_Converter_UI;
+using Bungie.Tags;
 
 class Area
 {
@@ -503,6 +504,9 @@ class MB_Zones
 
         using (var tagFile = new Bungie.Tags.TagFile(tag_path))
         {
+            // Clear all existing zone data
+            ((TagFieldBlock)tagFile.SelectField("Block:zones")).RemoveAllElements();
+
             int zones_max_index = ((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements.Count() - 1;
 
             // Add all zone entries
