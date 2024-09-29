@@ -9,7 +9,7 @@ This is primarily built for use by the porting team I am in, but feel free to us
 # Features
 ## Shader Converter
 * Extracts all required bitmaps
-* If requested, can instead use provided bitmaps from another source.
+* If requested, can instead use provided bitmaps from another source, such as [the original .tiff source](http://vaporeon.io/hosted/halo/data/)
 * Imports all bitmaps into H3 with correct settings (usage, compression, bump height etc)
 * Creates all shaders referenced in the given BSP(s)
 * Can handle special plasma shaders
@@ -29,19 +29,64 @@ This is primarily built for use by the porting team I am in, but feel free to us
 
 ## Zones/Firing Positions Converter
 * Translates all zone, area and firing position data into your H3 scenario
-* That's pretty much it
+* That's pretty much it!
 
 ## Scenario Data Converter
-* This converter translates most object placements into your H3 scenario.
+* This converter translates most object placements into your H3 scenario. Works for both SP and MP scenarios.
 * It currently converts:
     * H2 multiplayer starting locations to H3 respawn point scenery. Includes team data.
-    * Weapon palette and placements. Weapon palette references will attempt to automatically use existing H3 weapon tags where applicable. Grenades included.
+    * All weapon palette and placements. Weapon palette references will attempt to automatically use existing H3 weapon tags where applicable. Grenades included.
     * All scenery types and placements, including variant names. Scenery type filepaths still use the H2 filepaths - change the path(s) in Guerilla once you have ported the item(s)!
     * All trigger volumes, including names.
     * All vehicle types and placements. Vehicle palette references will attempt to automatically use existing H3 vehicle tags where applicable. Some variants may not be applied. Turret types not available in H3 will be switched for the standard mounted turret type for the given faction.
     * All crates, including variant names. Crate type filepaths still use the H2 filepaths - change the path(s) in Guerilla once you have ported the item(s)!
     * All (netgame) gamemode items (CTF flag spawns, territories, bomb spawns/goals, teleporter sender/receivers etc etc) to H3 gametype crates. Unused or unapplicable gametype objects, such as race checkpoints and headhunter bins, are included but replaced with temporary forerunner core crates for easy identification.
     * All decal placements and types. Due to system incompatibilities between engines, decals may appear rotated and/or stretched incorrectly. To fix stretching, simply touch the rotation handle. Rotate with the handle to fix rotations where necessary.
+
+## AI/Scripting Data Converter
+* Translates everything required for functional squads, as well as data used for mission scripting.
+* Currently includes:
+    * All jump hints, including correct height
+    * All flight hints
+    * All cutscene flags
+    * All point sets
+    * Conversion of palette data for weapons, vehicles and characters
+    * Squad folders if the user provides a .txt of folder names to use
+    * All squad groups, with correct hierarchy
+    * All squads. For each squad, the following data is set:
+        * Name
+        * Flags
+        * Team
+        * Squad group
+        * Spawn count
+        * Upgrade chance
+        * Vehicle type
+        * Character type
+        * Primary weapon type
+        * Secondary weapon type
+        * Grenade type
+        * Initial zone
+        * Vehicle variant
+        * Placement script reference
+        * Squad folder
+        * All starting locations. For each starting location, the following data is set:
+            * Name
+            * Position
+            * Rotation
+            * Flags
+            * Character type
+            * Primary weapon type
+            * Secondary weapon type
+            * Vehicle type
+            * Vehicle seat type
+            * Grenade type
+            * Swarm count
+            * Actor variant
+            * Vehicle variant
+            * Initial movement distance
+            * Initial movement mode
+            * Placement script reference
+
 
 # Usage
 * Download the latest release, or compile your own version.
@@ -53,9 +98,15 @@ This is primarily built for use by the porting team I am in, but feel free to us
 * The program will exit when clicking "close" in the output window. This is to avoid an issue with managedblam being run more than once.
 
 # Notes
-* Scenery and crate placements may be bugged on some solo scenarios
 * The program should now automatically handle XML files straight from H2 - no manual cleanup/"xFF" removal required!
-* There will very likely be bugs and issues that I haven't caught. Please let me know on Discord - `pepperman`
+* Some shaders will fail to translate properly. This is due to the sheer complexity of perfecting the shader converter. It will struggle with:
+    * Glass shaders
+    * Alpha test (sometimes)
+* H2 bump map height values can often be too high to look good in H3. This is most obviously seen on terrain-style shaders. You can lower this in the bump map .bitmap tag.
+* The program features multiple dictionaries to help with figuring out which H2 tags map to which H3 tags. This list may be incomplete, and is also designed for the filepaths used by our team, thus YMMV. You can quite simply update palette references in Guerilla to point to whatever tag you want.
+* You should be able to have the scenario open in Sapien whilst the converter runs. However for unknown reasons this very rarely may prevent the program from being able to save the tag correctly.
+* Be prepared for the shader converter to use up to 8GB of memory on bigger scenarios. Yeah this ain't good but neither is parsing XML.
+* There will very likely be bugs and issues that I haven't caught due to the complexity, as well as time needed to test extensively on all scenarios. Please let me know on Discord @ `pepperman`
 
 # Credits
 * All code by me
