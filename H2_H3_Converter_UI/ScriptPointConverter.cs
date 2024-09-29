@@ -94,6 +94,12 @@ namespace H2_H3_Converter_UI
             {
                 scenTag.Load(relativeScenPath);
                 loadingForm.UpdateOutputBox($"Successfully opened \"{relativeScenPath}\"", false);
+
+                // Make sure scripting data block exists
+                if (((TagFieldBlock)scenTag.SelectField($"Block:scripting data")).Elements.Count() == 0)
+                {
+                    ((TagFieldBlock)scenTag.SelectField($"Block:scripting data")).AddElement();
+                }
                 ((TagFieldBlock)scenTag.SelectField($"Block:scripting data[0]/Block:point sets")).RemoveAllElements();
 
                 i = 0;

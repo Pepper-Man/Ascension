@@ -202,6 +202,13 @@ namespace H2_H3_Converter_UI
 
                 // Write parallelogram geometry data before jump hints to make sure they can reference something
                 int bspIndex = 0;
+
+                // Make sure hint data block exists
+                if (((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data")).Elements.Count() == 0)
+                {
+                    ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data")).AddElement();
+                }
+
                 ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry")).RemoveAllElements();
                 foreach (BspParallelos bsp in scenarioParallelosContainer.scenarioParallelos)
                 {
