@@ -496,25 +496,25 @@ class MB_Zones
     static void ManagedBlamHandler(List<Zone> zone_data, string h3ek_path, string scen_path, Loading loadingForm)
     {
         // Variables
-        var tag_path = Bungie.Tags.TagPath.FromPathAndType(Path.ChangeExtension(scen_path.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
+        var tag_path = TagPath.FromPathAndType(Path.ChangeExtension(scen_path.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
         Console.WriteLine("\nSaving tag...\n");
         loadingForm.UpdateOutputBox("\nSaving tag...\n", false);
 
-        using (var tagFile = new Bungie.Tags.TagFile(tag_path))
+        using (var tagFile = new TagFile(tag_path))
         {
             // Clear all existing zone data
             ((TagFieldBlock)tagFile.SelectField("Block:zones")).RemoveAllElements();
 
-            int zones_max_index = ((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements.Count() - 1;
+            int zones_max_index = ((TagFieldBlock)tagFile.Fields[83]).Elements.Count() - 1;
 
             // Add all zone entries
             int i = 0;
             foreach (var zone in zone_data)
             {
-                ((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).AddElement(); // 83 is the position of the Zones block
-                var zone_name = (Bungie.Tags.TagFieldElementString)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[i].Fields[0];
+                ((TagFieldBlock)tagFile.Fields[83]).AddElement(); // 83 is the position of the Zones block
+                var zone_name = (TagFieldElementString)((TagFieldBlock)tagFile.Fields[83]).Elements[i].Fields[0];
                 zone_name.Data = zone.ZoneName;
                 i++;
             }
@@ -527,18 +527,18 @@ class MB_Zones
                 for (int k = 0; k < loopcount; k++)
                 {
                     // Name
-                    ((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).AddElement();
-                    var area_name = (Bungie.Tags.TagFieldElementString)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[0];
+                    ((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).AddElement();
+                    var area_name = (TagFieldElementString)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[0];
                     area_name.Data = zone.Areas[k].AreaName;
 
                     // Flags
-                    var area_flags = (Bungie.Tags.TagFieldFlags)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[1];
+                    var area_flags = (TagFieldFlags)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[1];
                     area_flags.RawValue = uint.Parse(zone.Areas[k].AreaFlags);
 
                     // Reference Frame
                     if (zone.Areas[k].AreaRefFrame != "0")
                     {
-                        var reference_frame = (Bungie.Tags.TagFieldBlockIndex)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[9];
+                        var reference_frame = (TagFieldBlockIndex)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[9];
                         reference_frame.Value = int.Parse(zone.Areas[k].AreaRefFrame);
                     }
                 }
@@ -553,27 +553,27 @@ class MB_Zones
                 for (int y = 0; y < loopcount; y++)
                 {
                     // Add
-                    ((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).AddElement();
+                    ((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).AddElement();
 
                     // XYZ Position
-                    var xyz_pos = (Bungie.Tags.TagFieldElementArraySingle)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[1];
+                    var xyz_pos = (TagFieldElementArraySingle)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[1];
                     // Splits the string into a float array of xyz coordinates
                     xyz_pos.Data = zone.Fpos[y].XYZCoord.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
 
                     // Flags
-                    var fpos_flags = (Bungie.Tags.TagFieldFlags)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[4];
+                    var fpos_flags = (TagFieldFlags)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[4];
                     fpos_flags.RawValue = uint.Parse(zone.Fpos[y].FposFlags);
 
                     // Area Reference
-                    var area_ref = (Bungie.Tags.TagFieldBlockIndex)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[6];
+                    var area_ref = (TagFieldBlockIndex)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[6];
                     area_ref.Value = int.Parse(zone.Fpos[y].AreaRef);
 
                     // Cluster Index
-                    var cluster_index = (Bungie.Tags.TagFieldElementInteger)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[7];
+                    var cluster_index = (TagFieldElementInteger)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[7];
                     cluster_index.Data = int.Parse(zone.Fpos[y].ClusterIndex);
 
                     // Normal Direction
-                    var normal_dir = (Bungie.Tags.TagFieldElementArraySingle)((Bungie.Tags.TagFieldBlock)((Bungie.Tags.TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[10];
+                    var normal_dir = (TagFieldElementArraySingle)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[10];
                     // Splits the string into a float array of xy coordinates
                     normal_dir.Data = zone.Fpos[y].NormalDirection.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
                 }
