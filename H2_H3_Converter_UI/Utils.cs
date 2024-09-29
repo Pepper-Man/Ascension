@@ -156,7 +156,16 @@ namespace H2_H3_Converter_UI
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = utilsInstance.characterMapping[h2Path];
+                    TagPath h3Obj;
+                    try
+                    {
+                        h3Obj = utilsInstance.characterMapping[h2Path];
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        loadingForm.UpdateOutputBox($"H3 equivalent not found for character \"{h2Path}\", using H2 tag path.", false);
+                        h3Obj = TagPath.FromPathAndExtension(h2Path, "character");
+                    }
                     h3ObjPaths.Add(h3Obj);
                 }
             }
@@ -164,7 +173,16 @@ namespace H2_H3_Converter_UI
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = utilsInstance.weaponMapping[h2Path];
+                    TagPath h3Obj;
+                    try
+                    {
+                        h3Obj = utilsInstance.weaponMapping[h2Path];
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        loadingForm.UpdateOutputBox($"H3 equivalent not found for weapon \"{h2Path}\", using H2 tag path.", false);
+                        h3Obj = TagPath.FromPathAndExtension(h2Path, "weapon");
+                    }
                     h3ObjPaths.Add(h3Obj);
                 }
             }
@@ -172,7 +190,16 @@ namespace H2_H3_Converter_UI
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = utilsInstance.vehicleMapping[h2Path];
+                    TagPath h3Obj;
+                    try
+                    {
+                        h3Obj = utilsInstance.vehicleMapping[h2Path];
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        loadingForm.UpdateOutputBox($"H3 equivalent not found for vehicle \"{h2Path}\", using H2 tag path.", false);
+                        h3Obj = TagPath.FromPathAndExtension(h2Path, "vehicle");
+                    }
                     h3ObjPaths.Add(h3Obj);
                 }
             }
