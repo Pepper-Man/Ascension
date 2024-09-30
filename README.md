@@ -1,7 +1,7 @@
 # Ascension
-A C# program for converting H2 scenario and shader data into H3 format. 
+A C# ManagedBlam-based program for converting H2 scenario and shader data into H3 format. 
 This is a UI-based compilation of all my previously released H2-to-H3 converters.
-This is primarily built for use by the porting team I am in, but feel free to use it for you own ports.
+This is primarily built for use by the porting team I am in, but feel free to use it for you own ports. Let the data be ascended!
 
 # Requirements
 * Requires [.NET 4.8 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48)
@@ -50,42 +50,48 @@ This is primarily built for use by the porting team I am in, but feel free to us
     * All flight hints
     * All cutscene flags
     * All point sets
-    * Conversion of palette data for weapons, vehicles and characters
+    * Conversion of palette data for weapons, vehicles, and characters
     * Squad folders if the user provides a .txt of folder names to use
     * All squad groups, with correct hierarchy
     * All squads. For each squad, the following data is set:
-        * Name
-        * Flags
-        * Team
-        * Squad group
-        * Spawn count
-        * Upgrade chance
-        * Vehicle type
-        * Character type
-        * Primary weapon type
-        * Secondary weapon type
-        * Grenade type
-        * Initial zone
-        * Vehicle variant
-        * Placement script reference
-        * Squad folder
-        * All starting locations. For each starting location, the following data is set:
-            * Name
-            * Position
-            * Rotation
-            * Flags
-            * Character type
-            * Primary weapon type
-            * Secondary weapon type
-            * Vehicle type
-            * Vehicle seat type
-            * Grenade type
-            * Swarm count
-            * Actor variant
-            * Vehicle variant
-            * Initial movement distance
-            * Initial movement mode
-            * Placement script reference
+    <details>
+        <summary>&nbsp;&nbsp;Click to show/hide further squad details</summary>
+        
+        - Name
+        - Flags
+        - Team
+        - Squad group
+        - Spawn count
+        - Upgrade chance
+        - Vehicle type
+        - Character type
+        - Primary weapon type
+        - Secondary weapon type
+        - Grenade type
+        - Initial zone
+        - Vehicle variant
+        - Placement script reference
+        - Squad folder
+        - All starting locations. For each starting location, the following data is set:
+        
+            - Name
+            - Position
+            - Rotation
+            - Flags
+            - Character type
+            - Primary weapon type
+            - Secondary weapon type
+            - Vehicle type
+            - Vehicle seat type
+            - Grenade type
+            - Swarm count
+            - Actor variant
+            - Vehicle variant
+            - Initial movement distance
+            - Initial movement mode
+            - Placement script reference
+
+    </details>
 
 
 # Usage
