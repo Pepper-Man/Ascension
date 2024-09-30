@@ -109,7 +109,7 @@ This is a UI-based compilation of all my previously released H2-to-H3 converters
     * Glass shaders
     * Alpha test (sometimes)
 * H2 bump map height values can often be too high to look good in H3. This is most obviously seen on terrain-style shaders. You can lower this in the bump map .bitmap tag.
-* The program features multiple dictionaries to help with figuring out which H2 tags map to which H3 tags. This list may be incomplete, and is also designed for the filepaths used by our team, thus YMMV. You can quite simply update palette references in Guerilla to point to whatever tag you want.
+* The program features multiple dictionaries to help with figuring out which H2 tags map to which H3 tags. This list may be incomplete, and is also designed for the filepaths used by our team, thus YMMV. The output window will report H2 tag paths that it was unable to find the dictionary entry for. You can update palette references in Guerilla to point to whatever tag you want after the converter has run, to easily update/fix the reference for all instances of that object.
 * You should be able to have the scenario open in Sapien whilst the converter runs. However for unknown reasons this very rarely may prevent the program from being able to save the tag correctly.
 * Be prepared for the shader converter to use up to 8GB of memory on bigger scenarios. Yeah this ain't good but neither is parsing XML.
 * There will very likely be bugs and issues that I haven't caught due to the complexity, as well as time needed to test extensively on all scenarios. Please let me know on Discord @ `pepperman`
