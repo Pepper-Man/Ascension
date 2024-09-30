@@ -120,4 +120,5 @@ This is a UI-based compilation of all my previously released H2-to-H3 converters
 * All code by PepperMan
 * Special thanks to [Crisp](https://github.com/ILoveAGoodCrisp) and [Krevil](https://github.com/Krevil) for their assistance with ManagedBlam
 * Special thanks to [Berthalamew](https://github.com/berthalamew) and [Lord Zedd](https://github.com/Lord-Zedd) for their help with obtaining bungie cook torrance values for H2 objects via the H3 Pimps at Sea build
+* Special thanks to [Alexis Jonsson | WyvernZu](https://github.com/AlexisJonsson) for their brilliant banner and icon art!
 * [Magick.NET](https://github.com/dlemstra/Magick.NET) for their free image manipulation library
