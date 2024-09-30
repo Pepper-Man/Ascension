@@ -58,7 +58,7 @@ namespace H2_H3_Converter_UI
             public List<StartLoc> StartingLocations { get; set; }
         }
 
-        public static void ConvertSquadGroups(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+        public static void ConvertSquadGroups(string scenPath, Loading loadingForm, XmlDocument scenfile)
         {
             loadingForm.UpdateOutputBox("Begin reading scenario squad groups from XML...", false);
 
@@ -78,9 +78,11 @@ namespace H2_H3_Converter_UI
                     if (groupEntry != null)
                     {
                         loadingForm.UpdateOutputBox($"Reading data for squad group {i}.", false);
-                        SquadGroup sqGroup = new SquadGroup();
-                        sqGroup.Name = groupEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                        sqGroup.ParentIndex = Int32.Parse(groupEntry.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value);
+                        SquadGroup sqGroup = new SquadGroup
+                        {
+                            Name = groupEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                            ParentIndex = Int32.Parse(groupEntry.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value)
+                        };
 
                         allGroups.Add(sqGroup);
                         i++;
@@ -132,7 +134,7 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertSquads(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+        public static void ConvertSquads(string scenPath, Loading loadingForm, XmlDocument scenfile)
         {
             loadingForm.UpdateOutputBox("Begin reading scenario squads from XML...", false);
 

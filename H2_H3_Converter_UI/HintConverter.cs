@@ -62,7 +62,7 @@ namespace H2_H3_Converter_UI
         public static XmlDocument HintsToXML(string scenPath, string xmlPath, Loading loadingForm)
         {
             // Make sure we have a scenario backup
-            Utils.BackupScenario(scenPath, xmlPath, loadingForm);
+            Utils.BackupScenario(scenPath, loadingForm);
 
             string newFilePath = Utils.ConvertXML(xmlPath, loadingForm);
             XmlDocument scenfile = new XmlDocument();
@@ -102,10 +102,12 @@ namespace H2_H3_Converter_UI
                             XmlNodeList jumpHintElements = jumpHintsBlock.SelectNodes("./element");
                             foreach (XmlNode jumpHint in jumpHintElements)
                             {
-                                JumpHint hint = new JumpHint();
-                                hint.Flags = jumpHint.SelectSingleNode("./field[@name='Flags']").InnerText.Trim();
-                                hint.ParallelIndex = jumpHint.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value;
-                                hint.JumpHeight = jumpHint.SelectSingleNode("./field[@name='force jump height']").InnerText.Trim();
+                                JumpHint hint = new JumpHint
+                                {
+                                    Flags = jumpHint.SelectSingleNode("./field[@name='Flags']").InnerText.Trim(),
+                                    ParallelIndex = jumpHint.SelectSingleNode("./block_index[@name='short block index']").Attributes["index"]?.Value,
+                                    JumpHeight = jumpHint.SelectSingleNode("./field[@name='force jump height']").InnerText.Trim()
+                                };
                                 jumpHints.Add(hint);
                                 loadingForm.UpdateOutputBox($"Read data for BSP {i}, jump hint {j}.", false);
                                 j++;

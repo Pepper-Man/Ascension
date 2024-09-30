@@ -71,7 +71,7 @@ namespace H2_H3_Converter_UI
             return newFilePath;
         }
     
-        public static void BackupScenario(string scenPath, string xmlPath, Loading loadingForm)
+        public static void BackupScenario(string scenPath, Loading loadingForm)
         {
             // Create scenario backup
             string backup_folderpath = Path.GetDirectoryName(scenPath) + @"\scenario_backup";
@@ -91,7 +91,7 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertPalette(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile, string paletteType)
+        public static void ConvertPalette(string scenPath, Loading loadingForm, XmlDocument scenfile, string paletteType)
         {
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
 
@@ -116,7 +116,7 @@ namespace H2_H3_Converter_UI
                     XmlNode paletteEntry = paletteBlock[0].SelectSingleNode("./element[@index='" + i + "']");
                     if (paletteEntry != null)
                     {
-                        string objRef = null;
+                        string objRef;
                         if (paletteType == "character")
                         {
                             objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
@@ -161,7 +161,7 @@ namespace H2_H3_Converter_UI
                     {
                         h3Obj = utilsInstance.characterMapping[h2Path];
                     }
-                    catch (KeyNotFoundException e)
+                    catch (KeyNotFoundException)
                     {
                         loadingForm.UpdateOutputBox($"H3 equivalent not found for character \"{h2Path}\", using H2 tag path.", false);
                         h3Obj = TagPath.FromPathAndExtension(h2Path, "character");
@@ -178,7 +178,7 @@ namespace H2_H3_Converter_UI
                     {
                         h3Obj = utilsInstance.weaponMapping[h2Path];
                     }
-                    catch (KeyNotFoundException e)
+                    catch (KeyNotFoundException)
                     {
                         loadingForm.UpdateOutputBox($"H3 equivalent not found for weapon \"{h2Path}\", using H2 tag path.", false);
                         h3Obj = TagPath.FromPathAndExtension(h2Path, "weapon");
@@ -195,7 +195,7 @@ namespace H2_H3_Converter_UI
                     {
                         h3Obj = utilsInstance.vehicleMapping[h2Path];
                     }
-                    catch (KeyNotFoundException e)
+                    catch (KeyNotFoundException)
                     {
                         loadingForm.UpdateOutputBox($"H3 equivalent not found for vehicle \"{h2Path}\", using H2 tag path.", false);
                         h3Obj = TagPath.FromPathAndExtension(h2Path, "vehicle");
@@ -249,17 +249,18 @@ namespace H2_H3_Converter_UI
 
         public static TPlacement GetObjectDataFromXML<TPlacement>(XmlNode element) where TPlacement : ObjectPlacement, new()
         {
-            TPlacement objPlacement = new TPlacement();
-
-            objPlacement.TypeIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value);
-            objPlacement.NameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value);
-            objPlacement.Flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1));
-            objPlacement.Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-            objPlacement.Rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-            objPlacement.VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
-            objPlacement.ManualBsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1));
-            objPlacement.OriginBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value);
-            objPlacement.BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1));
+            TPlacement objPlacement = new TPlacement
+            {
+                TypeIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value),
+                NameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value),
+                Flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1)),
+                Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                Rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim(),
+                ManualBsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1)),
+                OriginBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value),
+                BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
+            };
 
             // Extra properties specific to certain object types
             if (objPlacement is SpWeapLoc weapon)

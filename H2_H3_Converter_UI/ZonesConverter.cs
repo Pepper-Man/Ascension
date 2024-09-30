@@ -485,7 +485,7 @@ class MB_Zones
                 Fpos = tempFpos
             });
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // User tried to generate zones on a multiplayer map? Let's not just crash huh
             Console.WriteLine("Tried to generate zone data, but none found!");

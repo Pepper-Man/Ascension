@@ -24,7 +24,7 @@ namespace H2_H3_Converter_UI
 
     public class ScriptPointConverter
     {
-        public static void ConvertScriptPoints(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+        public static void ConvertScriptPoints(string scenPath, Loading loadingForm, XmlDocument scenfile)
         {
             loadingForm.UpdateOutputBox("Begin reading scenario script points from XML...", false);
 
@@ -57,10 +57,12 @@ namespace H2_H3_Converter_UI
                             XmlNodeList setPointsElements = setPointsBlock.SelectNodes("./element");
                             foreach (XmlNode point in setPointsElements)
                             {
-                                PointElement pointElement = new PointElement();
-                                pointElement.Name = point.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                                pointElement.Position = point.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                                pointElement.Facing = point.SelectSingleNode("./field[@name='facing direction']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                                PointElement pointElement = new PointElement
+                                {
+                                    Name = point.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                                    Position = point.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                                    Facing = point.SelectSingleNode("./field[@name='facing direction']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
+                                };
 
                                 allPointsForSet.Add(pointElement);
                                 loadingForm.UpdateOutputBox($"Read data for point set \"{set.SetName}\", point element {j}.", false);

@@ -89,7 +89,7 @@ class ScenData
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
         // Make sure we have a scenario backup
-        Utils.BackupScenario(scenPath, xmlPath, loadingForm);
+        Utils.BackupScenario(scenPath, loadingForm);
 
         // Initialise MB
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
@@ -241,7 +241,7 @@ class ScenData
         else if (scenarioType == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "weapon");
+            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
 
             foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
@@ -271,7 +271,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "vehicle");
+            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "vehicle");
             foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
                 bool vehiclesEnd = false;

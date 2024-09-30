@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -412,23 +407,23 @@ namespace H2_H3_Converter_UI
                         XmlDocument scenFile = HintConverter.HintsToXML(scen_path, h2_xml_path, loadingForm);
 
                         // Flags conversion
-                        FlagConverter.ConvertCutsceneFlags(scen_path, h2_xml_path, loadingForm, scenFile);
+                        FlagConverter.ConvertCutsceneFlags(scen_path, loadingForm, scenFile);
 
                         // Point set conversion
-                        ScriptPointConverter.ConvertScriptPoints(scen_path, h2_xml_path, loadingForm, scenFile);
+                        ScriptPointConverter.ConvertScriptPoints(scen_path, loadingForm, scenFile);
 
                         // Squads conversion
-                        Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character");
+                        Utils.ConvertPalette(scen_path, loadingForm, scenFile, "character");
 
                         // Only convert weapon and vehicle palettes if scenario data conversion was not already done, since it is done there too
                         if (!checkBox3.Checked)
                         {
-                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon");
-                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle");
+                            Utils.ConvertPalette(scen_path, loadingForm, scenFile, "weapon");
+                            Utils.ConvertPalette(scen_path, loadingForm, scenFile, "vehicle");
                         }
                         
-                        SquadsConverter.ConvertSquadGroups(scen_path, h2_xml_path, loadingForm, scenFile);
-                        SquadsConverter.ConvertSquads(scen_path, h2_xml_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertSquadGroups(scen_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertSquads(scen_path, loadingForm, scenFile);
                     }
                 });
 

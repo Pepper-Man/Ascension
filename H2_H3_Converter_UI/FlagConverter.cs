@@ -17,10 +17,10 @@ namespace H2_H3_Converter_UI
 
     public class FlagConverter
     {
-        public static void ConvertCutsceneFlags(string scenPath, string xmlPath, Loading loadingForm, XmlDocument scenfile)
+        public static void ConvertCutsceneFlags(string scenPath, Loading loadingForm, XmlDocument scenfile)
         {
             // Make sure we have a scenario backup
-            Utils.BackupScenario(scenPath, xmlPath, loadingForm);
+            Utils.BackupScenario(scenPath, loadingForm);
             loadingForm.UpdateOutputBox("Begin reading scenario cutscene flags from XML...", false);
 
             XmlNode root = scenfile.DocumentElement;
@@ -39,10 +39,12 @@ namespace H2_H3_Converter_UI
                     if (flagEntry != null)
                     {
                         loadingForm.UpdateOutputBox($"Reading data for cutscene flag {i}.", false);
-                        FlagElement flag = new FlagElement();
-                        flag.Name = flagEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
-                        flag.Position = flagEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-                        flag.Facing = flagEntry.SelectSingleNode("./field[@name='facing']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                        FlagElement flag = new FlagElement
+                        {
+                            Name = flagEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                            Position = flagEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
+                            Facing = flagEntry.SelectSingleNode("./field[@name='facing']").InnerText.Trim().Split(',').Select(float.Parse).ToArray()
+                        };
 
                         allFlags.Add(flag);
                         i++;

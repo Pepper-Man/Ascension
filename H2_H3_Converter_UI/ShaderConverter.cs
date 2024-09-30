@@ -15,48 +15,48 @@ namespace H2_H3_Converter_UI
 {
     class Shader
     {
-        public string name { get; set; }
-        public string glob_mat { get; set; }
-        public string template { get; set; }
-        public List<Parameter> parameters { get; set; }
-        public string spec_col { get; set; }
-        public string spec_glnc { get; set; }
-        public string env_tint { get; set; }
-        public string env_glnc { get; set; }
-        public string spec_type { get; set; }
-        public string env_bitmap { get; set; }
+        public string Name { get; set; }
+        public string GlobMat { get; set; }
+        public string Template { get; set; }
+        public List<Parameter> Parameters { get; set; }
+        public string SpecCol { get; set; }
+        public string SpecGlnc { get; set; }
+        public string EnvTint { get; set; }
+        public string EnvGlnc { get; set; }
+        public string SpecType { get; set; }
+        public string EnvBitmap { get; set; }
     }
 
     class Parameter
     {
-        public string name { get; set; }
-        public string type { get; set; }
-        public string bitmap { get; set; }
-        public string value { get; set; }
-        public string colour { get; set; }
-        public sbyte scalex_1 { get; set; }
-        public byte scalex_2 { get; set; }
-        public sbyte scaley_1 { get; set; }
-        public byte scaley_2 { get; set; }
-        public byte[] scaley { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Bitmap { get; set; }
+        public string Value { get; set; }
+        public string Colour { get; set; }
+        public sbyte ScaleX1 { get; set; }
+        public byte ScaleX2 { get; set; }
+        public sbyte ScaleY1 { get; set; }
+        public byte ScaleY2 { get; set; }
+        public byte[] ScaleY { get; set; }
     }
 
     class BitmapData
     {
-        public string bitmap { get; set; }
-        public string type { get; set; }
-        public string compr { get; set; }
-        public string fade { get; set; }
-        public string bmp_hgt { get; set; }
+        public string Bitmap { get; set; }
+        public string Type { get; set; }
+        public string Compression { get; set; }
+        public string Fade { get; set; }
+        public string BumpHeight { get; set; }
     }
 
     class CookSettings
     {
-        public float spec_coeff { get; set; }
-        public float roughness { get; set; }
-        public float area_contr { get; set; }
-        public float anal_contr { get; set; }
-        public float env_contr { get; set; }
+        public float SpecCoeff { get; set; }
+        public float Roughness { get; set; }
+        public float AreaContr { get; set; }
+        public float AnalContr { get; set; }
+        public float EnvContr { get; set; }
     }
 
     public class ShaderConverter
@@ -177,14 +177,14 @@ namespace H2_H3_Converter_UI
 
             foreach (Shader shader in all_shader_data)
             {
-                foreach (Parameter param in shader.parameters)
+                foreach (Parameter param in shader.Parameters)
                 {
-                    if (!String.IsNullOrEmpty(param.bitmap))
+                    if (!String.IsNullOrEmpty(param.Bitmap))
                     {
-                        if (!all_bitmap_refs.Contains(param.bitmap))
+                        if (!all_bitmap_refs.Contains(param.Bitmap))
                         {
-                            all_bitmap_refs.Add(param.bitmap);
-                            Console.WriteLine(param.bitmap);
+                            all_bitmap_refs.Add(param.Bitmap);
+                            Console.WriteLine(param.Bitmap);
                         }
                     }
                 }
@@ -525,15 +525,15 @@ namespace H2_H3_Converter_UI
 
                                 shader_parameters.Add(new Parameter
                                 {
-                                    name = prm_name,
-                                    type = prm_type,
-                                    bitmap = prm_bitmap,
-                                    value = prm_value,
-                                    colour = prm_colour,
-                                    scalex_1 = byte1_scaleX,
-                                    scalex_2 = byte2_scaleX,
-                                    scaley_1 = byte1_scaleY,
-                                    scaley_2 = byte2_scaleY,
+                                    Name = prm_name,
+                                    Type = prm_type,
+                                    Bitmap = prm_bitmap,
+                                    Value = prm_value,
+                                    Colour = prm_colour,
+                                    ScaleX1 = byte1_scaleX,
+                                    ScaleX2 = byte2_scaleX,
+                                    ScaleY1 = byte1_scaleY,
+                                    ScaleY2 = byte2_scaleY,
 
                                 });
                             }
@@ -548,16 +548,16 @@ namespace H2_H3_Converter_UI
                 }
                 all_shader_data.Add(new Shader
                 {
-                    name = shader_name,
-                    glob_mat = shd_globmat,
-                    template = shd_templ,
-                    parameters = shader_parameters,
-                    spec_col = specular_col,
-                    spec_glnc = specular_glc_col,
-                    env_tint = env_col,
-                    env_glnc = env_glc_col,
-                    spec_type = specular_setting,
-                    env_bitmap = env_bitm
+                    Name = shader_name,
+                    GlobMat = shd_globmat,
+                    Template = shd_templ,
+                    Parameters = shader_parameters,
+                    SpecCol = specular_col,
+                    SpecGlnc = specular_glc_col,
+                    EnvTint = env_col,
+                    EnvGlnc = env_glc_col,
+                    SpecType = specular_setting,
+                    EnvBitmap = env_bitm
                 }); ;
             }
             return all_shader_data;
@@ -686,17 +686,17 @@ namespace H2_H3_Converter_UI
 
                 all_bitmap_data.Add(new BitmapData
                 {
-                    bitmap = bitmap_name,
-                    type = usage,
-                    compr = compression,
-                    fade = fade_factor,
-                    bmp_hgt = bump_height
+                    Bitmap = bitmap_name,
+                    Type = usage,
+                    Compression = compression,
+                    Fade = fade_factor,
+                    BumpHeight = bump_height
                 });
             }
 
             foreach (BitmapData bitmap_data in all_bitmap_data)
             {
-                string bitmap_file_path = (bitmaps_dir.Replace("data", "tags")).Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last() + "\\" + bitmap_data.bitmap;
+                string bitmap_file_path = (bitmaps_dir.Replace("data", "tags")).Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last() + "\\" + bitmap_data.Bitmap;
                 TagPath tag_path = TagPath.FromPathAndType(bitmap_file_path, "bitm*");
 
                 try
@@ -705,34 +705,34 @@ namespace H2_H3_Converter_UI
                     {
                         // Usage
                         var type = (TagFieldEnum)tagFile.SelectField("LongEnum:Usage");
-                        if (bitmap_data.type.Contains("default"))
+                        if (bitmap_data.Type.Contains("default"))
                         {
                             type.Value = 0;
                         }
-                        else if (bitmap_data.type.Contains("height"))
+                        else if (bitmap_data.Type.Contains("height"))
                         {
                             type.Value = 2;
                         }
-                        else if (bitmap_data.type.Contains("detail"))
+                        else if (bitmap_data.Type.Contains("detail"))
                         {
                             type.Value = 4;
                         }
 
                         // Compression
                         var compr = (TagFieldEnum)tagFile.SelectField("ShortEnum:force bitmap format");
-                        if (bitmap_data.type.Contains("height"))
+                        if (bitmap_data.Type.Contains("height"))
                         {
                             compr.Value = 3; // Best compressed bump
                         }
-                        else if (bitmap_data.compr.Contains("color-key"))
+                        else if (bitmap_data.Compression.Contains("color-key"))
                         {
                             compr.Value = 13; //DXT1
                         }
-                        else if (bitmap_data.compr.Contains("explicit alpha"))
+                        else if (bitmap_data.Compression.Contains("explicit alpha"))
                         {
                             compr.Value = 14; //DXT3
                         }
-                        else if (bitmap_data.compr.Contains("interpolated alpha"))
+                        else if (bitmap_data.Compression.Contains("interpolated alpha"))
                         {
                             compr.Value = 15; //DXT5
                         }
@@ -743,19 +743,19 @@ namespace H2_H3_Converter_UI
 
                         // Fade factor
                         var fade = (TagFieldElementSingle)tagFile.SelectField("RealFraction:fade factor");
-                        fade.Data = float.Parse(bitmap_data.fade);
+                        fade.Data = float.Parse(bitmap_data.Fade);
 
                         // Bump height
-                        if (bitmap_data.type.Contains("height"))
+                        if (bitmap_data.Type.Contains("height"))
                         {
                             var height = (TagFieldElementSingle)tagFile.SelectField("Real:bump map height");
-                            if (float.Parse(bitmap_data.bmp_hgt) >= 15.0f)
+                            if (float.Parse(bitmap_data.BumpHeight) >= 15.0f)
                             {
                                 height.Data = 10.0f;
                             }
                             else
                             {
-                                height.Data = float.Parse(bitmap_data.bmp_hgt);
+                                height.Data = float.Parse(bitmap_data.BumpHeight);
                             }
                         }
 
@@ -799,46 +799,46 @@ namespace H2_H3_Converter_UI
 
             CookSettings cook_diffuse = new CookSettings
             {
-                spec_coeff = 0.06366198f,
-                roughness = 0.3f,
-                area_contr = 0.3f,
-                anal_contr = 0.5f,
-                env_contr = 0.0f
+                SpecCoeff = 0.06366198f,
+                Roughness = 0.3f,
+                AreaContr = 0.3f,
+                AnalContr = 0.5f,
+                EnvContr = 0.0f
             };
 
             CookSettings cook_default = new CookSettings
             {
-                spec_coeff = 0.2546479f,
-                roughness = 0.2f,
-                area_contr = 0.5f,
-                anal_contr = 0.6f,
-                env_contr = 1.0f
+                SpecCoeff = 0.2546479f,
+                Roughness = 0.2f,
+                AreaContr = 0.5f,
+                AnalContr = 0.6f,
+                EnvContr = 1.0f
             };
 
             CookSettings cook_dull = new CookSettings
             {
-                spec_coeff = 0.06366198f,
-                roughness = 0.3f,
-                area_contr = 0.1f,
-                anal_contr = 0.2f,
-                env_contr = 0.0f
+                SpecCoeff = 0.06366198f,
+                Roughness = 0.3f,
+                AreaContr = 0.1f,
+                AnalContr = 0.2f,
+                EnvContr = 0.0f
             };
 
             CookSettings cook_shiny = new CookSettings
             {
-                spec_coeff = 0.318309873f,
-                roughness = 0.1f,
-                area_contr = 0.2f,
-                anal_contr = 0.5f,
-                env_contr = 1.0f
+                SpecCoeff = 0.318309873f,
+                Roughness = 0.1f,
+                AreaContr = 0.2f,
+                AnalContr = 0.5f,
+                EnvContr = 1.0f
             };
 
             foreach (Shader shader in all_shader_data)
             {
 
-                if (shader.glob_mat.Contains("soft_organic_plant")) // Needs to be .shader_foliage
+                if (shader.GlobMat.Contains("soft_organic_plant")) // Needs to be .shader_foliage
                 {
-                    string shader_name = Path.Combine(shaders_dir, shader.name);
+                    string shader_name = Path.Combine(shaders_dir, shader.Name);
                     var tag_path = TagPath.FromPathAndType(shader_name, "rmfl*");
 
                     // Create the tag
@@ -851,15 +851,15 @@ namespace H2_H3_Converter_UI
 
                     // Global material
                     var global_mat = (TagFieldElementStringID)tagFile.SelectField("StringID:material name");
-                    global_mat.Data = shader.glob_mat;
+                    global_mat.Data = shader.GlobMat;
 
                     int param_index = 0;
 
-                    foreach (Parameter param in shader.parameters)
+                    foreach (Parameter param in shader.Parameters)
                     {
-                        if (param.name == "base_map")
+                        if (param.Name == "base_map")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string base_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add base map parameter
@@ -880,10 +880,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -920,9 +920,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "detail_map")
+                        if (param.Name == "detail_map")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -943,10 +943,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -983,12 +983,12 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "bump_map" || param.name == "lightmap_alphatest_map")
+                        if (param.Name == "bump_map" || param.Name == "lightmap_alphatest_map")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string alpha_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
-                            if (param.name == "bump_map")
+                            if (param.Name == "bump_map")
                             {
                                 // Reimport bump map as colour map to get alpha test working
                                 TagPath bitmap_path = TagPath.FromPathAndType(alpha_map_path, "bitm*");
@@ -1032,10 +1032,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1077,9 +1077,9 @@ namespace H2_H3_Converter_UI
                     }
                     tagFile.Save();
                 }
-                else if (shader.template.Contains("plasma_alpha"))
+                else if (shader.Template.Contains("plasma_alpha"))
                 {
-                    string shader_name = Path.Combine(shaders_dir, shader.name);
+                    string shader_name = Path.Combine(shaders_dir, shader.Name);
                     var tag_path = TagPath.FromPathAndType(shader_name, "rmsh*");
 
                     // Create the tag
@@ -1096,15 +1096,15 @@ namespace H2_H3_Converter_UI
 
                     // Global material
                     var global_mat = (TagFieldElementStringID)tagFile.SelectField("StringID:material name");
-                    global_mat.Data = shader.glob_mat;
+                    global_mat.Data = shader.GlobMat;
 
                     int param_index = 0;
 
-                    foreach (Parameter param in shader.parameters)
+                    foreach (Parameter param in shader.Parameters)
                     {
-                        if (param.name == "noise_map_a")
+                        if (param.Name == "noise_map_a")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string noise_a_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add noise a map parameter
@@ -1125,10 +1125,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1165,9 +1165,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "noise_map_b")
+                        if (param.Name == "noise_map_b")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string noise_b_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add noise b map parameter
@@ -1188,10 +1188,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1228,11 +1228,11 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "alpha_map")
+                        if (param.Name == "alpha_map")
                         {
-                            if (!string.IsNullOrEmpty(param.bitmap) && File.Exists(param.bitmap))
+                            if (!string.IsNullOrEmpty(param.Bitmap) && File.Exists(param.Bitmap))
                             {
-                                string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                                string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                                 string alpha_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                                 // Add alpha test map parameter as base
@@ -1253,10 +1253,10 @@ namespace H2_H3_Converter_UI
                                 aniso.Data = 6;
 
                                 // Scale function data
-                                byte byte1_x = param.scalex_2;
-                                byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                                byte byte1_y = param.scaley_2;
-                                byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                                byte byte1_x = param.ScaleX2;
+                                byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                                byte byte1_y = param.ScaleY2;
+                                byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                                 byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                                 bool all_zero = true;
 
@@ -1298,7 +1298,7 @@ namespace H2_H3_Converter_UI
                 }
                 else
                 {
-                    string shader_name = Path.Combine(shaders_dir, shader.name);
+                    string shader_name = Path.Combine(shaders_dir, shader.Name);
                     var tag_path = TagPath.FromPathAndType(shader_name, "rmsh*");
 
                     // Create the tag
@@ -1310,7 +1310,7 @@ namespace H2_H3_Converter_UI
                     bump_option.Data = 1; // 1 for standard bump
 
                     // Blend mode?
-                    if (shader.template.Contains("opaque\\overlay"))
+                    if (shader.Template.Contains("opaque\\overlay"))
                     {
                         // Set blend mode to double multiply
                         var blend_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[7]/ShortInteger:short");
@@ -1319,7 +1319,7 @@ namespace H2_H3_Converter_UI
 
                     // Global material
                     var global_mat = (TagFieldElementStringID)tagFile.SelectField("StringID:material name");
-                    global_mat.Data = shader.glob_mat;
+                    global_mat.Data = shader.GlobMat;
 
                     // Specular mask
                     var spec_mask_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[3]/ShortInteger:short");
@@ -1328,7 +1328,7 @@ namespace H2_H3_Converter_UI
                     int param_index = 0;
 
                     // Cook torrance data
-                    if (shader.spec_col != "")
+                    if (shader.SpecCol != "")
                     {
                         var mat_mdl_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[4]/ShortInteger:short");
                         mat_mdl_option.Data = 1;
@@ -1355,11 +1355,11 @@ namespace H2_H3_Converter_UI
                         TagFieldCustomFunctionEditor spec_tint_func = (TagFieldCustomFunctionEditor)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/Custom:animation function");
                         spec_tint_func.Value.ColorGraphType = FunctionEditorColorGraphType.OneColor;
                         spec_tint_func.Value.MasterType = FunctionEditorMasterType.Basic;
-                        float[] spec_colour = shader.spec_col.Split(',').Select(float.Parse).ToArray();
+                        float[] spec_colour = shader.SpecCol.Split(',').Select(float.Parse).ToArray();
                         spec_tint_func.Value.SetColor(0, GameColor.FromRgb(spec_colour[0], spec_colour[1], spec_colour[2]));
                         param_index++;
 
-                        if (shader.spec_glnc != "")
+                        if (shader.SpecGlnc != "")
                         {
                             // Add new parameter
                             ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
@@ -1383,7 +1383,7 @@ namespace H2_H3_Converter_UI
                             TagFieldCustomFunctionEditor spec_glc_func = (TagFieldCustomFunctionEditor)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/Custom:animation function");
                             spec_glc_func.Value.ColorGraphType = FunctionEditorColorGraphType.OneColor;
                             spec_glc_func.Value.MasterType = FunctionEditorMasterType.Basic;
-                            float[] spec_glc_colour = shader.spec_glnc.Split(',').Select(float.Parse).ToArray();
+                            float[] spec_glc_colour = shader.SpecGlnc.Split(',').Select(float.Parse).ToArray();
                             spec_glc_func.Value.SetColor(0, GameColor.FromRgb(spec_glc_colour[0], spec_glc_colour[1], spec_glc_colour[2]));
                             param_index++;
                         }
@@ -1455,47 +1455,47 @@ namespace H2_H3_Converter_UI
                         param_index++;
 
                         // Values need to change depending on h2 specular setting
-                        if (shader.spec_type == "0,diffuse")
+                        if (shader.SpecType == "0,diffuse")
                         {
-                            spec_coeff_func.Value.ClampRangeMin = cook_diffuse.spec_coeff;
-                            rough_func.Value.ClampRangeMin = cook_diffuse.roughness;
-                            area_func.Value.ClampRangeMin = cook_diffuse.area_contr;
-                            anal_func.Value.ClampRangeMin = cook_diffuse.anal_contr;
-                            env_func.Value.ClampRangeMin = cook_diffuse.env_contr;
+                            spec_coeff_func.Value.ClampRangeMin = cook_diffuse.SpecCoeff;
+                            rough_func.Value.ClampRangeMin = cook_diffuse.Roughness;
+                            area_func.Value.ClampRangeMin = cook_diffuse.AreaContr;
+                            anal_func.Value.ClampRangeMin = cook_diffuse.AnalContr;
+                            env_func.Value.ClampRangeMin = cook_diffuse.EnvContr;
                         }
-                        else if (shader.spec_type == "1,default specular")
+                        else if (shader.SpecType == "1,default specular")
                         {
-                            spec_coeff_func.Value.ClampRangeMin = cook_default.spec_coeff;
-                            rough_func.Value.ClampRangeMin = cook_default.roughness;
-                            area_func.Value.ClampRangeMin = cook_default.area_contr;
-                            anal_func.Value.ClampRangeMin = cook_default.anal_contr;
-                            env_func.Value.ClampRangeMin = cook_default.env_contr;
+                            spec_coeff_func.Value.ClampRangeMin = cook_default.SpecCoeff;
+                            rough_func.Value.ClampRangeMin = cook_default.Roughness;
+                            area_func.Value.ClampRangeMin = cook_default.AreaContr;
+                            anal_func.Value.ClampRangeMin = cook_default.AnalContr;
+                            env_func.Value.ClampRangeMin = cook_default.EnvContr;
                         }
-                        else if (shader.spec_type == "2,dull specular")
+                        else if (shader.SpecType == "2,dull specular")
                         {
-                            spec_coeff_func.Value.ClampRangeMin = cook_dull.spec_coeff;
-                            rough_func.Value.ClampRangeMin = cook_dull.roughness;
-                            area_func.Value.ClampRangeMin = cook_dull.area_contr;
-                            anal_func.Value.ClampRangeMin = cook_dull.anal_contr;
-                            env_func.Value.ClampRangeMin = cook_dull.env_contr;
+                            spec_coeff_func.Value.ClampRangeMin = cook_dull.SpecCoeff;
+                            rough_func.Value.ClampRangeMin = cook_dull.Roughness;
+                            area_func.Value.ClampRangeMin = cook_dull.AreaContr;
+                            anal_func.Value.ClampRangeMin = cook_dull.AnalContr;
+                            env_func.Value.ClampRangeMin = cook_dull.EnvContr;
                         }
-                        else if (shader.spec_type == "3,shiny specular")
+                        else if (shader.SpecType == "3,shiny specular")
                         {
-                            spec_coeff_func.Value.ClampRangeMin = cook_shiny.spec_coeff;
-                            rough_func.Value.ClampRangeMin = cook_shiny.roughness;
-                            area_func.Value.ClampRangeMin = cook_shiny.area_contr;
-                            anal_func.Value.ClampRangeMin = cook_shiny.anal_contr;
-                            env_func.Value.ClampRangeMin = cook_shiny.env_contr;
+                            spec_coeff_func.Value.ClampRangeMin = cook_shiny.SpecCoeff;
+                            rough_func.Value.ClampRangeMin = cook_shiny.Roughness;
+                            area_func.Value.ClampRangeMin = cook_shiny.AreaContr;
+                            anal_func.Value.ClampRangeMin = cook_shiny.AnalContr;
+                            env_func.Value.ClampRangeMin = cook_shiny.EnvContr;
                         }
                         else
                         {
-                            Console.WriteLine($"Shader {shader.name} had an invalid specular setting, odd.");
-                            loadingForm.UpdateOutputBox($"Shader {shader.name} had an invalid specular setting, odd.", false);
+                            Console.WriteLine($"Shader {shader.Name} had an invalid specular setting, odd.");
+                            loadingForm.UpdateOutputBox($"Shader {shader.Name} had an invalid specular setting, odd.", false);
                         }
                     }
 
                     // Dynamic env mapping?
-                    if (shader.env_tint != "" && shader.env_bitmap == "" && shader.spec_col != "")
+                    if (shader.EnvTint != "" && shader.EnvBitmap == "" && shader.SpecCol != "")
                     {
                         var env_mapping = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[5]/ShortInteger:short");
                         env_mapping.Data = 2; // 2 is dynamic
@@ -1522,13 +1522,13 @@ namespace H2_H3_Converter_UI
                         TagFieldCustomFunctionEditor env_col_func = (TagFieldCustomFunctionEditor)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/Custom:animation function");
                         env_col_func.Value.ColorGraphType = FunctionEditorColorGraphType.OneColor;
                         env_col_func.Value.MasterType = FunctionEditorMasterType.Basic;
-                        float[] env_colour = shader.env_tint.Split(',').Select(float.Parse).ToArray();
+                        float[] env_colour = shader.EnvTint.Split(',').Select(float.Parse).ToArray();
                         env_col_func.Value.SetColor(0, GameColor.FromRgb(env_colour[0], env_colour[1], env_colour[2]));
                         param_index++;
                     }
 
                     // Per-pixel env mapping
-                    else if (shader.env_tint != "" && shader.env_bitmap != "")
+                    else if (shader.EnvTint != "" && shader.EnvBitmap != "")
                     {
                         var env_mapping = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[5]/ShortInteger:short");
                         env_mapping.Data = 1; // 1 is per-pixel
@@ -1555,7 +1555,7 @@ namespace H2_H3_Converter_UI
                         TagFieldCustomFunctionEditor env_col_func = (TagFieldCustomFunctionEditor)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Block:animated parameters[0]/Custom:animation function");
                         env_col_func.Value.ColorGraphType = FunctionEditorColorGraphType.OneColor;
                         env_col_func.Value.MasterType = FunctionEditorMasterType.Basic;
-                        float[] env_colour = shader.env_tint.Split(',').Select(float.Parse).ToArray();
+                        float[] env_colour = shader.EnvTint.Split(',').Select(float.Parse).ToArray();
                         env_col_func.Value.SetColor(0, GameColor.FromRgb(env_colour[0], env_colour[1], env_colour[2]));
                         param_index++;
 
@@ -1572,15 +1572,15 @@ namespace H2_H3_Converter_UI
 
                         // Set env bitmap
                         var env_bitm = (TagFieldReference)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/Reference:bitmap");
-                        env_bitm.Path = TagPath.FromPathAndType(Path.Combine(bitmap_tags_dir, new DirectoryInfo(shader.env_bitmap).Name), "bitm*");
+                        env_bitm.Path = TagPath.FromPathAndType(Path.Combine(bitmap_tags_dir, new DirectoryInfo(shader.EnvBitmap).Name), "bitm*");
                         param_index++;
                     }
 
-                    foreach (Parameter param in shader.parameters)
+                    foreach (Parameter param in shader.Parameters)
                     {
-                        if (param.name == "base_map")
+                        if (param.Name == "base_map")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string base_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add base map parameter
@@ -1601,10 +1601,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1641,9 +1641,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "detail_map" && !shader.template.Contains("three"))
+                        if (param.Name == "detail_map" && !shader.Template.Contains("three"))
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -1664,10 +1664,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1704,9 +1704,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "overlay_detail_map" && !shader.template.Contains("detail"))
+                        if (param.Name == "overlay_detail_map" && !shader.Template.Contains("detail"))
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -1727,10 +1727,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1767,9 +1767,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if ((param.name == "detail_map_a" || param.name == "blend_detail_map_1") && shader.template.Contains("detail"))
+                        if ((param.Name == "detail_map_a" || param.Name == "blend_detail_map_1") && shader.Template.Contains("detail"))
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -1790,10 +1790,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1830,13 +1830,13 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if ((param.name == "secondary_detail_map" || param.name == "detail_map_b" || param.name == "blend_detail_map_2") && shader.template.Contains("detail"))
+                        if ((param.Name == "secondary_detail_map" || param.Name == "detail_map_b" || param.Name == "blend_detail_map_2") && shader.Template.Contains("detail"))
                         {
                             // Set two detail
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[0]/ShortInteger:short");
                             albedo_option.Data = 1; // 7 for detail blend
 
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string sec_detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -1857,10 +1857,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1897,13 +1897,13 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if ((param.name == "detail_map_c" || param.name == "overlay_detail_map") && shader.template.Contains("detail"))
+                        if ((param.Name == "detail_map_c" || param.Name == "overlay_detail_map") && shader.Template.Contains("detail"))
                         {
                             // Set three detail blend
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[0]/ShortInteger:short");
                             albedo_option.Data = 5; // 5 for three detail blend
 
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string sec_detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add detail map parameter
@@ -1924,10 +1924,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -1964,9 +1964,9 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "bump_map")
+                        if (param.Name == "bump_map")
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string bump_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Add bump map parameter
@@ -1987,10 +1987,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -2030,13 +2030,13 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "alpha_test_map" || param.name == "lightmap_alphatest_map")
+                        if (param.Name == "alpha_test_map" || param.Name == "lightmap_alphatest_map")
                         {
                             // Enable alpha test
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[2]/ShortInteger:short");
                             albedo_option.Data = 1;
 
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string alpha_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Reimport diffuse map as DXT5 to make sure the alpha works
@@ -2080,10 +2080,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
@@ -2120,14 +2120,14 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.name == "self_illum_map" && shader.template.Contains("illum"))
+                        if (param.Name == "self_illum_map" && shader.Template.Contains("illum"))
                         {
-                            string bitmap_filename = new DirectoryInfo(param.bitmap).Name;
+                            string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string illum_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
 
                             // Enable self-illum
                             var illum_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[6]/ShortInteger:short");
-                            if (shader.template.Contains("3_channel"))
+                            if (shader.Template.Contains("3_channel"))
                             {
                                 illum_option.Data = 2; // 3 channel self illum
                             }
@@ -2155,10 +2155,10 @@ namespace H2_H3_Converter_UI
                             aniso.Data = 6;
 
                             // Scale function data
-                            byte byte1_x = param.scalex_2;
-                            byte byte2_x = (byte)(256 + param.scalex_1); // Convert to unsigned
-                            byte byte1_y = param.scaley_2;
-                            byte byte2_y = (byte)(256 + param.scaley_1); // Convert to unsigned
+                            byte byte1_x = param.ScaleX2;
+                            byte byte2_x = (byte)(256 + param.ScaleX1); // Convert to unsigned
+                            byte byte1_y = param.ScaleY2;
+                            byte byte2_y = (byte)(256 + param.ScaleY1); // Convert to unsigned
                             byte[] scales = new byte[] { byte1_x, byte2_x, byte1_y, byte2_y };
                             bool all_zero = true;
 
