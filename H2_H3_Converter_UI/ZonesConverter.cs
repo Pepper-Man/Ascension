@@ -9,18 +9,18 @@ using Bungie.Tags;
 
 class Area
 {
-    public string AreaName { get; set; }
-    public string AreaFlags { get; set; }
-    public string AreaRefFrame { get; set; }
+    public string Name { get; set; }
+    public uint Flags { get; set; }
+    public int RefFrame { get; set; }
 }
 
 class Fpos
 {
-    public string XYZCoord { get; set; }
-    public string FposFlags { get; set; }
-    public string AreaRef { get; set; }
-    public string ClusterIndex { get; set; }
-    public string NormalDirection { get; set; }
+    public float[] Position { get; set; }
+    public uint Flags { get; set; }
+    public int AreaRef { get; set; }
+    public int ClusterIndex { get; set; }
+    public float[] NormalDirection { get; set; }
 }
 
 class Zone
@@ -202,13 +202,13 @@ class MB_Zones
         List<int> total_fpos_counts = new List<int>();
         List<string> zone_names = new List<string>();
         List<string> area_names = new List<string>();
-        List<string> area_flags = new List<string>();
-        List<string> area_refs = new List<string>();
-        List<string> fpos_xyz = new List<string>();
-        List<string> fpos_flags = new List<string>();
-        List<string> fpos_area = new List<string>();
-        List<string> fpos_cluster = new List<string>();
-        List<string> fpos_normal = new List<string>();
+        List<uint> area_flags = new List<uint>();
+        List<int> area_refs = new List<int>();
+        List<float[]> fpos_xyz = new List<float[]>();
+        List<uint> fpos_flags = new List<uint>();
+        List<int> fpos_area = new List<int>();
+        List<int> fpos_cluster = new List<int>();
+        List<float[]> fpos_normal = new List<float[]>();
 
         Console.WriteLine("Beginning tag writing process...");
         loadingForm.UpdateOutputBox("Beginning tag writing process...", false);
@@ -254,12 +254,12 @@ class MB_Zones
                     int countFposMain = 0;
                     foreach (var name in area_names)
                     {
-                        tempAreasMain.Add(new Area { AreaName = area_names[countMain], AreaFlags = area_flags[countMain], AreaRefFrame = area_refs[countMain] });
+                        tempAreasMain.Add(new Area { Name = area_names[countMain], Flags = area_flags[countMain], RefFrame = area_refs[countMain] });
                         countMain++;
                     }
                     foreach (var xyz in fpos_xyz)
                     {
-                        tempFposMain.Add(new Fpos { XYZCoord = fpos_xyz[countFposMain], FposFlags = fpos_flags[countFposMain], AreaRef = fpos_area[countFposMain], ClusterIndex = fpos_cluster[countFposMain], NormalDirection = fpos_normal[countFposMain] });
+                        tempFposMain.Add(new Fpos { Position = fpos_xyz[countFposMain], Flags = fpos_flags[countFposMain], AreaRef = fpos_area[countFposMain], ClusterIndex = fpos_cluster[countFposMain], NormalDirection = fpos_normal[countFposMain] });
                         countFposMain++;
                     }
                     zone_data.Add(new Zone
@@ -327,7 +327,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].areas[{areaIndex}].area flags";
                     Console.WriteLine("area flags");
                     //loadingForm.UpdateOutputBox("area flags", false);
-                    area_flags.Add(line.Trim());
+                    area_flags.Add(uint.Parse(line.Trim()));
                     //PatchTag("area", line.Trim(), 1, totalAreaCount);
                     areaDataCount++;
                     if (line.Trim() != "0")
@@ -353,7 +353,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].areas[{areaIndex}].manual reference frame";
                     Console.WriteLine($"manual ref frame = {line.Trim()}");
                     //loadingForm.UpdateOutputBox($"manual ref frame = {line.Trim()}", false);
-                    area_refs.Add(line.Trim());
+                    area_refs.Add(int.Parse(line.Trim()));
                     //PatchTag("area", line.Trim(), 4, totalAreaCount);
                     areaDataCount = 0;
                     areaIndex++;
@@ -381,7 +381,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].position (local)";
                     Console.WriteLine("patching position");
                     //loadingForm.UpdateOutputBox("patching position", false);
-                    fpos_xyz.Add(line.Trim());
+                    fpos_xyz.Add(line.Trim().Split(',').Select(float.Parse).ToArray());
                     //PatchTag("fpos", line.Trim(), 1, totalFposCount);
                     fposDataCount++;
                 }
@@ -399,7 +399,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].flags";
                     Console.WriteLine("patching flags");
                     //loadingForm.UpdateOutputBox("patching flags", false);
-                    fpos_flags.Add(line.Trim());
+                    fpos_flags.Add(uint.Parse(line.Trim()));
                     //PatchTag("fpos", line.Trim(), 3, totalFposCount);
                     if (int.Parse(line.Trim()) >= 90)
                     {
@@ -429,7 +429,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].area";
                     Console.WriteLine("patching area");
                     //loadingForm.UpdateOutputBox("patching area", false);
-                    fpos_area.Add(line.Trim());
+                    fpos_area.Add(int.Parse(line.Trim()));
                     //PatchTag("fpos", line.Trim(), 4, totalFposCount);
                     fposDataCount++;
                 }
@@ -439,7 +439,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].cluster index";
                     Console.WriteLine("patching cluster index");
                     //loadingForm.UpdateOutputBox("patching cluster index", false);
-                    fpos_cluster.Add(line.Trim());
+                    fpos_cluster.Add(int.Parse(line.Trim()));
                     //PatchTag("fpos", line.Trim(), 5, totalFposCount);
                     fposDataCount++;
                 }
@@ -449,7 +449,7 @@ class MB_Zones
                     string fieldPath = $"scenario_struct_definition[0].zones[{zone}].firing positions[{fposIndex}].normal";
                     Console.WriteLine("patching normal");
                     //loadingForm.UpdateOutputBox("patching normal", false);
-                    fpos_normal.Add(line.Trim());
+                    fpos_normal.Add(line.Trim().Split(',').Select(float.Parse).ToArray());
                     //PatchTag("fpos", line.Trim(), 6, totalFposCount);
                     fposDataCount = 0;
                     fposIndex++;
@@ -466,12 +466,12 @@ class MB_Zones
         int countFpos = 0;
         foreach (var name in area_names)
         {
-            tempAreas.Add(new Area { AreaName = area_names[count], AreaFlags = area_flags[count], AreaRefFrame = area_refs[count] });
+            tempAreas.Add(new Area { Name = area_names[count], Flags = area_flags[count], RefFrame = area_refs[count] });
             count++;
         }
         foreach (var xyz in fpos_xyz)
         {
-            tempFpos.Add(new Fpos { XYZCoord = fpos_xyz[countFpos], FposFlags = fpos_flags[countFpos], AreaRef = fpos_area[countFpos], ClusterIndex = fpos_cluster[countFpos], NormalDirection = fpos_normal[countFpos] });
+            tempFpos.Add(new Fpos { Position = fpos_xyz[countFpos], Flags = fpos_flags[countFpos], AreaRef = fpos_area[countFpos], ClusterIndex = fpos_cluster[countFpos], NormalDirection = fpos_normal[countFpos] });
             countFpos++;
         }
         try
@@ -507,77 +507,73 @@ class MB_Zones
             // Clear all existing zone data
             ((TagFieldBlock)tagFile.SelectField("Block:zones")).RemoveAllElements();
 
-            int zones_max_index = ((TagFieldBlock)tagFile.Fields[83]).Elements.Count() - 1;
-
             // Add all zone entries
             int i = 0;
             foreach (var zone in zone_data)
             {
-                ((TagFieldBlock)tagFile.Fields[83]).AddElement(); // 83 is the position of the Zones block
-                var zone_name = (TagFieldElementString)((TagFieldBlock)tagFile.Fields[83]).Elements[i].Fields[0];
-                zone_name.Data = zone.ZoneName;
+                ((TagFieldBlock)tagFile.SelectField("Block:zones")).AddElement(); // 83 is the position of the Zones block
+                ((TagFieldElementString)tagFile.SelectField("Block:zones/String:name")).Data = zone.ZoneName;
                 i++;
             }
 
             // Add all area entries
-            int j = 0;
+            int zoneIndex = 0;
+            int areaIndex = 0;
             foreach (var zone in zone_data)
             {
-                int loopcount = zone.AreasCount;
-                for (int k = 0; k < loopcount; k++)
+                foreach (Area area in zone.Areas)
                 {
                     // Name
-                    ((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).AddElement();
-                    var area_name = (TagFieldElementString)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[0];
-                    area_name.Data = zone.Areas[k].AreaName;
+                    ((TagFieldBlock)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:areas")).AddElement();
+                    Console.WriteLine(zoneIndex);
+                    Console.WriteLine(areaIndex);
+                    Console.WriteLine(area);
+                    Console.WriteLine(area.Name);
+                    ((TagFieldElementString)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:areas[{areaIndex}]/String:name")).Data = area.Name;
 
                     // Flags
-                    var area_flags = (TagFieldFlags)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[1];
-                    area_flags.RawValue = uint.Parse(zone.Areas[k].AreaFlags);
+                    ((TagFieldFlags)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:areas[{areaIndex}]/Flags:area flags")).RawValue = area.Flags;
 
                     // Reference Frame
-                    if (zone.Areas[k].AreaRefFrame != "0")
+                    if (area.RefFrame != 0)
                     {
-                        var reference_frame = (TagFieldBlockIndex)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[j].Fields[4]).Elements[k].Fields[9];
-                        reference_frame.Value = int.Parse(zone.Areas[k].AreaRefFrame);
+                        ((TagFieldBlockIndex)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:areas[{areaIndex}]/ShortBlockIndex:manual reference frame")).Value = area.RefFrame;
                     }
+                    areaIndex++;
                 }
-                j++;
+                areaIndex = 0;
+                zoneIndex++;
             }
 
             // Add all firing position entries
-            int x = 0;
+            zoneIndex = 0;
+            int fposIndex = 0;
             foreach (var zone in zone_data)
             {
-                int loopcount = zone.FposCount;
-                for (int y = 0; y < loopcount; y++)
+                foreach (Fpos fpos in zone.Fpos)
                 {
                     // Add
-                    ((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).AddElement();
+                    ((TagFieldBlock)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions")).AddElement();
 
                     // XYZ Position
-                    var xyz_pos = (TagFieldElementArraySingle)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[1];
-                    // Splits the string into a float array of xyz coordinates
-                    xyz_pos.Data = zone.Fpos[y].XYZCoord.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions[{fposIndex}]/RealPoint3d:position (local)")).Data = fpos.Position;
 
                     // Flags
-                    var fpos_flags = (TagFieldFlags)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[4];
-                    fpos_flags.RawValue = uint.Parse(zone.Fpos[y].FposFlags);
+                    ((TagFieldFlags)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions[{fposIndex}]/WordFlags:flags")).RawValue = fpos.Flags;
 
                     // Area Reference
-                    var area_ref = (TagFieldBlockIndex)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[6];
-                    area_ref.Value = int.Parse(zone.Fpos[y].AreaRef);
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions[{fposIndex}]/ShortBlockIndex:area")).Value = fpos.AreaRef;
 
                     // Cluster Index
-                    var cluster_index = (TagFieldElementInteger)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[7];
-                    cluster_index.Data = int.Parse(zone.Fpos[y].ClusterIndex);
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions[{fposIndex}]/ShortInteger:cluster index")).Data = fpos.ClusterIndex;
 
                     // Normal Direction
-                    var normal_dir = (TagFieldElementArraySingle)((TagFieldBlock)((TagFieldBlock)tagFile.Fields[83]).Elements[x].Fields[3]).Elements[y].Fields[10];
-                    // Splits the string into a float array of xy coordinates
-                    normal_dir.Data = zone.Fpos[y].NormalDirection.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:zones[{zoneIndex}]/Block:firing positions[{fposIndex}]/RealEulerAngles2d:normal")).Data = fpos.NormalDirection;
+
+                    fposIndex++;
                 }
-                x++;
+                fposIndex = 0;
+                zoneIndex++;
             }
             // Aaaaand save everything in one go
             tagFile.Save();
