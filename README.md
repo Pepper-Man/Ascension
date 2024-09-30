@@ -1,7 +1,6 @@
 # Ascension
-A C# ManagedBlam-based program for converting H2 scenario and shader data into H3 format. 
-This is a UI-based compilation of all my previously released H2-to-H3 converters.
-This is primarily built for use by the porting team I am in, but feel free to use it for you own ports. Let the data be ascended!
+Ascension is a C# ManagedBlam-based program for converting H2 scenario and shader data into H3 format. 
+This is a UI-based compilation of all my previously released H2-to-H3 converters, primarily built for use by the porting team I am in, but feel free to use it for you own ports. Let the data be ascended!
 
 # Requirements
 * Requires [.NET 4.8 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48)
