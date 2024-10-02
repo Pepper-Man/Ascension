@@ -512,7 +512,7 @@ class MB_Zones
             foreach (var zone in zone_data)
             {
                 ((TagFieldBlock)tagFile.SelectField("Block:zones")).AddElement(); // 83 is the position of the Zones block
-                ((TagFieldElementString)tagFile.SelectField("Block:zones/String:name")).Data = zone.ZoneName;
+                ((TagFieldElementString)tagFile.SelectField($"Block:zones[{i}]/String:name")).Data = zone.ZoneName;
                 i++;
             }
 
