@@ -324,6 +324,7 @@ namespace H2_H3_Converter_UI
                     ((TagFieldElementString)scenTag.SelectField($"Block:squads[{i}]/String:name")).Data = squad.Name;
                     ((TagFieldFlags)scenTag.SelectField($"Block:squads[{i}]/Flags:flags")).RawValue = squad.Flags;
                     ((TagFieldEnum)scenTag.SelectField($"Block:squads[{i}]/ShortEnum:team")).Value = squad.Team;
+                    ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/ShortBlockIndex:parent")).Value = squad.ParentIndex;
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/ShortBlockIndex:initial zone")).Value = squad.Zone;
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squads[{i}]/ShortBlockIndex:editor folder")).Value = squad.EditorFolder;
 
