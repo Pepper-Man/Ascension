@@ -181,10 +181,15 @@ namespace H2_H3_Converter_UI
                 {
                     if (!String.IsNullOrEmpty(param.Bitmap))
                     {
-                        if (!all_bitmap_refs.Contains(param.Bitmap))
+                        string fullBitmapPath = h2ek_path + "\\tags\\" + param.Bitmap + ".bitmap";
+
+                        if (File.Exists(fullBitmapPath)) // Check bitmap tag actually exists, export-tag-to-xml doesnt error when path is invalid and will cause a program crash
                         {
-                            all_bitmap_refs.Add(param.Bitmap);
-                            Console.WriteLine(param.Bitmap);
+                            if (!all_bitmap_refs.Contains(param.Bitmap))
+                            {
+                                all_bitmap_refs.Add(param.Bitmap);
+                                Console.WriteLine(param.Bitmap);
+                            }
                         }
                     }
                 }
