@@ -639,19 +639,33 @@ class ScenData
                     }        
                     else if (netgameEquipEntry.CollectionType.Contains("vehicles"))
                     {
-                        AddToPaletteIfNotExists("vehicle palette", "name", equipType, netgamePaletteMapping, utilsInstance.netVehiMapping[equipType]);
+                        try
+                        {
+                            AddToPaletteIfNotExists("vehicle palette", "name", equipType, netgamePaletteMapping, utilsInstance.netVehiMapping[equipType]);
 
-                        int vehiCount = ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).AddElement();
-                        AddElementToBlock("vehicles", vehiCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 1);
+                            int vehiCount = ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).Elements.Count();
+                            ((TagFieldBlock)tagFile.SelectField("Block:vehicles")).AddElement();
+                            AddElementToBlock("vehicles", vehiCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 1);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            loadingForm.UpdateOutputBox($"Vehicle type {equipType} is unknown, will be ignored", false);
+                        }
                     }
                     else
                     {
-                        AddToPaletteIfNotExists("weapon palette", "name", equipType, netgamePaletteMapping, utilsInstance.mpWeapMapping[equipType]);
+                        try
+                        {
+                            AddToPaletteIfNotExists("weapon palette", "name", equipType, netgamePaletteMapping, utilsInstance.mpWeapMapping[equipType]);
 
-                        int weapCount = ((TagFieldBlock)tagFile.SelectField("Block:weapons")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField("Block:weapons")).AddElement();
-                        AddElementToBlock("weapons", weapCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 2);
+                            int weapCount = ((TagFieldBlock)tagFile.SelectField("Block:weapons")).Elements.Count();
+                            ((TagFieldBlock)tagFile.SelectField("Block:weapons")).AddElement();
+                            AddElementToBlock("weapons", weapCount, netgameEquipEntry, netgamePaletteMapping[equipType], 1, 2);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            loadingForm.UpdateOutputBox($"Weapon type {equipType} is unknown, will be ignored", false);
+                        }
                     }
                 }
                 Console.WriteLine("Done netgame equipment");
