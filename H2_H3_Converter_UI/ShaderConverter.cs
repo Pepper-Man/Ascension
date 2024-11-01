@@ -2035,7 +2035,7 @@ namespace H2_H3_Converter_UI
                             param_index++;
                         }
 
-                        if (param.Name == "alpha_test_map" || param.Name == "lightmap_alphatest_map")
+                        if ((param.Name == "alpha_test_map" || param.Name == "lightmap_alphatest_map") && !shader.Template.Contains("detail_blend")) 
                         {
                             // Enable alpha test
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[2]/ShortInteger:short");
