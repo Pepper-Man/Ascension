@@ -7,7 +7,7 @@
     <ProjectGuid>{E59659DA-91DC-49A9-918F-FADACC3D4C35}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>H2_H3_Converter_UI</RootNamespace>
-    <AssemblyName>H2_H3_Converter_UI</AssemblyName>
+    <AssemblyName>Ascension</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <HighEntropyVA>false</HighEntropyVA>
     <FileAlignment>512</FileAlignment>
