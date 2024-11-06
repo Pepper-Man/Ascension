@@ -247,13 +247,26 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        public static Dictionary<string, uint> h3ObjectFlagValues = new Dictionary<string, uint>()
+        {
+            { "unused", 0 },
+            { "not automatically", 1 },
+            { "lock type to env. object", 2 },
+            { "lock transform to env. object", 4 },
+            { "never placed", 8 },
+            { "lock name to env. object", 16 },
+            { "create at rest", 32 },
+            { "store orientations", 64 },
+            { "pvs bound", 128 },
+            { "startup", 256 },
+        };
+
         public static TPlacement GetObjectDataFromXML<TPlacement>(XmlNode element) where TPlacement : ObjectPlacement, new()
         {
             TPlacement objPlacement = new TPlacement
             {
                 TypeIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='type']").Attributes["index"]?.Value),
                 NameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value),
-                Flags = UInt32.Parse(element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Substring(0, 1)),
                 Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                 Rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                 VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim(),
@@ -261,6 +274,22 @@ namespace H2_H3_Converter_UI
                 OriginBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value),
                 BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
             };
+
+            // Figure out enum value for object flags
+            string[] flagsList = element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Split('\n').Skip(1).Select(s => s.Trim('\t', '\r')).ToArray();
+            uint flagEnum = 0;
+            foreach (string flagString in flagsList)
+            {
+                try
+                {
+                    flagEnum += h3ObjectFlagValues[flagString];
+                }
+                catch (KeyNotFoundException)
+                {
+                    Console.WriteLine($"Couldn't find H3 equivalent for flag {flagString}, ignoring");
+                }
+            }
+            objPlacement.Flags = flagEnum;
 
             // Extra properties specific to certain object types
             if (objPlacement is SpWeapLoc weapon)
