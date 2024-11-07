@@ -530,10 +530,10 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineTypes, allMachineEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<TagPath> allMachineTypes, List<Machine> allMachineEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -957,6 +957,9 @@ class ScenData
 
                 // Vehicle section
                 Utils.WriteObjectData(tagFile, allVehiEntries, "vehicles", loadingForm);
+
+                // Device machine section
+                Utils.WriteObjectData(tagFile, allMachineEntries, "machines", loadingForm);
             }
 
             // Trigger volumes section

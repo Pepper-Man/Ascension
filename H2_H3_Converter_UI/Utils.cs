@@ -206,6 +206,15 @@ namespace H2_H3_Converter_UI
                     h3ObjPaths.Add(h3Obj);
                 }
             }
+            else if (paletteType == "machine")
+            {
+                // Not gonna bother trying to convert machine types as 99% of the time they have no equivalent
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "device_machine");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
             else
             {
                 loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
@@ -329,7 +338,8 @@ namespace H2_H3_Converter_UI
             { "weapons", 2 },
             { "scenery", 6 },
             { "crates", 10 },
-            { "vehicles", 1 }
+            { "vehicles", 1 },
+            { "machines", 7 }
         };
         
         public static void WriteObjectData<T>(TagFile tagFile, List<T> allObjPlacements, string type, Loading loadingForm) where T : ObjectPlacement
@@ -349,27 +359,39 @@ namespace H2_H3_Converter_UI
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealPoint3d:position")).Data = placement.Position;
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/RealEulerAngles3d:rotation")).Data = placement.Rotation;
                 ((TagFieldElementSingle)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Real:scale")).Data = placement.Scale;
-                ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.VarName;
                 ((TagFieldBlockFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/WordBlockFlags:manual bsp flags")).Value = placement.ManualBsp;
                 ((TagFieldBlockIndex)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/ShortBlockIndex:origin bsp index")).Value = placement.OriginBsp;
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/CharEnum:bsp policy")).Value = placement.BspPolicy;
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objTypeToIndex[type]; // 2 for weapon
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
-                // SP weapon properties
+                if (!(placement is Machine)) // Machine's don't have variant info from H2
+                {
+                    ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.VarName;
+                }
+
+                // SP weapon-specific properties
                 if (placement is SpWeapLoc weapon)
                 {
                     ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds left")).Data = weapon.RoundsLeft;
                     ((TagFieldElementInteger)tagFile.SelectField($"Block:weapons[{index}]/Struct:weapon data/ShortInteger:rounds loaded")).Data = weapon.RoundsLoaded;
                 }
+                // Scenery-specific properties
                 else if (placement is Scenery scenery)
                 {
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Pathfinding policy")).Value = scenery.PathfindingType;
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{index}]/Struct:scenery data/ShortEnum:Lightmapping policy")).Value = scenery.LightmappingType;
                 }
+                // Vehicle-specific properties
                 else if (placement is Vehicle vehicle)
                 {
                     ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{index}]/Struct:unit data/Real:body vitality")).Data = vehicle.BodyVitality;
+                }
+                // Device-specific properties
+                else if (placement is Machine machine)
+                {
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:power group")).Value = machine.PowerGroupIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:position group")).Value = machine.PositionGroupIndex;
                 }
                 else if (placement is Crate crate) { }
 
