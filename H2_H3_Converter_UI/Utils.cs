@@ -272,11 +272,15 @@ namespace H2_H3_Converter_UI
                 NameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value),
                 Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                 Rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim(),
                 ManualBsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1)),
                 OriginBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value),
                 BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
             };
+
+            if (!(objPlacement is Machine))
+            {
+                objPlacement.VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
+            }
 
             // Figure out enum value for object flags
             string[] flagsList = element.SelectSingleNode("./field[@name='placement flags']").InnerText.Trim().Split('\n').Skip(1).Select(s => s.Trim('\t', '\r')).ToArray();
@@ -309,6 +313,11 @@ namespace H2_H3_Converter_UI
             else if (objPlacement is Vehicle vehicle)
             {
                 vehicle.BodyVitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+            }
+            else if (objPlacement is Machine machine)
+            {
+                machine.PowerGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='power group']").Attributes["index"]?.Value);
+                machine.PositionGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='position group']").Attributes["index"]?.Value);
             }
             else if (objPlacement is Crate crate) { } // No extra data for crates
 

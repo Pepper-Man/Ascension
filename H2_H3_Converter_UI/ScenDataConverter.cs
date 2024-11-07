@@ -63,6 +63,12 @@ class Vehicle : ObjectPlacement
     public float BodyVitality { get; set; }
 }
 
+class Machine : ObjectPlacement
+{
+    public int PowerGroupIndex { get; set; }
+    public int PositionGroupIndex { get; set; }
+}
+
 class Crate : ObjectPlacement {}
 
 class NetFlag
@@ -115,6 +121,8 @@ class ScenData
         XmlNodeList netgameFlagsBlock = root.SelectNodes(".//block[@name='netgame flags']");
         XmlNodeList decalPaletteBlock = root.SelectNodes(".//block[@name='decal palette']");
         XmlNodeList decalEntriesBlock = root.SelectNodes(".//block[@name='decals']");
+        XmlNodeList machPaletteBlock = root.SelectNodes(".//block[@name='machine palette']");
+        XmlNodeList machEntriesBlock = root.SelectNodes(".//block[@name='machines']");
 
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
@@ -130,6 +138,8 @@ class ScenData
         List<NetFlag> allNetgameFlags = new List<NetFlag>();
         List<Decal> allDecalEntries = new List<Decal>();
         List<TagPath> allDecalTypes = new List<TagPath>();
+        List<Machine> allMachineEntries = new List<Machine>();
+        List<TagPath> allMachineTypes = new List<TagPath>();
 
         foreach (XmlNode name in objectNamesBlock)
         {
@@ -243,7 +253,6 @@ class ScenData
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
             Utils.ConvertPalette(scenPath, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
-
             foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
             {
                 bool weaponsEnd = false;
@@ -272,6 +281,7 @@ class ScenData
 
             // Transfer the vehicle palette data so the indices line up
             Utils.ConvertPalette(scenPath, loadingForm, scenfile, "vehicle");
+            loadingForm.UpdateOutputBox("\nBegin reading vehicle placement data.", false);
             foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
                 bool vehiclesEnd = false;
@@ -296,6 +306,28 @@ class ScenData
 
             // Device machines
             Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
+            loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
+            foreach (XmlNode machineEntry in machEntriesBlock)
+            {
+                bool machinesEnd = false;
+                int i = 0;
+                while (!machinesEnd)
+                {
+                    XmlNode element = machineEntry.SelectSingleNode("./element[@index='" + i + "']");
+                    if (element != null)
+                    {
+                        Machine machine = Utils.GetObjectDataFromXML<Machine>(element);
+                        allMachineEntries.Add(machine);
+                        i++;
+                    }
+                    else
+                    {
+                        machinesEnd = true;
+                        Console.WriteLine("Finished processing device machine placement data.");
+                        loadingForm.UpdateOutputBox("Finished processing device machine placement data.", false);
+                    }
+                }
+            }
         }
         
 
