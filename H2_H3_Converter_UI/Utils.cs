@@ -97,11 +97,14 @@ namespace H2_H3_Converter_UI
 
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
-            if (scenarioType.Contains("multiplayer"))
+
+            // Don't use sp object data for mp, unless its a device machine
+            if (scenarioType.Contains("multiplayer") && paletteType != "machine")
             {
                 loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
                 return;
             }
+
             XmlNodeList paletteBlock = root.SelectNodes($".//block[@name='{paletteType} palette']");
             loadingForm.UpdateOutputBox($"Located {paletteType} palette data block.", false);
 
@@ -117,7 +120,7 @@ namespace H2_H3_Converter_UI
                     if (paletteEntry != null)
                     {
                         string objRef;
-                        if (paletteType == "character")
+                        if (paletteType == "character") // For some godforsaken reason, the character palette uses a different tag reference name
                         {
                             objRef = paletteEntry.SelectSingleNode("./tag_reference[@name='reference']").InnerText.Trim();
                         }

@@ -293,6 +293,9 @@ class ScenData
                     }
                 }
             }
+
+            // Device machines
+            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
         }
         
 
