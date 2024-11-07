@@ -88,6 +88,13 @@ class Decal
     public float[] Position { get; set; }
 }
 
+class DeviceGroup
+{
+    public string Name { get; set; }
+    public float InitVal { get; set; }
+    public uint Flags { get; set; }
+}
+
 class ScenData
 {
     public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
@@ -123,6 +130,7 @@ class ScenData
         XmlNodeList decalEntriesBlock = root.SelectNodes(".//block[@name='decals']");
         XmlNodeList machPaletteBlock = root.SelectNodes(".//block[@name='machine palette']");
         XmlNodeList machEntriesBlock = root.SelectNodes(".//block[@name='machines']");
+        XmlNodeList deviceGroupsBlock = root.SelectNodes(".//block[@name='device groups']");
 
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
@@ -140,6 +148,7 @@ class ScenData
         List<TagPath> allDecalTypes = new List<TagPath>();
         List<Machine> allMachineEntries = new List<Machine>();
         List<TagPath> allMachineTypes = new List<TagPath>();
+        List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
 
         foreach (XmlNode name in objectNamesBlock)
         {
@@ -530,10 +539,38 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineTypes, allMachineEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        foreach (XmlNode devGroupEntry in deviceGroupsBlock)
+        {
+            bool devGroupsEnd = false;
+            int i = 0;
+            while (!devGroupsEnd)
+            {
+                XmlNode element = devGroupEntry.SelectSingleNode("./element[@index='" + i + "']");
+                if (element != null)
+                {
+                    DeviceGroup deviceGroup = new DeviceGroup
+                    {
+                        Name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
+                        InitVal = float.Parse(element.SelectSingleNode("./field[@name='initial value']").InnerText.Trim()),
+                        Flags = uint.Parse(element.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1))
+                    };
+
+                    allDeviceGroups.Add(deviceGroup);
+                    i++;
+                }
+                else
+                {
+                    devGroupsEnd = true;
+                    Console.WriteLine("Finished processing device group data.");
+                    loadingForm.UpdateOutputBox("Finished processing device group data.", false);
+                }
+            }
+        }
+
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineTypes, allMachineEntries, allDeviceGroups, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<TagPath> allMachineTypes, List<Machine> allMachineEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<TagPath> allMachineTypes, List<Machine> allMachineEntries, List<DeviceGroup> allDeviceGroups, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -1046,6 +1083,23 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealQuaternion:rotation")).Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
+            Console.WriteLine("Done decals");
+            loadingForm.UpdateOutputBox("Done decals", false);
+
+            ((TagFieldBlock)tagFile.SelectField($"Block:device groups")).RemoveAllElements();
+            int groupIndex = 0;
+            foreach (DeviceGroup deviceGroupEntry in allDeviceGroups)
+            {
+                ((TagFieldBlock)tagFile.SelectField($"Block:device groups")).AddElement();
+                ((TagFieldElementString)tagFile.SelectField($"Block:device groups[{groupIndex}]/String:name")).Data = deviceGroupEntry.Name;
+                ((TagFieldElementSingle)tagFile.SelectField($"Block:device groups[{groupIndex}]/Real:initial value")).Data = deviceGroupEntry.InitVal;
+                ((TagFieldFlags)tagFile.SelectField($"Block:device groups[{groupIndex}]/Flags:flags")).RawValue = deviceGroupEntry.Flags;
+                groupIndex++;
+            }
+
+            Console.WriteLine("Done device groups");
+            loadingForm.UpdateOutputBox("Done device groups", false);
+
             try
             {
                 tagFile.Save();
@@ -1055,9 +1109,6 @@ class ScenData
                 Console.WriteLine($"Tag save failure: {ex}");
                 loadingForm.UpdateOutputBox("Tag failed to save. Usually it isn't necessary, but close Sapien/TagTest and try again.", false);
             }
-            
-            Console.WriteLine("Done decals");
-            loadingForm.UpdateOutputBox("Done decals", false);
 
             Console.WriteLine("\nScenario data conversion complete!");
             loadingForm.UpdateOutputBox("\nScenario data conversion complete!", false);
