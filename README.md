@@ -43,6 +43,7 @@ This is a UI-based compilation of all my previously released H2-to-H3 converters
     * All crates, including variant names. Crate type filepaths still use the H2 filepaths - change the path(s) in Guerilla once you have ported the item(s)!
     * All (netgame) gamemode items (CTF flag spawns, territories, bomb spawns/goals, teleporter sender/receivers etc etc) to H3 gametype crates. Unused or unapplicable gametype objects, such as race checkpoints and headhunter bins, are included but replaced with temporary forerunner core crates for easy identification.
     * All decal placements and types. Due to system incompatibilities between engines, decals may appear rotated and/or stretched incorrectly. To fix stretching, simply touch the rotation handle. Rotate with the handle to fix rotations where necessary.
+    * All device machine and control types and placements, including correct placement and device flags. Also includes device groups.
 
 ## AI/Scripting Data Converter
 * Translates everything required for functional squads, as well as data used for mission scripting.
@@ -98,6 +99,7 @@ This is a UI-based compilation of all my previously released H2-to-H3 converters
 # Usage
 * Download the latest release, or compile your own version.
 * Extract any required H2 BSP or Scenario tags to XML with `tool export-tag-to-xml`. E.g. `tool export-tag-to-xml "C:\Program Files (x86)\Steam\steamapps\common\H2EK\tags\scenarios\solo\03a_oldmombasa\earthcity_1.scenario_structure_bsp" "C:\Program Files (x86)\Steam\steamapps\common\H2EK\tags\scenarios\solo\03a_oldmombasa\earthcity_1.xml"`
+* Extract and import the H2 BSP .ASS files into H3 as normal. If using the scenario object converter, it is recommended to remove any xref'd scenery objects and `?machine?` objects from the BSP via blender before using Ascension to avoid duplicates.
 * I cannot distribute the required ManagedBlam.dll, so you will need to either:
     * Copy your Halo 3 ManagedBlam.dll (found in "H3EK\bin") into the same folder as this exe
     * Alternatively, simply place the files of this program directly into your "H3EK\bin" directory.
