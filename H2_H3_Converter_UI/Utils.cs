@@ -98,8 +98,8 @@ namespace H2_H3_Converter_UI
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
 
-            // Don't use sp object data for mp, unless its a device machine
-            if (scenarioType.Contains("multiplayer") && paletteType != "machine")
+            // Don't use sp object data for mp, unless its a device
+            if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control")
             {
                 loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
                 return;
@@ -215,6 +215,15 @@ namespace H2_H3_Converter_UI
                     h3ObjPaths.Add(h3Obj);
                 }
             }
+            else if (paletteType == "control")
+            {
+                // Same goes for controls
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "device_control");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
             else
             {
                 loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
@@ -286,7 +295,7 @@ namespace H2_H3_Converter_UI
                 BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
             };
 
-            if (!(objPlacement is Machine))
+            if (!(objPlacement is Device))
             {
                 objPlacement.VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
             }
@@ -323,10 +332,13 @@ namespace H2_H3_Converter_UI
             {
                 vehicle.BodyVitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
             }
-            else if (objPlacement is Machine machine)
+            else if (objPlacement is Device device)
             {
-                machine.PowerGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='power group']").Attributes["index"]?.Value);
-                machine.PositionGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='position group']").Attributes["index"]?.Value);
+                device.PowerGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='power group']").Attributes["index"]?.Value);
+                device.PositionGroupIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='position group']").Attributes["index"]?.Value);
+                var deviceFlagFields = element.SelectNodes("./field[@name='flags' and @type='long flags']");
+                device.DeviceFlags1 = uint.Parse(deviceFlagFields[0].InnerText.Trim().Split('\n').First());
+                device.DeviceFlags2 = uint.Parse(deviceFlagFields[1].InnerText.Trim().Split('\n').First());
             }
             else if (objPlacement is Crate crate) { } // No extra data for crates
 
@@ -339,7 +351,8 @@ namespace H2_H3_Converter_UI
             { "scenery", 6 },
             { "crates", 10 },
             { "vehicles", 1 },
-            { "machines", 7 }
+            { "machines", 7 },
+            { "controls", 8 }
         };
         
         public static void WriteObjectData<T>(TagFile tagFile, List<T> allObjPlacements, string type, Loading loadingForm) where T : ObjectPlacement
@@ -365,7 +378,7 @@ namespace H2_H3_Converter_UI
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objTypeToIndex[type]; // 2 for weapon
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
-                if (!(placement is Machine)) // Machine's don't have variant info from H2
+                if (!(placement is Device)) // Machine's don't have variant info from H2
                 {
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.VarName;
                 }
@@ -388,10 +401,20 @@ namespace H2_H3_Converter_UI
                     ((TagFieldElementSingle)tagFile.SelectField($"Block:vehicles[{index}]/Struct:unit data/Real:body vitality")).Data = vehicle.BodyVitality;
                 }
                 // Device-specific properties
-                else if (placement is Machine machine)
+                else if (placement is Device device)
                 {
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:power group")).Value = machine.PowerGroupIndex;
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:position group")).Value = machine.PositionGroupIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:power group")).Value = device.PowerGroupIndex;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:position group")).Value = device.PositionGroupIndex;
+                    ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:device data/Flags:flags")).RawValue = device.DeviceFlags1;
+
+                    if (type == "machines")
+                    {
+                        ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:machine data/Flags:flags")).RawValue = device.DeviceFlags2;
+                    }
+                    else
+                    {
+                        ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:control data/Flags:flags")).RawValue = device.DeviceFlags2;
+                    }
                 }
                 else if (placement is Crate crate) { }
 

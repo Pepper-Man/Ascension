@@ -63,10 +63,12 @@ class Vehicle : ObjectPlacement
     public float BodyVitality { get; set; }
 }
 
-class Machine : ObjectPlacement
+class Device : ObjectPlacement
 {
     public int PowerGroupIndex { get; set; }
     public int PositionGroupIndex { get; set; }
+    public uint DeviceFlags1 { get; set; }
+    public uint DeviceFlags2 { get; set; }
 }
 
 class Crate : ObjectPlacement {}
@@ -128,9 +130,9 @@ class ScenData
         XmlNodeList netgameFlagsBlock = root.SelectNodes(".//block[@name='netgame flags']");
         XmlNodeList decalPaletteBlock = root.SelectNodes(".//block[@name='decal palette']");
         XmlNodeList decalEntriesBlock = root.SelectNodes(".//block[@name='decals']");
-        XmlNodeList machPaletteBlock = root.SelectNodes(".//block[@name='machine palette']");
         XmlNodeList machEntriesBlock = root.SelectNodes(".//block[@name='machines']");
         XmlNodeList deviceGroupsBlock = root.SelectNodes(".//block[@name='device groups']");
+        XmlNodeList ctrlEntriesBlock = root.SelectNodes(".//block[@name='controls']");
 
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
@@ -146,9 +148,9 @@ class ScenData
         List<NetFlag> allNetgameFlags = new List<NetFlag>();
         List<Decal> allDecalEntries = new List<Decal>();
         List<TagPath> allDecalTypes = new List<TagPath>();
-        List<Machine> allMachineEntries = new List<Machine>();
-        List<TagPath> allMachineTypes = new List<TagPath>();
+        List<Device> allMachineEntries = new List<Device>();
         List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
+        List<Device> allControlEntries = new List<Device>();
 
         foreach (XmlNode name in objectNamesBlock)
         {
@@ -525,7 +527,7 @@ class ScenData
                 XmlNode element = machineEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Machine machine = Utils.GetObjectDataFromXML<Machine>(element);
+                    Device machine = Utils.GetObjectDataFromXML<Device>(element);
                     allMachineEntries.Add(machine);
                     i++;
                 }
@@ -534,6 +536,31 @@ class ScenData
                     machinesEnd = true;
                     Console.WriteLine("Finished processing device machine placement data.");
                     loadingForm.UpdateOutputBox("Finished processing device machine placement data.", false);
+                }
+            }
+        }
+
+        // Device controls
+        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "control");
+        loadingForm.UpdateOutputBox("\nBegin reading device control placement data.", false);
+        foreach (XmlNode controlEntry in ctrlEntriesBlock)
+        {
+            bool controlsEnd = false;
+            int i = 0;
+            while (!controlsEnd)
+            {
+                XmlNode element = controlEntry.SelectSingleNode("./element[@index='" + i + "']");
+                if (element != null)
+                {
+                    Device control = Utils.GetObjectDataFromXML<Device>(element);
+                    allControlEntries.Add(control);
+                    i++;
+                }
+                else
+                {
+                    controlsEnd = true;
+                    Console.WriteLine("Finished processing device control placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing device control placement data.", false);
                 }
             }
         }
@@ -566,10 +593,10 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineTypes, allMachineEntries, allDeviceGroups, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<TagPath> allMachineTypes, List<Machine> allMachineEntries, List<DeviceGroup> allDeviceGroups, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -993,9 +1020,6 @@ class ScenData
 
                 // Vehicle section
                 Utils.WriteObjectData(tagFile, allVehiEntries, "vehicles", loadingForm);
-
-                // Device machine section
-                Utils.WriteObjectData(tagFile, allMachineEntries, "machines", loadingForm);
             }
 
             // Trigger volumes section
@@ -1084,6 +1108,16 @@ class ScenData
 
             Console.WriteLine("Done decals");
             loadingForm.UpdateOutputBox("Done decals", false);
+
+            // Device machine section
+            Utils.WriteObjectData(tagFile, allMachineEntries, "machines", loadingForm);
+            Console.WriteLine("Done device machines");
+            loadingForm.UpdateOutputBox("Done device machines", false);
+
+            // Device controls section
+            Utils.WriteObjectData(tagFile, allControlEntries, "controls", loadingForm);
+            Console.WriteLine("Done device controls");
+            loadingForm.UpdateOutputBox("Done device controls", false);
 
             ((TagFieldBlock)tagFile.SelectField($"Block:device groups")).RemoveAllElements();
             int groupIndex = 0;
