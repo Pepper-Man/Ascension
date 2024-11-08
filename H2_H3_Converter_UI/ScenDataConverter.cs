@@ -312,33 +312,7 @@ class ScenData
                     }
                 }
             }
-
-            // Device machines
-            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
-            loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
-            foreach (XmlNode machineEntry in machEntriesBlock)
-            {
-                bool machinesEnd = false;
-                int i = 0;
-                while (!machinesEnd)
-                {
-                    XmlNode element = machineEntry.SelectSingleNode("./element[@index='" + i + "']");
-                    if (element != null)
-                    {
-                        Machine machine = Utils.GetObjectDataFromXML<Machine>(element);
-                        allMachineEntries.Add(machine);
-                        i++;
-                    }
-                    else
-                    {
-                        machinesEnd = true;
-                        Console.WriteLine("Finished processing device machine placement data.");
-                        loadingForm.UpdateOutputBox("Finished processing device machine placement data.", false);
-                    }
-                }
-            }
         }
-        
 
         foreach (XmlNode sceneryType in scenPaletteBlock)
         {
@@ -535,6 +509,31 @@ class ScenData
                     decalsEnd = true;
                     Console.WriteLine("Finished processing decal placement data.");
                     loadingForm.UpdateOutputBox("Finished processing decal placement data.", false);
+                }
+            }
+        }
+
+        // Device machines
+        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
+        loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
+        foreach (XmlNode machineEntry in machEntriesBlock)
+        {
+            bool machinesEnd = false;
+            int i = 0;
+            while (!machinesEnd)
+            {
+                XmlNode element = machineEntry.SelectSingleNode("./element[@index='" + i + "']");
+                if (element != null)
+                {
+                    Machine machine = Utils.GetObjectDataFromXML<Machine>(element);
+                    allMachineEntries.Add(machine);
+                    i++;
+                }
+                else
+                {
+                    machinesEnd = true;
+                    Console.WriteLine("Finished processing device machine placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing device machine placement data.", false);
                 }
             }
         }
