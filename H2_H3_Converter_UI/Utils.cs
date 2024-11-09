@@ -407,6 +407,7 @@ namespace H2_H3_Converter_UI
                     ((TagFieldBlockIndex)tagFile.SelectField($"Block:machines[{index}]/Struct:device data/ShortBlockIndex:position group")).Value = device.PositionGroupIndex;
                     ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:device data/Flags:flags")).RawValue = device.DeviceFlags1;
 
+                    // Machines and controls have different struct names
                     if (type == "machines")
                     {
                         ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:machine data/Flags:flags")).RawValue = device.DeviceFlags2;
