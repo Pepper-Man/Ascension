@@ -71,6 +71,12 @@ class Device : ObjectPlacement
     public uint DeviceFlags2 { get; set; }
 }
 
+class Biped : ObjectPlacement
+{
+    public float BodyVitality { get; set; }
+    public uint BipedFlags { get; set; }
+}
+
 class Crate : ObjectPlacement {}
 
 class NetFlag
@@ -133,6 +139,7 @@ class ScenData
         XmlNodeList machEntriesBlock = root.SelectNodes(".//block[@name='machines']");
         XmlNodeList deviceGroupsBlock = root.SelectNodes(".//block[@name='device groups']");
         XmlNodeList ctrlEntriesBlock = root.SelectNodes(".//block[@name='controls']");
+        XmlNodeList bipdEntriesBlock = root.SelectNodes(".//block[@name='bipeds']");
 
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
@@ -151,6 +158,7 @@ class ScenData
         List<Device> allMachineEntries = new List<Device>();
         List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
         List<Device> allControlEntries = new List<Device>();
+        List<Biped> allBipedEntries = new List<Biped>();
 
         foreach (XmlNode name in objectNamesBlock)
         {
@@ -593,10 +601,37 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, h3ekPath, scenPath, loadingForm, scenarioType);
+        // Bipeds
+        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "biped");
+        loadingForm.UpdateOutputBox("\nBegin reading biped placement data.", false);
+        foreach (XmlNode bipedEntry in bipdEntriesBlock)
+        {
+            bool bipedsEnd = false;
+            int i = 0;
+            while (!bipedsEnd)
+            {
+                XmlNode element = bipedEntry.SelectSingleNode("./element[@index='" + i + "']");
+                if (element != null)
+                {
+                    Biped biped = Utils.GetObjectDataFromXML<Biped>(element);
+                    allBipedEntries.Add(biped);
+                    i++;
+                }
+                else
+                {
+                    bipedsEnd = true;
+                    Console.WriteLine("Finished processing biped placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing biped placement data.", false);
+                }
+            }
+        }
+
+
+
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -1132,6 +1167,11 @@ class ScenData
 
             Console.WriteLine("Done device groups");
             loadingForm.UpdateOutputBox("Done device groups", false);
+
+            // Biped section
+            Utils.WriteObjectData(tagFile, allBipedEntries, "bipeds", loadingForm);
+            Console.WriteLine("Done bipeds");
+            loadingForm.UpdateOutputBox("Done bipeds", false);
 
             try
             {

@@ -224,6 +224,14 @@ namespace H2_H3_Converter_UI
                     h3ObjPaths.Add(h3Obj);
                 }
             }
+            else if (paletteType == "biped")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "biped");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
             else
             {
                 loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
@@ -340,6 +348,11 @@ namespace H2_H3_Converter_UI
                 device.DeviceFlags1 = uint.Parse(deviceFlagFields[0].InnerText.Trim().Split('\n').First());
                 device.DeviceFlags2 = uint.Parse(deviceFlagFields[1].InnerText.Trim().Split('\n').First());
             }
+            else if (objPlacement is Biped biped)
+            {
+                biped.BodyVitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
+                biped.BipedFlags = uint.Parse(element.SelectSingleNode("./field[@name='flags' and @type='long flags']").InnerText.Trim().Split('\n').First());
+            }
             else if (objPlacement is Crate crate) { } // No extra data for crates
 
             return objPlacement;
@@ -352,7 +365,8 @@ namespace H2_H3_Converter_UI
             { "crates", 10 },
             { "vehicles", 1 },
             { "machines", 7 },
-            { "controls", 8 }
+            { "controls", 8 },
+            { "bipeds", 0 }
         };
         
         public static void WriteObjectData<T>(TagFile tagFile, List<T> allObjPlacements, string type, Loading loadingForm) where T : ObjectPlacement
@@ -416,6 +430,11 @@ namespace H2_H3_Converter_UI
                     {
                         ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:control data/Flags:flags")).RawValue = device.DeviceFlags2;
                     }
+                }
+                else if (placement is Biped biped)
+                {
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:bipeds[{index}]/Struct:unit data/Real:body vitality")).Data = biped.BodyVitality;
+                    ((TagFieldFlags)tagFile.SelectField($"Block:bipeds[{index}]/Struct:unit data/Flags:flags")).RawValue = biped.BipedFlags;
                 }
                 else if (placement is Crate crate) { }
 
