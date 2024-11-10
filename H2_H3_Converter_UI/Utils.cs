@@ -240,6 +240,14 @@ namespace H2_H3_Converter_UI
                     h3ObjPaths.Add(h3Obj);
                 }
             }
+            else if (paletteType == "crate")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "crate");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
             else
             {
                 loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
@@ -468,6 +476,7 @@ namespace H2_H3_Converter_UI
 
                 index++;
             }
+            Console.WriteLine($"Finished writing {type} data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         

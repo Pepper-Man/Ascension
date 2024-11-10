@@ -137,9 +137,7 @@ class ScenData
         XmlNodeList scenPaletteBlock = root.SelectNodes(".//block[@name='scenery palette']");
         XmlNodeList scenEntriesBlock = root.SelectNodes(".//block[@name='scenery']");
         XmlNodeList trigVolBlock = root.SelectNodes(".//block[@name='trigger volumes']");
-        XmlNodeList vehiPaletteBlock = root.SelectNodes(".//block[@name='vehicle palette']");
         XmlNodeList vehiEntriesBlock = root.SelectNodes(".//block[@name='vehicles']");
-        XmlNodeList cratePaletteBlock = root.SelectNodes(".//block[@name='crate palette']");
         XmlNodeList crateEntriesBlock = root.SelectNodes(".//block[@name='crates']");
         XmlNodeList objectNamesBlock = root.SelectNodes(".//block[@name='object names']");
         XmlNodeList netgameFlagsBlock = root.SelectNodes(".//block[@name='netgame flags']");
@@ -157,9 +155,7 @@ class ScenData
         List<TagPath> allScenTypes = new List<TagPath>();
         List<Scenery> allScenEntries = new List<Scenery>();
         List<TrigVol> allTrigVols = new List<TrigVol>();
-        List<TagPath> allVehiTypes = new List<TagPath>();
         List<Vehicle> allVehiEntries = new List<Vehicle>();
-        List<TagPath> allCrateTypes = new List<TagPath>();
         List<Crate> allCrateEntries = new List<Crate>();
         List<string> allObjectNames = new List<string>();
         List<NetFlag> allNetgameFlags = new List<NetFlag>();
@@ -414,28 +410,8 @@ class ScenData
         }
 
         // Crates section
-        foreach (XmlNode crateType in cratePaletteBlock)
-        {
-            bool crateTypesEnd = false;
-            int i = 0;
-            while (!crateTypesEnd)
-            {
-                XmlNode element = crateType.SelectSingleNode("./element[@index='" + i + "']");
-                if (element != null)
-                {
-                    string crateRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                    allCrateTypes.Add(TagPath.FromPathAndType(crateRef, "bloc*"));
-                    i++;
-                }
-                else
-                {
-                    crateTypesEnd = true;
-                    Console.WriteLine("Finished processing crate palette data.");
-                    loadingForm.UpdateOutputBox("Finished processing crate palette data.", false);
-                }
-            }
-        }
-
+        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "crate");
+        loadingForm.UpdateOutputBox("\nBegin reading crate placement data.", false);
         foreach (XmlNode crateEntry in crateEntriesBlock)
         {
             bool cratesEnd = false;
@@ -669,10 +645,10 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -727,6 +703,10 @@ class ScenData
                 nameIndex++;
             }
 
+            Console.WriteLine($"Finished writing object name data to scenario tag!");
+            loadingForm.UpdateOutputBox($"Finished writing object name data to scenario tag!", false);
+
+            // Scenario type-specific data
             if (scenarioType == "1,multiplayer")
             {
                 // Spawns Section
@@ -842,8 +822,8 @@ class ScenData
                         }
                     }
                 }
-                Console.WriteLine("Done netgame equipment");
-                loadingForm.UpdateOutputBox("Done netgame equipment", false);
+                Console.WriteLine($"Finished writing netgame equipment data to scenario tag!");
+                loadingForm.UpdateOutputBox($"Finished writing equipment data to scenario tag!", false);
 
                 // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
                 foreach (TagPath scenType in allScenTypes)
@@ -895,8 +875,8 @@ class ScenData
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = scenery.VarName;
                 }
 
-                Console.WriteLine("Done scenery");
-                loadingForm.UpdateOutputBox("Done scenery", false);
+                Console.WriteLine($"Finished writing scenery data to scenario tag!");
+                loadingForm.UpdateOutputBox($"Finished writing scenery data to scenario tag!", false);
 
                 // Crates section
 
@@ -929,29 +909,6 @@ class ScenData
                     else if (z == 4)
                     {
                         name.Data = "territories";
-                    }
-                }
-
-                foreach (TagPath crateType in allCrateTypes)
-                {
-                    // Check if current type exists in palette
-                    bool typeAlreadyExists = false;
-                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements)
-                    {
-                        var x = ((TagFieldReference)paletteEntry.SelectField("Reference:name")).Path;
-                        if (x == crateType)
-                        {
-                            typeAlreadyExists = true;
-                            break;
-                        }
-                    }
-
-                    // Add palette entry if needed
-                    if (!typeAlreadyExists)
-                    {
-                        int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements.Count();
-                        ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).AddElement();
-                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = crateType;
                     }
                 }
 
@@ -1056,45 +1013,14 @@ class ScenData
                     }
                 }
 
-                Console.WriteLine("Done crates");
-                loadingForm.UpdateOutputBox("Done crates", false);
+                Console.WriteLine($"Finished writing crate data to scenario tag!");
+                loadingForm.UpdateOutputBox($"Finished writing crate data to scenario tag!", false);
             }
             else if (scenarioType == "0,solo")
             {
-                // SP weapons
                 Utils.WriteObjectData(tagFile, allSpWeapLocs, "weapons", loadingForm);
-
-                // SP scenery section
-
-                // Scenery palette
-                ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements();
-                int x = 0;
-
-                foreach (TagPath sceneryType in allScenTypes)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).AddElement();
-                    ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[{x}]/Reference:name")).Path = sceneryType;
-                    x++;
-                }
-
                 Utils.WriteObjectData(tagFile, allScenEntries, "scenery", loadingForm);
-
-                // SP crate section
-
-                // Crate palette
-                ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).RemoveAllElements();
-                x = 0;
-
-                foreach (TagPath crateType in allCrateTypes)
-                {
-                    ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).AddElement();
-                    ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{x}]/Reference:name")).Path = crateType;
-                    x++;
-                }
-
                 Utils.WriteObjectData(tagFile, allCrateEntries, "crates", loadingForm);
-
-                // Vehicle section
                 Utils.WriteObjectData(tagFile, allVehiEntries, "vehicles", loadingForm);
             }
 
@@ -1121,8 +1047,8 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:extents")).Data = vol.Extents;
             }
 
-            Console.WriteLine("Done trigger volumes");
-            loadingForm.UpdateOutputBox("Done trigger volumes", false);
+            Console.WriteLine($"Finished writing trigger volume data to scenario tag!");
+            loadingForm.UpdateOutputBox($"Finished writing trigger volume data to scenario tag!", false);
 
             // Decals section
             ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).RemoveAllElements(); // Remove all decals from palette
@@ -1182,18 +1108,14 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealQuaternion:rotation")).Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
-            Console.WriteLine("Done decals");
-            loadingForm.UpdateOutputBox("Done decals", false);
+            Console.WriteLine($"Finished writing decal data to scenario tag!");
+            loadingForm.UpdateOutputBox($"Finished writing decal data to scenario tag!", false);
 
             // Device machine section
             Utils.WriteObjectData(tagFile, allMachineEntries, "machines", loadingForm);
-            Console.WriteLine("Done device machines");
-            loadingForm.UpdateOutputBox("Done device machines", false);
 
             // Device controls section
             Utils.WriteObjectData(tagFile, allControlEntries, "controls", loadingForm);
-            Console.WriteLine("Done device controls");
-            loadingForm.UpdateOutputBox("Done device controls", false);
 
             ((TagFieldBlock)tagFile.SelectField($"Block:device groups")).RemoveAllElements();
             int groupIndex = 0;
@@ -1206,18 +1128,14 @@ class ScenData
                 groupIndex++;
             }
 
-            Console.WriteLine("Done device groups");
-            loadingForm.UpdateOutputBox("Done device groups", false);
+            Console.WriteLine($"Finished writing device group data to scenario tag!");
+            loadingForm.UpdateOutputBox($"Finished writing device group data to scenario tag!", false);
 
             // Biped section
             Utils.WriteObjectData(tagFile, allBipedEntries, "bipeds", loadingForm);
-            Console.WriteLine("Done bipeds");
-            loadingForm.UpdateOutputBox("Done bipeds", false);
 
             // Sound scenery section
             Utils.WriteObjectData(tagFile, allSscenEntries, "sound scenery", loadingForm);
-            Console.WriteLine("Done sound scenery");
-            loadingForm.UpdateOutputBox("Done sound scenery", false);
 
             try
             {
