@@ -98,8 +98,8 @@ namespace H2_H3_Converter_UI
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
 
-            // Don't use sp object data for mp, unless its a device
-            if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control")
+            // Don't use sp object data for mp, unless its a device or sound scenery
+            if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control" && paletteType != "sound scenery")
             {
                 loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
                 return;
@@ -232,6 +232,14 @@ namespace H2_H3_Converter_UI
                     h3ObjPaths.Add(h3Obj);
                 }
             }
+            else if (paletteType == "sound scenery")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "sound_scenery");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
             else
             {
                 loadingForm.UpdateOutputBox($"Unknown palette type {paletteType}, aborting palette conversion.", false);
@@ -303,7 +311,8 @@ namespace H2_H3_Converter_UI
                 BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
             };
 
-            if (!(objPlacement is Device))
+            // Devices and sound scenery don't have variant fields
+            if (!(objPlacement is Device) && !(objPlacement is SoundScenery))
             {
                 objPlacement.VarName = element.SelectSingleNode("./field[@name='variant name']").InnerText.Trim();
             }
@@ -353,6 +362,14 @@ namespace H2_H3_Converter_UI
                 biped.BodyVitality = float.Parse(element.SelectSingleNode("./field[@name='body vitality']").InnerText.Trim());
                 biped.BipedFlags = uint.Parse(element.SelectSingleNode("./field[@name='flags' and @type='long flags']").InnerText.Trim().Split('\n').First());
             }
+            else if (objPlacement is SoundScenery sscen)
+            {
+                sscen.VolumeType = int.Parse(element.SelectSingleNode("./field[@name='volume type']").InnerText.Trim().Substring(0, 1));
+                sscen.Height = float.Parse(element.SelectSingleNode("./field[@name='height']").InnerText.Trim());
+                sscen.DistBounds = element.SelectSingleNode("./field[@name='override distance bounds']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                sscen.ConeAngleBounds = element.SelectSingleNode("./field[@name='override cone angle bounds']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
+                sscen.OuterConeGain = float.Parse(element.SelectSingleNode("./field[@name='override outer cone gain']").InnerText.Trim());
+            }
             else if (objPlacement is Crate crate) { } // No extra data for crates
 
             return objPlacement;
@@ -366,7 +383,8 @@ namespace H2_H3_Converter_UI
             { "vehicles", 1 },
             { "machines", 7 },
             { "controls", 8 },
-            { "bipeds", 0 }
+            { "bipeds", 0 },
+            { "sound scenery", 9 }
         };
         
         public static void WriteObjectData<T>(TagFile tagFile, List<T> allObjPlacements, string type, Loading loadingForm) where T : ObjectPlacement
@@ -392,7 +410,7 @@ namespace H2_H3_Converter_UI
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:type")).Value = objTypeToIndex[type]; // 2 for weapon
                 ((TagFieldEnum)tagFile.SelectField($"Block:{type}[{index}]/Struct:object data/Struct:object id/CharEnum:source")).Value = 1; // 1 for editor
 
-                if (!(placement is Device)) // Machine's don't have variant info from H2
+                if (!(placement is Device) && !(placement is SoundScenery)) // Devices and sound scenery don't have variant info from H2
                 {
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:{type}[{index}]/Struct:permutation data/StringId:variant name")).Data = placement.VarName;
                 }
@@ -431,10 +449,20 @@ namespace H2_H3_Converter_UI
                         ((TagFieldFlags)tagFile.SelectField($"Block:{type}[{index}]/Struct:control data/Flags:flags")).RawValue = device.DeviceFlags2;
                     }
                 }
+                // Biped-specific properties
                 else if (placement is Biped biped)
                 {
                     ((TagFieldElementSingle)tagFile.SelectField($"Block:bipeds[{index}]/Struct:unit data/Real:body vitality")).Data = biped.BodyVitality;
                     ((TagFieldFlags)tagFile.SelectField($"Block:bipeds[{index}]/Struct:unit data/Flags:flags")).RawValue = biped.BipedFlags;
+                }
+                // Sound scenery-specific properties
+                else if (placement is SoundScenery sscen)
+                {
+                    ((TagFieldEnum)tagFile.SelectField($"Block:sound scenery[{index}]/Struct:sound_scenery/LongEnum:volume type")).Value = sscen.VolumeType;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:sound scenery[{index}]/Struct:sound_scenery/Real:height")).Data = sscen.Height;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:sound scenery[{index}]/Struct:sound_scenery/RealBounds:override distance bounds")).Data = sscen.DistBounds;
+                    ((TagFieldElementArraySingle)tagFile.SelectField($"Block:sound scenery[{index}]/Struct:sound_scenery/AngleBounds:override cone angle bounds")).Data = sscen.ConeAngleBounds;
+                    ((TagFieldElementSingle)tagFile.SelectField($"Block:sound scenery[{index}]/Struct:sound_scenery/Real:override outer cone gain")).Data = sscen.OuterConeGain;
                 }
                 else if (placement is Crate crate) { }
 

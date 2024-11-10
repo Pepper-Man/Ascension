@@ -77,6 +77,15 @@ class Biped : ObjectPlacement
     public uint BipedFlags { get; set; }
 }
 
+class SoundScenery : ObjectPlacement
+{
+    public int VolumeType { get; set; }
+    public float Height { get; set; }
+    public float[] DistBounds { get; set; }
+    public float[] ConeAngleBounds { get; set; }    
+    public float OuterConeGain { get; set; }
+}
+
 class Crate : ObjectPlacement {}
 
 class NetFlag
@@ -140,6 +149,7 @@ class ScenData
         XmlNodeList deviceGroupsBlock = root.SelectNodes(".//block[@name='device groups']");
         XmlNodeList ctrlEntriesBlock = root.SelectNodes(".//block[@name='controls']");
         XmlNodeList bipdEntriesBlock = root.SelectNodes(".//block[@name='bipeds']");
+        XmlNodeList sscenEntriesBlock = root.SelectNodes(".//block[@name='sound scenery']");
 
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
@@ -159,7 +169,9 @@ class ScenData
         List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
         List<Device> allControlEntries = new List<Device>();
         List<Biped> allBipedEntries = new List<Biped>();
+        List<SoundScenery> allSscenEntries = new List<SoundScenery>();
 
+        // Object names section
         foreach (XmlNode name in objectNamesBlock)
         {
             bool objNamesEnd = false;
@@ -202,6 +214,7 @@ class ScenData
             }
         }
 
+        // Player starting locations section
         foreach (XmlNode location in playerStartLocBlock)
         {
             bool startLocsEnd = false;
@@ -324,6 +337,7 @@ class ScenData
             }
         }
 
+        // Scenery section
         foreach (XmlNode sceneryType in scenPaletteBlock)
         {
             bool scenTypesEnd = false;
@@ -368,6 +382,7 @@ class ScenData
             }
         }
 
+        // Trigger volume section
         foreach (XmlNode trigVolume in trigVolBlock)
         {
             bool trigVolsEnd = false;
@@ -398,6 +413,7 @@ class ScenData
             }
         }
 
+        // Crates section
         foreach (XmlNode crateType in cratePaletteBlock)
         {
             bool crateTypesEnd = false;
@@ -442,6 +458,7 @@ class ScenData
             }
         }
 
+        // Netgame flags section
         foreach (XmlNode netFlagEntry in netgameFlagsBlock)
         {
             bool netFlagsEnd = false;
@@ -471,7 +488,7 @@ class ScenData
                 }
             }
         }
-
+        // Decals section
         foreach (XmlNode decalType in decalPaletteBlock)
         {
             bool decalTypesEnd = false;
@@ -523,7 +540,7 @@ class ScenData
             }
         }
 
-        // Device machines
+        // Device machines section
         Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
         loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
         foreach (XmlNode machineEntry in machEntriesBlock)
@@ -548,7 +565,7 @@ class ScenData
             }
         }
 
-        // Device controls
+        // Device controls section
         Utils.ConvertPalette(scenPath, loadingForm, scenfile, "control");
         loadingForm.UpdateOutputBox("\nBegin reading device control placement data.", false);
         foreach (XmlNode controlEntry in ctrlEntriesBlock)
@@ -573,6 +590,7 @@ class ScenData
             }
         }
 
+        // Device groups section
         foreach (XmlNode devGroupEntry in deviceGroupsBlock)
         {
             bool devGroupsEnd = false;
@@ -601,7 +619,7 @@ class ScenData
             }
         }
 
-        // Bipeds
+        // Bipeds section
         Utils.ConvertPalette(scenPath, loadingForm, scenfile, "biped");
         loadingForm.UpdateOutputBox("\nBegin reading biped placement data.", false);
         foreach (XmlNode bipedEntry in bipdEntriesBlock)
@@ -626,12 +644,35 @@ class ScenData
             }
         }
 
+        // Sound scenery section
+        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "sound scenery");
+        loadingForm.UpdateOutputBox("\nBegin reading sound scenery placement data.", false);
+        foreach (XmlNode sscenEntry in sscenEntriesBlock)
+        {
+            bool sscenEnd = false;
+            int i = 0;
+            while (!sscenEnd)
+            {
+                XmlNode element = sscenEntry.SelectSingleNode("./element[@index='" + i + "']");
+                if (element != null)
+                {
+                    SoundScenery sscen = Utils.GetObjectDataFromXML<SoundScenery>(element);
+                    allSscenEntries.Add(sscen);
+                    i++;
+                }
+                else
+                {
+                    sscenEnd = true;
+                    Console.WriteLine("Finished processing sound scenery placement data.");
+                    loadingForm.UpdateOutputBox("Finished processing sound scenery placement data.", false);
+                }
+            }
+        }
 
-
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -1172,6 +1213,11 @@ class ScenData
             Utils.WriteObjectData(tagFile, allBipedEntries, "bipeds", loadingForm);
             Console.WriteLine("Done bipeds");
             loadingForm.UpdateOutputBox("Done bipeds", false);
+
+            // Sound scenery section
+            Utils.WriteObjectData(tagFile, allSscenEntries, "sound scenery", loadingForm);
+            Console.WriteLine("Done sound scenery");
+            loadingForm.UpdateOutputBox("Done sound scenery", false);
 
             try
             {
