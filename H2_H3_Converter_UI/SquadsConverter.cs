@@ -154,17 +154,26 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
             }
 
-            // Flags-wise, just gonna convert values based on name tbh. This isn't pretty and doesn't handle most
-            // combos but they are extremely infrequently used and i cba to code for them
-            Dictionary<string, uint> flagMapping = new Dictionary<string, uint>()
+            Dictionary<string, uint> squadFlagMapping = new Dictionary<string, uint>()
             {
                 { "0", 0 },
-                { "1initially asleep", 0 },
-                { "2infection form explode", 1 },
-                { "4n/a", 2 },
-                { "8always place", 4 },
-                { "16initially hidden", 8 },
-                { "9always placeinitially asleep", 4 },
+                { "unused", 1 },
+                { "blind", 2 },
+                { "deaf", 4 },
+                { "braindead", 8 },
+                { "initially placed", 16 },
+                { "units not enterable by player", 32 }
+            };
+
+            Dictionary<string, uint> startlocFlagMapping = new Dictionary<string, uint>()
+            {
+                { "0", 0 },
+                { "infection form explode", 1 },
+                { "n/a", 2 },
+                { "always place", 4 },
+                { "initially hidden", 8 },
+                { "vehicle destroyed when no driver", 16 },
+                { "vehicle open", 32 }
             };
 
             XmlNode root = scenfile.DocumentElement;
@@ -186,7 +195,7 @@ namespace H2_H3_Converter_UI
                         Squad squad = new Squad();
                         squad.Name = squadEntry.SelectSingleNode("./field[@name='name']").InnerText.Trim();
                         loadingForm.UpdateOutputBox($"Reading data for squad {i} ({squad.Name}).", false);
-                        squad.Flags = UInt32.Parse(squadEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1));
+                        string[] checkedFlags = squadEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Split('\n');
                         squad.ParentIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='parent']").Attributes["index"]?.Value);
                         squad.NormalDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='normal diff count']").InnerText.Trim());
                         squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
@@ -199,6 +208,29 @@ namespace H2_H3_Converter_UI
                         squad.Grenade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
                         squad.VehiVariant = squadEntry.SelectSingleNode("./field[@name='vehicle variant']").InnerText.Trim();
                         squad.PlaceScript = squadEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
+
+                        // Determine flag value
+                        uint flagVal = 0;
+                        if (checkedFlags.Count() != 1 && checkedFlags[0] != "0") // Only bother if squad actually has any flags set, e.g. non-zero
+                        {
+                            foreach (string flagString in checkedFlags.Skip(1)) // First is always the numerical value that can be discarded
+                            {
+                                try
+                                {
+                                    flagVal += squadFlagMapping[flagString.Trim('\t', '\r')];
+                                }
+                                catch (KeyNotFoundException)
+                                {
+                                    Console.WriteLine("Unknown or missing flag, skipping");
+                                }
+                            }
+
+                            squad.Flags = flagVal;
+                        }
+                        else
+                        {
+                            squad.Flags = 0;
+                        }
 
                         // Determine editor folder based on user-provided txt of folder names, matching against squad names
                         if (squadFolderNames != null)
@@ -242,11 +274,7 @@ namespace H2_H3_Converter_UI
                                 loadingForm.UpdateOutputBox($"Squad {squad.Name} starting position {j} ({startLoc.Name})", false);
                                 startLoc.Position = locEntry.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                                 startLoc.Facing = locEntry.SelectSingleNode("./field[@name='facing (yaw, pitch)']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
-
-                                // Figure out flag value using conversion dictionary defined at the start of this function
-                                string flagsString = Regex.Replace(locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim(), @"[\r\n\t]+", "");
-                                startLoc.Flags = flagMapping[flagsString];
-
+                                checkedFlags = locEntry.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Split('\n');
                                 startLoc.CharIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
                                 startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                                 startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
@@ -259,6 +287,30 @@ namespace H2_H3_Converter_UI
                                 startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
                                 startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
                                 startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
+
+                                // Determine flag value
+                                flagVal = 0;
+                                if (checkedFlags.Count() != 1 && checkedFlags[0] != "0") // Only bother if squad actually has any flags set, e.g. non-zero
+                                {
+                                    foreach (string flagString in checkedFlags.Skip(1)) // First is always the numerical value that can be discarded
+                                    {
+                                        try
+                                        {
+                                            flagVal += startlocFlagMapping[flagString.Trim('\t', '\r')];
+                                        }
+                                        catch (KeyNotFoundException)
+                                        {
+                                            Console.WriteLine("Unknown or missing flag, skipping");
+                                        }
+                                    }
+
+                                    startLoc.Flags = flagVal;
+                                }
+                                else
+                                {
+                                    startLoc.Flags = 0;
+                                }
+
 
                                 startLocs.Add(startLoc);
                                 j++;
