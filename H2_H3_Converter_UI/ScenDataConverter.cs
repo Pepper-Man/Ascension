@@ -242,7 +242,7 @@ class ScenData
             }
         }
 
-        // Have to handle weapons/vehicles/equipment differently for solo vs mult
+        // Have to handle weapons/vehicles/equipment/scenery differently for solo vs mult
         if (scenarioType == "1,multiplayer")
         {
             foreach (XmlNode netgameObjEntry in netgameObjEntriesBlock)
@@ -272,6 +272,29 @@ class ScenData
                         netgameObjsEnd = true;
                         Console.WriteLine("\nFinished processing netgame equipment data.");
                         loadingForm.UpdateOutputBox("\nFinished processing netgame equipment data.", false);
+                    }
+                }
+            }
+
+            // Scenery palette
+            foreach (XmlNode sceneryType in scenPaletteBlock)
+            {
+                bool scenTypesEnd = false;
+                int i = 0;
+                while (!scenTypesEnd)
+                {
+                    XmlNode element = sceneryType.SelectSingleNode("./element[@index='" + i + "']");
+                    if (element != null)
+                    {
+                        string scenRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        allScenTypes.Add(TagPath.FromPathAndType(scenRef, "scen*"));
+                        i++;
+                    }
+                    else
+                    {
+                        scenTypesEnd = true;
+                        Console.WriteLine("Finished processing scenery palette data.");
+                        loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
                     }
                 }
             }
@@ -331,31 +354,12 @@ class ScenData
                     }
                 }
             }
+
+            // Scenery palette
+            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "scenery");
         }
 
-        // Scenery section
-        foreach (XmlNode sceneryType in scenPaletteBlock)
-        {
-            bool scenTypesEnd = false;
-            int i = 0;
-            while (!scenTypesEnd)
-            {
-                XmlNode element = sceneryType.SelectSingleNode("./element[@index='" + i + "']");
-                if (element != null)
-                {
-                    string scenRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                    allScenTypes.Add(TagPath.FromPathAndType(scenRef, "scen*"));
-                    i++;
-                }
-                else
-                {
-                    scenTypesEnd = true;
-                    Console.WriteLine("Finished processing scenery palette data.");
-                    loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
-                }
-            }
-        }
-
+        // Scenery placements
         foreach (XmlNode sceneryEntry in scenEntriesBlock)
         {
             bool sceneriesEnd = false;

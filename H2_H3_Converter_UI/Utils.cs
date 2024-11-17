@@ -98,8 +98,8 @@ namespace H2_H3_Converter_UI
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
 
-            // Don't use sp object data for mp, unless its a device or sound scenery
-            if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control" && paletteType != "sound scenery")
+            // Don't use sp object data for mp, unless its scenery, a device or sound scenery
+            if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control" && paletteType != "sound scenery" && paletteType != "scenery")
             {
                 loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
                 return;
@@ -245,6 +245,14 @@ namespace H2_H3_Converter_UI
                 foreach (string h2Path in h2ObjRefs)
                 {
                     TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "crate");
+                    h3ObjPaths.Add(h3Obj);
+                }
+            }
+            else if (paletteType == "scenery")
+            {
+                foreach (string h2Path in h2ObjRefs)
+                {
+                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "scenery");
                     h3ObjPaths.Add(h3Obj);
                 }
             }
