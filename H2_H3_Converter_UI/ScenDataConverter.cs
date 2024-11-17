@@ -1055,25 +1055,9 @@ class ScenData
             ((TagFieldBlock)tagFile.SelectField($"Block:decals")).RemoveAllElements(); // Remove all decals
             foreach (TagPath decalType in allDecalTypes)
             {
-                // Check if current type exists in palette
-                bool typeAlreadyExists = false;
-                foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).Elements)
-                {
-                    var x = ((TagFieldReference)paletteEntry.SelectField($"Reference:reference")).Path;
-                    if (x == decalType)
-                    {
-                        typeAlreadyExists = true;
-                        break;
-                    }
-                }
-
-                // Add palette entry if needed
-                if (!typeAlreadyExists)
-                {
-                    int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).Elements.Count();
-                    ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).AddElement();
-                    ((TagFieldReference)tagFile.SelectField($"Block:decal palette[{currentCount}]/Reference:reference")).Path = decalType;
-                }
+                int currentCount = ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).Elements.Count();
+                ((TagFieldBlock)tagFile.SelectField($"Block:decal palette")).AddElement();
+                ((TagFieldReference)tagFile.SelectField($"Block:decal palette[{currentCount}]/Reference:reference")).Path = decalType;
             }
 
             foreach (Decal decalEntry in allDecalEntries)
