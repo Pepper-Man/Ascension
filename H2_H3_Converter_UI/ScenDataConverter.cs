@@ -117,22 +117,55 @@ class ScenData
 {
     static dynamic TagSystem;
 
-    /// <summary>
-    /// Initializes the Python Tag System and required modules once.
-    /// </summary>
+
     public static void InitializePython()
     {
+        SetPyDLL();
+
         dynamic pytolith = Py.Import("Pytolith");
         TagSystem = pytolith.TagSystem(); // Initialize the TagSystem once
     }
 
-    /// <summary>
-    /// Gets the value of a specified field from a tag file.
-    /// </summary>
-    /// <param name="H2EKTagsPath">Base path for tags.</param>
-    /// <param name="relativeFilePath">Relative path to the tag file.</param>
-    /// <param name="fieldName">Name of the field to retrieve.</param>
-    /// <returns>The value of the specified field, or null if not found.</returns>
+    public static void SetPyDLL()
+    {
+        // Get the system PATH environment variable
+        string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
+
+        if (!string.IsNullOrEmpty(systemPath))
+        {
+            // Split the PATH into individual directories
+            string[] paths = systemPath.Split(Path.PathSeparator);
+
+            foreach (string path in paths)
+            {
+                // Check if the directory contains "python" in the name
+                if (path.ToLower().Contains("python"))
+                {
+                    Console.WriteLine($"Possible Python path found: {path}");
+
+                    // Prioritize Python 3.13 over 3.12
+                    string[] pythonDlls = { "python313.dll", "python312.dll" };
+
+                    foreach (string pythonDll in pythonDlls)
+                    {
+                        string pythonDllPath = Path.Combine(path, pythonDll);
+                        if (File.Exists(pythonDllPath))
+                        {
+                            Console.WriteLine($"Python DLL found: {pythonDllPath}");
+
+                            // Set the Python.NET runtime DLL path and initialize the engine
+                            Runtime.PythonDLL = pythonDllPath;
+                            PythonEngine.Initialize();
+
+                            Console.WriteLine($"Python.NET initialized successfully. Using \"{pythonDllPath}\"");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static object GetTagFieldValue(string H2EKTagsPath, string relativeFilePath, string fieldName)
     {
         using (Py.GIL())
@@ -166,13 +199,10 @@ class ScenData
         // Initialise MB
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
-        Runtime.PythonDLL = @"C:\Users\jakeb\AppData\Local\Programs\Python\Python312\python312.dll";
-        PythonEngine.Initialize();
+        InitializePython();
 
         using (Py.GIL())
         {
-            InitializePython();
-
             string H2EKTagsPath = "G:\\Steam\\steamapps\\common\\H2EK\\tags";
 
             // Example usage of the optimized function
