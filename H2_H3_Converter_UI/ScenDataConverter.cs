@@ -117,15 +117,7 @@ class ScenData
 {
     static dynamic TagSystem;
 
-
     public static void InitializePython()
-    {
-        SetPyDLL();
-        dynamic pytolith = Py.Import("Pytolith");
-        TagSystem = pytolith.TagSystem(); // Initialize the TagSystem once
-    }
-
-    public static void SetPyDLL()
     {
         // Get the system PATH environment variable
         string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
@@ -137,7 +129,7 @@ class ScenData
 
             foreach (string path in paths)
             {
-                // Check if the directory contains "python" in the name
+                // Check if the directory contains "python312" in the name
                 if (path.ToLower().Contains("python312"))
                 {
                     Console.WriteLine($"Possible Python path found: {path}");
@@ -158,6 +150,12 @@ class ScenData
                 }
             }
         }
+
+        // Use num's library
+        dynamic pytolith = Py.Import("Pytolith");
+
+        // Initialize the TagSystem once
+        TagSystem = pytolith.TagSystem();
     }
 
     public static object GetTagFieldValue(string H2EKTagsPath, string relativeFilePath, string fieldName)
