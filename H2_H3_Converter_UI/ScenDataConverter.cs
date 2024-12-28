@@ -121,7 +121,6 @@ class ScenData
     public static void InitializePython()
     {
         SetPyDLL();
-
         dynamic pytolith = Py.Import("Pytolith");
         TagSystem = pytolith.TagSystem(); // Initialize the TagSystem once
     }
@@ -139,27 +138,22 @@ class ScenData
             foreach (string path in paths)
             {
                 // Check if the directory contains "python" in the name
-                if (path.ToLower().Contains("python"))
+                if (path.ToLower().Contains("python312"))
                 {
                     Console.WriteLine($"Possible Python path found: {path}");
 
-                    // Prioritize Python 3.13 over 3.12
-                    string[] pythonDlls = { "python313.dll", "python312.dll" };
-
-                    foreach (string pythonDll in pythonDlls)
+                    // Have to use python 3.12 for now
+                    string pythonDllPath = Path.Combine(path, "python312.dll");
+                    if (File.Exists(pythonDllPath))
                     {
-                        string pythonDllPath = Path.Combine(path, pythonDll);
-                        if (File.Exists(pythonDllPath))
-                        {
-                            Console.WriteLine($"Python DLL found: {pythonDllPath}");
+                        Console.WriteLine($"Python DLL found: {pythonDllPath}");
 
-                            // Set the Python.NET runtime DLL path and initialize the engine
-                            Runtime.PythonDLL = pythonDllPath;
-                            PythonEngine.Initialize();
+                        // Set the Python.NET runtime DLL path and initialize the engine
+                        Runtime.PythonDLL = pythonDllPath;
+                        PythonEngine.Initialize();
 
-                            Console.WriteLine($"Python.NET initialized successfully. Using \"{pythonDllPath}\"");
-                            return;
-                        }
+                        Console.WriteLine($"Python.NET initialized successfully. Using \"{pythonDllPath}\"");
+                        return;
                     }
                 }
             }
