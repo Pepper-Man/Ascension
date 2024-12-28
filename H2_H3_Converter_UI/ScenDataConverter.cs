@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
+using Python.Runtime;
 
 class StartLoc
 {
@@ -114,6 +115,47 @@ class DeviceGroup
 
 class ScenData
 {
+    static dynamic TagSystem;
+
+    /// <summary>
+    /// Initializes the Python Tag System and required modules once.
+    /// </summary>
+    public static void InitializePython()
+    {
+        dynamic pytolith = Py.Import("Pytolith");
+        TagSystem = pytolith.TagSystem(); // Initialize the TagSystem once
+    }
+
+    /// <summary>
+    /// Gets the value of a specified field from a tag file.
+    /// </summary>
+    /// <param name="H2EKTagsPath">Base path for tags.</param>
+    /// <param name="relativeFilePath">Relative path to the tag file.</param>
+    /// <param name="fieldName">Name of the field to retrieve.</param>
+    /// <returns>The value of the specified field, or null if not found.</returns>
+    public static object GetTagFieldValue(string H2EKTagsPath, string relativeFilePath, string fieldName)
+    {
+        using (Py.GIL())
+        {
+            try
+            {
+                // Combine paths
+                string fullPath = Path.Combine(H2EKTagsPath, relativeFilePath);
+
+                // Load the tag and retrieve the field value
+                dynamic tag = TagSystem.load_tag_from_path(fullPath);
+                dynamic fieldValue = tag.fields.__getattr__(fieldName).value;
+
+                return fieldValue;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return null;
+            }
+        }
+    }
+
     public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
     {
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
@@ -123,6 +165,30 @@ class ScenData
 
         // Initialise MB
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
+
+        Runtime.PythonDLL = @"C:\Users\jakeb\AppData\Local\Programs\Python\Python312\python312.dll";
+        PythonEngine.Initialize();
+
+        using (Py.GIL())
+        {
+            InitializePython();
+
+            string H2EKTagsPath = "G:\\Steam\\steamapps\\common\\H2EK\\tags";
+
+            // Example usage of the optimized function
+            string[] files = {
+                "objects\\characters\\brute\\brute.biped"
+            };
+
+            foreach (var file in files)
+            {
+                string fieldName = "feign_death_chance"; // Field name to retrieve
+                var value = GetTagFieldValue(H2EKTagsPath, file, fieldName);
+                Console.WriteLine($"Value of '{fieldName}' in '{file}': {value}");
+            }
+        }
+
+        PythonEngine.Shutdown();
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
