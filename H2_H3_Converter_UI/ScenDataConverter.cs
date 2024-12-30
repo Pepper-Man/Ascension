@@ -133,9 +133,14 @@ class ScenData
 
         // PYTOLITH EXAMPLE - read tag value
         string file = "objects\\characters\\brute\\brute.biped";
-        string fieldName = "feign_death_chance"; // Field name to retrieve
-        var value = Utils.GetTagFieldValue(Path.Combine(H2EKTagsPath, file), fieldName);
-        Console.WriteLine($"Value of '{fieldName}' in '{file}': {value}");
+        string[] fieldNames = { "feign_death_chance" }; // Field name to retrieve
+        List<Tuple<string, object>> fieldValues = Utils.GetTagFieldValue(Path.Combine(H2EKTagsPath, file), fieldNames);
+
+        foreach(Tuple<string, object> fieldNameValuePair in fieldValues)
+        {
+            Console.WriteLine($"Value of '{fieldNameValuePair.Item1}' in '{file}': {fieldNameValuePair.Item2}");
+        }
+        
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();

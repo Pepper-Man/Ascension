@@ -58,19 +58,28 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static object GetTagFieldValue(string fullTagPath, string fieldName)
+        public static List<Tuple<string, object>> GetTagFieldValue(string fullTagPath, string[] fields)
         {
             try
             {
                 // Load the tag and retrieve the field value
                 dynamic tag = TagSystem.load_tag(fullTagPath);
-                dynamic fieldValue = tag.fields.__getattr__(fieldName).value;
 
-                return fieldValue;
+                // List of field values to be returned
+                List<Tuple<string, object>> fieldValues = new List<Tuple<string, object>>();
+
+                // Read each field value
+                foreach (string fieldName in fields)
+                {
+                    dynamic fieldValue = tag.fields.__getattr__(fieldName).value;
+                    fieldValues.Add(Tuple.Create(fieldName, (object)fieldValue));
+                }
+
+                return fieldValues;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Pytolith tag load error: {ex.Message}");
                 return null;
             }
         }
