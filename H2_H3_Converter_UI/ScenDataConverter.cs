@@ -115,75 +115,8 @@ class DeviceGroup
 
 class ScenData
 {
-    static dynamic TagSystem;
 
-    public static void InitializePython(string H2EKTagsPath)
-    {
-        // Get the system PATH environment variable
-        string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
-
-        if (!string.IsNullOrEmpty(systemPath))
-        {
-            // Split the PATH into individual directories
-            string[] paths = systemPath.Split(Path.PathSeparator);
-
-            foreach (string path in paths)
-            {
-                if (path.ToLower().Contains("python313") || path.ToLower().Contains("python312"))
-                {
-                    Console.WriteLine($"Possible Python path found: {path}");
-
-                    // Support 3.12 and 3.13, but prioritise 3.13
-                    string[] pyDlls = { "python313.dll", "python312.dll" };
-
-                    foreach (string pythonDll in pyDlls)
-                    {
-                        string pythonDllPath = Path.Combine(path, pythonDll);
-                        if (File.Exists(pythonDllPath))
-                        {
-                            Console.WriteLine($"Python DLL found: {pythonDllPath}");
-
-                            // Set the Python.NET runtime DLL path and initialize the engine
-                            Runtime.PythonDLL = pythonDllPath;
-                            PythonEngine.Initialize();
-
-                            Console.WriteLine($"Python.NET initialized successfully. Using \"{pythonDllPath}\"");
-
-                            // Use num's library
-                            dynamic pytolith = Py.Import("Pytolith");
-
-                            // Initialize the TagSystem once
-                            TagSystem = pytolith.TagSystem(H2EKTagsPath);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public static object GetTagFieldValue(string H2EKTagsPath, string relativeFilePath, string fieldName)
-    {
-        using (Py.GIL())
-        {
-            try
-            {
-                // Combine paths
-                string fullPath = Path.Combine(H2EKTagsPath, relativeFilePath);
-
-                // Load the tag and retrieve the field value
-                dynamic tag = TagSystem.load_tag(fullPath);
-                dynamic fieldValue = tag.fields.__getattr__(fieldName).value;
-
-                return fieldValue;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                return null;
-            }
-        }
-    }
+    
 
     public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
     {
@@ -196,23 +129,13 @@ class ScenData
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
         string H2EKTagsPath = "G:\\Steam\\steamapps\\common\\H2EK\\tags";
-        InitializePython(H2EKTagsPath);
+        Utils.InitializePython(H2EKTagsPath);
 
-        using (Py.GIL())
-        {
-            string[] files = {
-                "objects\\characters\\brute\\brute.biped"
-            };
-
-            foreach (var file in files)
-            {
-                string fieldName = "feign_death_chance"; // Field name to retrieve
-                var value = GetTagFieldValue(H2EKTagsPath, file, fieldName);
-                Console.WriteLine($"Value of '{fieldName}' in '{file}': {value}");
-            }
-        }
-
-        PythonEngine.Shutdown();
+        // PYTOLITH EXAMPLE - read tag value
+        string file = "objects\\characters\\brute\\brute.biped";
+        string fieldName = "feign_death_chance"; // Field name to retrieve
+        var value = Utils.GetTagFieldValue(Path.Combine(H2EKTagsPath, file), fieldName);
+        Console.WriteLine($"Value of '{fieldName}' in '{file}': {value}");
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
