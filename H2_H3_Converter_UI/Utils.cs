@@ -13,7 +13,7 @@ namespace H2_H3_Converter_UI
     {
         static dynamic TagSystem;
 
-        public static void InitializePython(string H2EKTagsPath)
+        public static dynamic InitializePython(string H2EKTagsPath)
         {
             // Get the system PATH environment variable
             string systemPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
@@ -50,38 +50,14 @@ namespace H2_H3_Converter_UI
 
                                 // Initialize the TagSystem once
                                 TagSystem = pytolith.TagSystem(H2EKTagsPath);
-                                return;
+                                return TagSystem;
                             }
                         }
                     }
                 }
             }
-        }
 
-        public static List<Tuple<string, object>> GetTagFieldValue(string fullTagPath, string[] fields)
-        {
-            try
-            {
-                // Load the tag and retrieve the field value
-                dynamic tag = TagSystem.load_tag(fullTagPath);
-
-                // List of field values to be returned
-                List<Tuple<string, object>> fieldValues = new List<Tuple<string, object>>();
-
-                // Read each field value
-                foreach (string fieldName in fields)
-                {
-                    dynamic fieldValue = tag.fields.__getattr__(fieldName).value;
-                    fieldValues.Add(Tuple.Create(fieldName, (object)fieldValue));
-                }
-
-                return fieldValues;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Pytolith tag load error: {ex.Message}");
-                return null;
-            }
+            return null; // Default return
         }
 
         public static string ConvertXML(string xmlPath, Loading loadingForm)

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
 using Python.Runtime;
+using Microsoft.Scripting.Utils;
 
 class StartLoc
 {
@@ -115,9 +116,6 @@ class DeviceGroup
 
 class ScenData
 {
-
-    
-
     public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
     {
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
@@ -129,18 +127,38 @@ class ScenData
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
         string H2EKTagsPath = "G:\\Steam\\steamapps\\common\\H2EK\\tags";
-        Utils.InitializePython(H2EKTagsPath);
+        dynamic tagSystem = Utils.InitializePython(H2EKTagsPath);
 
-        // PYTOLITH EXAMPLE - read tag value
-        string file = "objects\\characters\\brute\\brute.biped";
-        string[] fieldNames = { "feign_death_chance" }; // Field name to retrieve
-        List<Tuple<string, object>> fieldValues = Utils.GetTagFieldValue(Path.Combine(H2EKTagsPath, file), fieldNames);
-
-        foreach(Tuple<string, object> fieldNameValuePair in fieldValues)
+        if (tagSystem == null)
         {
-            Console.WriteLine($"Value of '{fieldNameValuePair.Item1}' in '{file}': {fieldNameValuePair.Item2}");
+            Console.WriteLine("Pytolith TagSystem initialisation failure, exiting");
+            return;
         }
-        
+
+        dynamic builtins = Py.Import("builtins"); // Import standard python library
+
+        // PYTOLITH EXAMPLE - read all sky references from scenario
+        string file = "scenarios\\solo\\04a_gasgiant\\04a_gasgiant.scenario";
+
+        dynamic tag = tagSystem.load_tag(Path.Combine(H2EKTagsPath, file)); // Load scenario tag
+
+        int skiesCount = builtins.len(tag.fields.get_by_c_name("skies").value.elements); // Read length of sky block's elements list with python's len function
+        string[] skyTagPaths = new string[skiesCount];
+
+        // And loop to get data
+        int x = 0;
+        for (x = 0; x < skiesCount; x++)
+        {
+            skyTagPaths[x] = tag.fields.get_by_c_name("skies").value.elements[x].pytolith_fields[0].value.path;
+        }
+
+        x = 0;
+        foreach (string skyTag in skyTagPaths)
+        {
+            Console.WriteLine($"Sky {x}: {skyTag}");
+            x++;
+        }
+
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
