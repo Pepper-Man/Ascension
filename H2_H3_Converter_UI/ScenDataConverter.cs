@@ -10,6 +10,8 @@ using System.Xml;
 using H2_H3_Converter_UI;
 using Python.Runtime;
 using Microsoft.Scripting.Utils;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 class StartLoc
 {
@@ -116,76 +118,67 @@ class DeviceGroup
 
 class ScenData
 {
-    public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
+    public static void ConvertScenarioData(string h3ScenPath, string h2ScenPath, Loading loadingForm)
     {
-        string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
+        string h3ekPath = h3ScenPath.Substring(0, h3ScenPath.IndexOf("H3EK") + "H3EK".Length);
+        string h2ekPath = h2ScenPath.Substring(0, h2ScenPath.IndexOf("H2EK") + "H2EK".Length);
+        //h2ScenPath = h2ScenPath.Substring(h2ScenPath.IndexOf("H2EK\\tags", StringComparison.OrdinalIgnoreCase) + "H2EK\\tags".Length).TrimStart('\\');
 
         // Make sure we have a scenario backup
-        Utils.BackupScenario(scenPath, loadingForm);
+        Utils.BackupScenario(h3ScenPath, loadingForm);
 
         // Initialise MB
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
 
-        string H2EKTagsPath = "G:\\Steam\\steamapps\\common\\H2EK\\tags";
-        dynamic tagSystem = Utils.InitializePython(H2EKTagsPath);
+        // Initialise python
+        dynamic tagSystem = Utils.InitializePython(h2ekPath);
 
         if (tagSystem == null)
         {
             Console.WriteLine("Pytolith TagSystem initialisation failure, exiting");
+            MessageBox.Show("Pytolith TagSystem initialisation failure!", "Pytolith Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
-        dynamic builtins = Py.Import("builtins"); // Import standard python library
+        // Import standard python library
+        dynamic builtins = Py.Import("builtins");
 
-        /* PYTOLITH EXAMPLE - read all sky references from scenario
-        string file = "scenarios\\solo\\04a_gasgiant\\04a_gasgiant.scenario";
+        // Load H2 scenario tag
+        dynamic h2ScenTag = tagSystem.load_tag(h2ScenPath);
 
-        dynamic tag = tagSystem.load_tag(Path.Combine(H2EKTagsPath, file)); // Load scenario tag
+        // Lists for storing all tag data
+        int index = 0;
+        List<StartLoc> allStartingLocs = new List<StartLoc>();
+        List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
+        List<SpWeapLoc> allSpWeaponLocs = new List<SpWeapLoc>();
+        List<TagPath> allScenTypes = new List<TagPath>();
+        List<Scenery> allScenEntries = new List<Scenery>();
+        List<TrigVol> allTrigVols = new List<TrigVol>();
+        List<Vehicle> allVehiEntries = new List<Vehicle>();
+        List<Crate> allCrateEntries = new List<Crate>();
+        List<string> allObjectNames = new List<string>();
+        List<NetFlag> allNetgameFlags = new List<NetFlag>();
+        List<Decal> allDecalEntries = new List<Decal>();
+        List<TagPath> allDecalTypes = new List<TagPath>();
+        List<Device> allMachineEntries = new List<Device>();
+        List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
+        List<Device> allControlEntries = new List<Device>();
+        List<Biped> allBipedEntries = new List<Biped>();
+        List<SoundScenery> allSscenEntries = new List<SoundScenery>();
 
-        int skiesCount = builtins.len(tag.fields.get_by_c_name("skies").value.elements); // Read length of sky block's elements list with python's len function
-        string[] skyTagPaths = new string[skiesCount];
-
-        // And loop to get data
-        int x = 0;
-        for (x = 0; x < skiesCount; x++)
-        {
-            skyTagPaths[x] = tag.fields.get_by_c_name("skies").value.elements[x].pytolith_fields[0].value.path;
-        }
-
-        x = 0;
-        foreach (string skyTag in skyTagPaths)
-        {
-            Console.WriteLine($"Sky {x}: {skyTag}");
-            x++;
-        }
-        */
-
-        // PYTOLITH EXAMPLE - read all object names from scenario
-        string file = "scenarios\\solo\\04a_gasgiant\\04a_gasgiant.scenario";
-        dynamic tag = tagSystem.load_tag(Path.Combine(H2EKTagsPath, file)); // Load scenario tag
+        // Object names
         string fieldName = "object_names";
+        int namesCount = builtins.len(h2ScenTag.fields.get_by_c_name(fieldName).value.elements);
 
-        int namesCount = builtins.len(tag.fields.get_by_c_name(fieldName).value.elements);
-        string[] objectNames = new string[namesCount];
-
-        // And loop to get data
-        int x = 0;
-        for (x = 0; x < namesCount; x++)
+        for (index = 0; index < namesCount; index++)
         {
-            objectNames[x] = tag.fields.get_by_c_name(fieldName).value.elements[x].pytolith_fields[0].value;
-        }
-
-        x = 0;
-        foreach (string skyTag in objectNames)
-        {
-            Console.WriteLine($"Sky {x}: {skyTag}");
-            x++;
+            string objName = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].pytolith_fields[0].value;
+            allObjectNames.Add(objName.TrimEnd('\0'));
         }
 
 
-        xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
-        scenfile.Load(xmlPath);
+        scenfile.Load(h2ScenPath);
 
         XmlNode root = scenfile.DocumentElement;
 
@@ -207,46 +200,6 @@ class ScenData
         XmlNodeList ctrlEntriesBlock = root.SelectNodes(".//block[@name='controls']");
         XmlNodeList bipdEntriesBlock = root.SelectNodes(".//block[@name='bipeds']");
         XmlNodeList sscenEntriesBlock = root.SelectNodes(".//block[@name='sound scenery']");
-
-        List<StartLoc> allStartingLocs = new List<StartLoc>();
-        List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
-        List<SpWeapLoc> allSpWeaponLocs = new List<SpWeapLoc>();
-        List<TagPath> allScenTypes = new List<TagPath>();
-        List<Scenery> allScenEntries = new List<Scenery>();
-        List<TrigVol> allTrigVols = new List<TrigVol>();
-        List<Vehicle> allVehiEntries = new List<Vehicle>();
-        List<Crate> allCrateEntries = new List<Crate>();
-        List<string> allObjectNames = new List<string>();
-        List<NetFlag> allNetgameFlags = new List<NetFlag>();
-        List<Decal> allDecalEntries = new List<Decal>();
-        List<TagPath> allDecalTypes = new List<TagPath>();
-        List<Device> allMachineEntries = new List<Device>();
-        List<DeviceGroup> allDeviceGroups = new List<DeviceGroup>();
-        List<Device> allControlEntries = new List<Device>();
-        List<Biped> allBipedEntries = new List<Biped>();
-        List<SoundScenery> allSscenEntries = new List<SoundScenery>();
-
-        // Object names section
-        foreach (XmlNode name in objectNamesBlock)
-        {
-            bool objNamesEnd = false;
-            int i = 0;
-            while (!objNamesEnd)
-            {
-                XmlNode element = name.SelectSingleNode("./element[@index='" + i + "']");
-                if (element != null)
-                {
-                    allObjectNames.Add(element.SelectSingleNode("./field[@name='name']").InnerText.Trim());
-                    i++;
-                }
-                else
-                {
-                    objNamesEnd = true;
-                    Console.WriteLine("Finished processing object name data.");
-                    loadingForm.UpdateOutputBox("Finished processing object name data.", false);
-                }
-            }
-        }
 
         foreach (XmlNode name in netgameFlagsBlock)
         {
@@ -361,7 +314,7 @@ class ScenData
         else if (scenarioType == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "weapon");
+            Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "weapon");
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
             foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
             {
@@ -390,7 +343,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "vehicle");
+            Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "vehicle");
             loadingForm.UpdateOutputBox("\nBegin reading vehicle placement data.", false);
             foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
@@ -415,7 +368,7 @@ class ScenData
             }
 
             // Scenery palette
-            Utils.ConvertPalette(scenPath, loadingForm, scenfile, "scenery");
+            Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "scenery");
         }
 
         // Scenery placements
@@ -473,7 +426,7 @@ class ScenData
         }
 
         // Crates section
-        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "crate");
+        Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "crate");
         loadingForm.UpdateOutputBox("\nBegin reading crate placement data.", false);
         foreach (XmlNode crateEntry in crateEntriesBlock)
         {
@@ -580,7 +533,7 @@ class ScenData
         }
 
         // Device machines section
-        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "machine");
+        Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "machine");
         loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
         foreach (XmlNode machineEntry in machEntriesBlock)
         {
@@ -605,7 +558,7 @@ class ScenData
         }
 
         // Device controls section
-        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "control");
+        Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "control");
         loadingForm.UpdateOutputBox("\nBegin reading device control placement data.", false);
         foreach (XmlNode controlEntry in ctrlEntriesBlock)
         {
@@ -659,7 +612,7 @@ class ScenData
         }
 
         // Bipeds section
-        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "biped");
+        Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "biped");
         loadingForm.UpdateOutputBox("\nBegin reading biped placement data.", false);
         foreach (XmlNode bipedEntry in bipdEntriesBlock)
         {
@@ -684,7 +637,7 @@ class ScenData
         }
 
         // Sound scenery section
-        Utils.ConvertPalette(scenPath, loadingForm, scenfile, "sound scenery");
+        Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "sound scenery");
         loadingForm.UpdateOutputBox("\nBegin reading sound scenery placement data.", false);
         foreach (XmlNode sscenEntry in sscenEntriesBlock)
         {
@@ -708,7 +661,7 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, h3ScenPath, loadingForm, scenarioType);
     }
 
     static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
