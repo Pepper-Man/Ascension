@@ -9,9 +9,7 @@ using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
 using Python.Runtime;
-using Microsoft.Scripting.Utils;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 class StartLoc
 {
@@ -147,7 +145,6 @@ class ScenData
         dynamic h2ScenTag = tagSystem.load_tag(h2ScenPath);
 
         // Lists for storing all tag data
-        int index = 0;
         List<StartLoc> allStartingLocs = new List<StartLoc>();
         List<NetEquip> allNetgameEquipLocs = new List<NetEquip>();
         List<SpWeapLoc> allSpWeaponLocs = new List<SpWeapLoc>();
@@ -166,8 +163,12 @@ class ScenData
         List<Biped> allBipedEntries = new List<Biped>();
         List<SoundScenery> allSscenEntries = new List<SoundScenery>();
 
+        // Common vars
+        int index = 0;
+        string fieldName = "";
+
         // Object names
-        string fieldName = "object_names";
+        fieldName = "object_names";
         int namesCount = builtins.len(h2ScenTag.fields.get_by_c_name(fieldName).value.elements);
 
         for (index = 0; index < namesCount; index++)
@@ -176,7 +177,76 @@ class ScenData
             allObjectNames.Add(objName.TrimEnd('\0'));
         }
 
+        // Netgame flag names
+        fieldName = "netgame_flags";
+        int netFlagsCount = builtins.len(h2ScenTag.fields.get_by_c_name(fieldName).value.elements);
 
+        Dictionary<int, string> netFlagTypeMapping = new Dictionary<int, string>()
+        {
+            { 0, "CTF flag spawn" },
+            { 1, "CTF flag return" },
+            { 2, "Assault bomb spawn" },
+            { 3, "Assault bomb return" },
+            { 4, "Oddball spawn" },
+            { 5, "unused" },
+            { 6, "Race checkpoint" },
+            { 7, "Teleporter (src)" },
+            { 8, "Teleporter (dest)" },
+            { 9, "Headhunter bin" },
+            { 10, "Territories flag" },
+            { 11, "King Hill 0" },
+            { 12, "King Hill 1" },
+            { 13, "King Hill 2" },
+            { 14, "King Hill 3" },
+            { 15, "King Hill 4" },
+            { 16, "King Hill 5" },
+            { 17, "King Hill 6" },
+            { 18, "King Hill 7" }
+        };
+
+        Dictionary<int, string> netFlagTeamMapping = new Dictionary<int, string>()
+        {
+            { 0, "Alpha" },
+            { 1, "Bravo" },
+            { 2, "Charlie" },
+            { 3, "Delta" },
+            { 4, "Echo" },
+            { 5, "Foxtrot" },
+            { 6, "Golf" },
+            { 7, "Hotel" },
+            { 8, "NEUTRAL" },
+        };
+
+        for (index = 0; index < netFlagsCount; index++)
+        {
+            int type = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("type").value;
+            int team = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("team_designator").value;
+            allObjectNames.Add(netFlagTypeMapping[type] + " [" + netFlagTeamMapping[team] + "]");
+        }
+
+        // Player starting locations
+        fieldName = "player_starting_locations";
+        int playStartLocsCount = builtins.len(h2ScenTag.fields.get_by_c_name(fieldName).value.elements);
+
+        for (index = 0; index < playStartLocsCount; index++)
+        {
+            StartLoc startLocation = new StartLoc
+            {
+                Position = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("position").value,
+                Facing = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("facing").value,
+                Team = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("team_designator").value,
+                PlayerType = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("campaign_player_type").value
+            };
+
+            startLocation.Facing = startLocation.Facing * (180f / (float)Math.PI); // For some reason pytolith pulls this value in radians
+
+            allStartingLocs.Add(startLocation);
+            Console.WriteLine("Processed starting position " + index);
+            loadingForm.UpdateOutputBox("Processed starting position " + index, false);
+        }
+
+
+        h2ScenPath = Utils.ConvertXML("G:\\Steam\\steamapps\\common\\H2EK\\tags\\scenarios\\multi\\colossus\\colossus_scen.xml", loadingForm);
         XmlDocument scenfile = new XmlDocument();
         scenfile.Load(h2ScenPath);
 
@@ -201,26 +271,6 @@ class ScenData
         XmlNodeList bipdEntriesBlock = root.SelectNodes(".//block[@name='bipeds']");
         XmlNodeList sscenEntriesBlock = root.SelectNodes(".//block[@name='sound scenery']");
 
-        foreach (XmlNode name in netgameFlagsBlock)
-        {
-            bool netFlagsEnd = false;
-            int i = 0;
-            while (!netFlagsEnd)
-            {
-                XmlNode element = name.SelectSingleNode("./element[@index='" + i + "']");
-                if (element != null)
-                {
-                    allObjectNames.Add(element.Attributes["name"].Value);
-                    i++;
-                }
-                else
-                {
-                    netFlagsEnd = true;
-                    Console.WriteLine("Finished processing netgame flag name data.");
-                    loadingForm.UpdateOutputBox("Finished processing netgame flag name data.", false);
-                }
-            }
-        }
 
         // Player starting locations section
         foreach (XmlNode location in playerStartLocBlock)
