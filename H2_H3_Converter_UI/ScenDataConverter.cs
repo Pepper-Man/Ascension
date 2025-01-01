@@ -137,7 +137,7 @@ class ScenData
 
         dynamic builtins = Py.Import("builtins"); // Import standard python library
 
-        // PYTOLITH EXAMPLE - read all sky references from scenario
+        /* PYTOLITH EXAMPLE - read all sky references from scenario
         string file = "scenarios\\solo\\04a_gasgiant\\04a_gasgiant.scenario";
 
         dynamic tag = tagSystem.load_tag(Path.Combine(H2EKTagsPath, file)); // Load scenario tag
@@ -154,6 +154,29 @@ class ScenData
 
         x = 0;
         foreach (string skyTag in skyTagPaths)
+        {
+            Console.WriteLine($"Sky {x}: {skyTag}");
+            x++;
+        }
+        */
+
+        // PYTOLITH EXAMPLE - read all object names from scenario
+        string file = "scenarios\\solo\\04a_gasgiant\\04a_gasgiant.scenario";
+        dynamic tag = tagSystem.load_tag(Path.Combine(H2EKTagsPath, file)); // Load scenario tag
+        string fieldName = "object_names";
+
+        int namesCount = builtins.len(tag.fields.get_by_c_name(fieldName).value.elements);
+        string[] objectNames = new string[namesCount];
+
+        // And loop to get data
+        int x = 0;
+        for (x = 0; x < namesCount; x++)
+        {
+            objectNames[x] = tag.fields.get_by_c_name(fieldName).value.elements[x].pytolith_fields[0].value;
+        }
+
+        x = 0;
+        foreach (string skyTag in objectNames)
         {
             Console.WriteLine($"Sky {x}: {skyTag}");
             x++;

@@ -375,11 +375,11 @@
             this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.h2_scen_label.AutoSize = true;
             this.h2_scen_label.Enabled = false;
-            this.h2_scen_label.Location = new System.Drawing.Point(205, 513);
+            this.h2_scen_label.Location = new System.Drawing.Point(219, 513);
             this.h2_scen_label.Name = "h2_scen_label";
-            this.h2_scen_label.Size = new System.Drawing.Size(172, 16);
+            this.h2_scen_label.Size = new System.Drawing.Size(145, 16);
             this.h2_scen_label.TabIndex = 14;
-            this.h2_scen_label.Text = "Select H2 scenario XML file:";
+            this.h2_scen_label.Text = "Select H2 scenario tag:";
             // 
             // start_button
             // 

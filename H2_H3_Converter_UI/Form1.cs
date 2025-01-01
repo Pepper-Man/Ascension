@@ -275,12 +275,12 @@ namespace H2_H3_Converter_UI
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "XML Files (*.xml)|*.xml";
+                openFileDialog.Filter = "Scenario Files (*.scenario)|*.scenario";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    string xml_file = openFileDialog.FileName;
-                    if (xml_file.Contains("H2EK"))
+                    string h2ScenFile = openFileDialog.FileName;
+                    if (h2ScenFile.Contains("H2EK"))
                     {
                         h2_xml_path = openFileDialog.FileName;
                         h2_scen_box.Text = openFileDialog.FileName;
@@ -294,8 +294,8 @@ namespace H2_H3_Converter_UI
                     }
                     else
                     {
-                        // Scenario XML is not in H2EK, alert user, don't add
-                        MessageBox.Show("XML doesn't seem to be in the H2EK directory.\nPlease try again.", "Invalid XML path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        // Scenario tag is not in H2EK, alert user, don't add
+                        MessageBox.Show("Scenario doesn't seem to be in the H2EK directory.\nPlease try again.", "Invalid scenario path", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
