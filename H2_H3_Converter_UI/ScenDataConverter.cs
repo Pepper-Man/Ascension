@@ -10,6 +10,7 @@ using System.Xml;
 using H2_H3_Converter_UI;
 using Python.Runtime;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 class StartLoc
 {
@@ -245,6 +246,27 @@ class ScenData
             loadingForm.UpdateOutputBox("Processed starting position " + index, false);
         }
 
+        // Have to handle weapons/vehicles/equipment/scenery differently for solo vs mult
+        int scenarioType = h2ScenTag.fields.get_by_c_name("type").value;
+        if (scenarioType == 1)
+        {
+
+        }
+
+        fieldName = "netgame_equipment";
+        int netEquipCount = builtins.len(h2ScenTag.fields.get_by_c_name(fieldName).value.elements);
+
+        for (index = 0; index < netEquipCount; index++)
+        {
+            NetEquip netgameEquip = new NetEquip
+            {
+                Position = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("position").value,
+                Rotation = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("orientation").value,
+                SpawnTime = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("spawn_time_in_seconds_0__default").value,
+                CollectionType = h2ScenTag.fields.get_by_c_name(fieldName).value.elements[index].get_by_c_name("itemvehicle_collection").value
+            };
+        }
+
 
         h2ScenPath = Utils.ConvertXML("G:\\Steam\\steamapps\\common\\H2EK\\tags\\scenarios\\multi\\colossus\\colossus_scen.xml", loadingForm);
         XmlDocument scenfile = new XmlDocument();
@@ -252,7 +274,6 @@ class ScenData
 
         XmlNode root = scenfile.DocumentElement;
 
-        string scenarioType = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
         XmlNodeList playerStartLocBlock = root.SelectNodes(".//block[@name='player starting locations']");
         XmlNodeList netgameObjEntriesBlock = root.SelectNodes(".//block[@name='netgame equipment']");
         XmlNodeList weaponSpEntriesBlock = root.SelectNodes(".//block[@name='weapons']");
@@ -272,40 +293,8 @@ class ScenData
         XmlNodeList sscenEntriesBlock = root.SelectNodes(".//block[@name='sound scenery']");
 
 
-        // Player starting locations section
-        foreach (XmlNode location in playerStartLocBlock)
-        {
-            bool startLocsEnd = false;
-            int i = 0;
-            while (!startLocsEnd)
-            {
-                XmlNode element = location.SelectSingleNode("./element[@index='" + i + "']");
-                if (element != null)
-                {
-                    StartLoc startLocation = new StartLoc
-                    {
-                        Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                        Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
-                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
-                        PlayerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1))
-                    };
-
-                    allStartingLocs.Add(startLocation);
-                    Console.WriteLine("Processed starting position " + i);
-                    loadingForm.UpdateOutputBox("Processed starting position " + i, false);
-                    i++;
-                }
-                else
-                {
-                    startLocsEnd = true;
-                    Console.WriteLine("\nFinished processing starting positions data.");
-                    loadingForm.UpdateOutputBox("\nFinished processing starting positions data.", false);
-                }
-            }
-        }
-
         // Have to handle weapons/vehicles/equipment/scenery differently for solo vs mult
-        if (scenarioType == "1,multiplayer")
+        if (scenarioType == 1)
         {
             foreach (XmlNode netgameObjEntry in netgameObjEntriesBlock)
             {
@@ -361,7 +350,7 @@ class ScenData
                 }
             }
         }
-        else if (scenarioType == "0,solo")
+        else if (scenarioType == 0)
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
             Utils.ConvertPalette(h3ScenPath, loadingForm, scenfile, "weapon");
@@ -714,7 +703,7 @@ class ScenData
         XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, h3ScenPath, loadingForm, scenarioType);
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, int scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -773,7 +762,7 @@ class ScenData
             loadingForm.UpdateOutputBox($"Finished writing object name data to scenario tag!", false);
 
             // Scenario type-specific data
-            if (scenarioType == "1,multiplayer")
+            if (scenarioType == 1)
             {
                 // Spawns Section
                 int totalScenCount = 0;
@@ -1082,7 +1071,7 @@ class ScenData
                 Console.WriteLine($"Finished writing crate data to scenario tag!");
                 loadingForm.UpdateOutputBox($"Finished writing crate data to scenario tag!", false);
             }
-            else if (scenarioType == "0,solo")
+            else if (scenarioType == 0)
             {
                 Utils.WriteObjectData(tagFile, allSpWeapLocs, "weapons", loadingForm);
                 Utils.WriteObjectData(tagFile, allScenEntries, "scenery", loadingForm);
