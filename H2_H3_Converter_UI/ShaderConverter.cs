@@ -667,7 +667,7 @@ namespace H2_H3_Converter_UI
             List<string> argumentList = new List<string>
         {
             "bitmaps",
-            bitmaps_dir.Split(new[] { "\\data\\" }, StringSplitOptions.None).LastOrDefault()
+            "\"" + bitmaps_dir.Split(new[] { "\\data\\" }, StringSplitOptions.None).LastOrDefault() + "\""
         };
 
             string arguments = string.Join(" ", argumentList);
@@ -1008,7 +1008,7 @@ namespace H2_H3_Converter_UI
                                 List<string> argumentList = new List<string>
                             {
                                 "reimport-bitmaps-single",
-                                alpha_map_path
+                                "\"" + alpha_map_path + "\""
                             };
 
                                 string arguments = string.Join(" ", argumentList);
@@ -2057,7 +2057,7 @@ namespace H2_H3_Converter_UI
                             List<string> argumentList = new List<string>
                             {
                                 "reimport-bitmaps-single",
-                                alpha_map_path
+                                "\"" + alpha_map_path + "\""
                             };
 
                             string arguments = string.Join(" ", argumentList);
