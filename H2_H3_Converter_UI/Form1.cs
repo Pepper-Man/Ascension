@@ -378,6 +378,7 @@ namespace H2_H3_Converter_UI
         private async void start_button_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
+            bool success = true;
             using (var loadingForm = new Loading())
             {
                 // Show loading
@@ -394,17 +395,31 @@ namespace H2_H3_Converter_UI
                     if (checkBox2.Checked)
                     {
                         // Zones conversion
-                        MB_Zones.ZoneConverter(scen_path, h2_xml_path, loadingForm);
+                        if(!MB_Zones.ZoneConverter(scen_path, h2_xml_path, loadingForm))
+                        {
+                            success = false;
+                            return;
+                        }
                     }
                     if (checkBox3.Checked)
                     {
                         // Scenario conversion
-                        ScenData.ConvertScenarioData(scen_path, h2_xml_path, loadingForm);
+                        if(!ScenData.ConvertScenarioData(scen_path, h2_xml_path, loadingForm))
+                        {
+                            success = false;
+                            return;
+                        }
                     }
                     if (checkBox4.Checked)
                     {
                         // Hint conversion
                         XmlDocument scenFile = HintConverter.HintsToXML(scen_path, h2_xml_path, loadingForm);
+
+                        if (scenFile == null)
+                        {
+                            success = false;
+                            return;
+                        }
 
                         // Flags conversion
                         FlagConverter.ConvertCutsceneFlags(scen_path, loadingForm, scenFile);
@@ -427,7 +442,14 @@ namespace H2_H3_Converter_UI
                     }
                 });
 
-                loadingForm.UpdateOutputBox("All conversions complete! Click \"close\" to exit the program.", false);
+                if (success)
+                {
+                    loadingForm.UpdateOutputBox("All conversions complete! Click \"close\" to exit the program.", false);
+                }
+                else
+                {
+                    loadingForm.UpdateOutputBox("A critical error was encountered. Click \"close\" to exit the program.", false);
+                }
 
                 loadingForm.Enable_Close();
 

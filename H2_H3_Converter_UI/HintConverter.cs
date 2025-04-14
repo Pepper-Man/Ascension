@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace H2_H3_Converter_UI
@@ -66,7 +67,16 @@ namespace H2_H3_Converter_UI
 
             string newFilePath = Utils.ConvertXML(xmlPath, loadingForm);
             XmlDocument scenfile = new XmlDocument();
-            scenfile.Load(newFilePath);
+
+            try
+            {
+                scenfile.Load(newFilePath);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Error when loading XML file!\n\n" + e, "XML Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
 
             loadingForm.UpdateOutputBox("Modified XML file loaded successfully.", false);
 

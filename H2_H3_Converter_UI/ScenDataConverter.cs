@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using H2_H3_Converter_UI;
+using System.Windows.Forms;
 
 class StartLoc
 {
@@ -114,7 +115,7 @@ class DeviceGroup
 
 class ScenData
 {
-    public static void ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
+    public static bool ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
     {
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
@@ -126,8 +127,16 @@ class ScenData
 
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
         XmlDocument scenfile = new XmlDocument();
-        scenfile.Load(xmlPath);
-
+        try
+        {
+            scenfile.Load(xmlPath);
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show("Error when loading XML file!\n\n" + e, "XML Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
+        
         XmlNode root = scenfile.DocumentElement;
 
         string scenarioType = root.SelectNodes(".//field[@name='type']")[0].InnerText.Trim();
@@ -650,6 +659,7 @@ class ScenData
         }
 
         XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        return true;
     }
 
     static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)

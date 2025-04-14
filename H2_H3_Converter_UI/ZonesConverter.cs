@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using H2_H3_Converter_UI;
 using Bungie.Tags;
+using System.Windows.Forms;
 
 class Area
 {
@@ -33,7 +34,7 @@ class Zone
 
 class MB_Zones
 {
-    public static void ZoneConverter(string scenPath, string xmlPath, Loading loadingForm)
+    public static bool ZoneConverter(string scenPath, string xmlPath, Loading loadingForm)
     {
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
@@ -41,7 +42,16 @@ class MB_Zones
         xmlPath = Utils.ConvertXML(xmlPath, loadingForm);
 
         XmlDocument scenfile = new XmlDocument();
-        scenfile.Load(xmlPath);
+        try
+        {
+            scenfile.Load(xmlPath);
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show("Error when loading XML file!\n\n" + e, "XML Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
+        
         XmlNode zonesBlock = scenfile.DocumentElement.SelectSingleNode(".//block[@name='zones']");
 
         Console.WriteLine("\nBegin reading zones data:\n");
@@ -142,6 +152,7 @@ class MB_Zones
         }
 
         ZonesManagedBlam(allZones, h3ekPath, scenPath, loadingForm);
+        return true;
     }
 
     static void ZonesManagedBlam(List<Zone> allZones, string h3ekPath, string scenPath, Loading loadingForm)
