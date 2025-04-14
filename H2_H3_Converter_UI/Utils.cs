@@ -21,35 +21,22 @@ namespace H2_H3_Converter_UI
             {
                 string[] lines = File.ReadAllLines(xmlPath);
                 bool removeLines = false;
-                bool multiplayer = false;
 
+                // This code isn't easy to understand at first glance but
+                // essentially it just uses a bool to stop writing the lines
+                // to the file whilst inside the "source files" block
                 using (StreamWriter writer = new StreamWriter(newFilePath))
                 {
                     foreach (string line in lines)
                     {
-                        if (line == "\t<field name=\"type\" type=\"enum\">1,multiplayer</field>")
-                        {
-                            multiplayer = true;
-                        }
-
                         if (line.Contains("<block name=\"source files\">"))
                         {
                             removeLines = true;
-                            if (multiplayer)
-                            {
-                                writer.WriteLine(line + "</block>");
-                            }
-                            else
-                            {
-                                writer.WriteLine(line);
-                            }
+                            writer.WriteLine(line + "</block>");
                         }
                         else if (line.Contains("<block name=\"scripting data\">"))
                         {
-                            if (multiplayer == true)
-                            {
-                                writer.WriteLine(line);
-                            }
+                            writer.WriteLine(line);
                             removeLines = false;
                         }
                         else if (!removeLines)

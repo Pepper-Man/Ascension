@@ -54,6 +54,13 @@ class MB_Zones
         
         XmlNode zonesBlock = scenfile.DocumentElement.SelectSingleNode(".//block[@name='zones']");
 
+        if (zonesBlock == null)
+        {
+            Console.WriteLine("\nNo zones block found! Skipping...\n");
+            loadingForm.UpdateOutputBox("\nNo zones block found! Skipping...\n", false);
+            return true;
+        }
+
         Console.WriteLine("\nBegin reading zones data:\n");
         loadingForm.UpdateOutputBox("\nBegin reading zones data:\n", false);
 
