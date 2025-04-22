@@ -1000,26 +1000,34 @@ class ScenData
                     // Grab editor folder
                     var editorFolder = ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder"));
 
-                    // Choose folder based on type
+                    // Grab gametype flag field
+                    var gametypeFlag = ((TagFieldFlags)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/WordFlags:game engine flags"));
+
+                    // Choose folder and gametype flag based on type
                     if (strippedName.ToLower().Contains("oddball"))
                     {
                         editorFolder.Value = 0;
+                        gametypeFlag.RawValue = 4;
                     }
                     else if (strippedName.ToLower().Contains("ctf"))
                     {
                         editorFolder.Value = 1;
+                        gametypeFlag.RawValue = 1;
                     }
                     else if (strippedName.ToLower().Contains("hill"))
                     {
                         editorFolder.Value = 2;
+                        gametypeFlag.RawValue = 8;
                     }
                     else if (strippedName.ToLower().Contains("assault"))
                     {
                         editorFolder.Value = 3;
+                        gametypeFlag.RawValue = 64;
                     }
                     else if (strippedName.ToLower().Contains("territories"))
                     {
                         editorFolder.Value = 4;
+                        gametypeFlag.RawValue = 32;
                     }
                     else
                     {
