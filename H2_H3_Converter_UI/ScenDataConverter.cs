@@ -724,7 +724,6 @@ class ScenData
             if (scenarioType == "1,multiplayer")
             {
                 // Spawns Section
-                int totalScenCount = 0;
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements(); // Remove all scenery from palette
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements(); // Remove all scenery
 
@@ -869,7 +868,7 @@ class ScenData
                 {
                     int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:scenery")).Elements.Count();
                     ((TagFieldBlock)tagFile.SelectField("Block:scenery")).AddElement();
-                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/ShortBlockIndex:type")).Value = scenery.TypeIndex + totalScenCount;
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/ShortBlockIndex:type")).Value = scenery.TypeIndex + 1; // Add one to skip respawn point scenery we added to the palette earlier
 
                     // Dropdown type and source (won't be valid without these)
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/Struct:object id/CharEnum:type")).Value = 6; // 6 is scenery
