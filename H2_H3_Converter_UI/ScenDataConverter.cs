@@ -783,6 +783,7 @@ class ScenData
                         if (equipType.Contains("powerup"))
                         {
                             equipType = "powerup";
+                            netgameEquipEntry.Position[2] += 0.3f;
                         }
 
                         AddToPaletteIfNotExists("equipment palette", "name", equipType, netgamePaletteMapping, utilsInstance.mpWeapMapping[equipType]);
