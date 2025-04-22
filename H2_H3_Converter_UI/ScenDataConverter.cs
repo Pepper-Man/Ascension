@@ -96,6 +96,7 @@ class NetFlag
     public float Facing { get; set; }
     public string Type { get; set; }
     public int Team { get; set; }
+    public int SpawnOrder { get; set; }
 }
 
 class Decal
@@ -463,7 +464,8 @@ class ScenData
                         Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                         Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
                         Type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim(),
-                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1))
+                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
+                        SpawnOrder = Int32.Parse(element.SelectSingleNode("./field[@name='identifier']").InnerText.Trim())
                     };
 
                     allNetgameFlags.Add(netFlag);
@@ -1008,6 +1010,9 @@ class ScenData
 
                     // Team
                     ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.Team;
+
+                    // Spawn order (identifier)
+                    ((TagFieldElementInteger)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/CharInteger:spawn order")).Data = netflag.SpawnOrder;
 
                     // Grab editor folder
                     var editorFolder = ((TagFieldBlockIndex)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder"));
