@@ -726,6 +726,13 @@ class ScenData
                 // Spawns Section
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).RemoveAllElements(); // Remove all scenery from palette
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery")).RemoveAllElements(); // Remove all scenery
+                ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).RemoveAllElements(); // Remove all editor folders
+
+                // Add editor folders
+                ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).AddElement();
+                ((TagFieldElementLongString)tagFile.SelectField($"Block:editor folders[0]/LongString:name")).Data = "Respawn points";
+                ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).AddElement();
+                ((TagFieldElementLongString)tagFile.SelectField($"Block:editor folders[1]/LongString:name")).Data = "Everything else";
 
                 // Add respawn point scenery to palette
                 Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
@@ -755,6 +762,9 @@ class ScenData
 
                     // Team
                     ((TagFieldEnum)tagFile.SelectField($"Block:scenery[{i}]/Struct:multiplayer data/ShortEnum:owner team")).Value = spawn.Team;
+
+                    // Editor folder
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{i}]/Struct:object data/ShortBlockIndex:editor folder")).Value = 0;
 
                     i++;
                 }
@@ -887,6 +897,9 @@ class ScenData
 
                     // Variant
                     ((TagFieldElementStringID)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:permutation data/StringId:variant name")).Data = scenery.VarName;
+
+                    // Editor folder
+                    ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder")).Value = 1;
                 }
 
                 Console.WriteLine($"Finished writing scenery data to scenario tag!");
@@ -895,7 +908,6 @@ class ScenData
                 // Crates section
 
                 // Begin with creating the editor folders
-                ((TagFieldBlock)tagFile.SelectField("Block:editor folders")).RemoveAllElements(); // Remove all editor folders
                 ((TagFieldBlock)tagFile.SelectField("Block:crates")).RemoveAllElements(); // Remove all crates
                 ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).RemoveAllElements(); // Remove all crate types from palette
                 for (int z = 0; z < 5; z++)
@@ -1006,27 +1018,27 @@ class ScenData
                     // Choose folder and gametype flag based on type
                     if (strippedName.ToLower().Contains("oddball"))
                     {
-                        editorFolder.Value = 0;
+                        editorFolder.Value = 2;
                         gametypeFlag.RawValue = 4;
                     }
                     else if (strippedName.ToLower().Contains("ctf"))
                     {
-                        editorFolder.Value = 1;
+                        editorFolder.Value = 3;
                         gametypeFlag.RawValue = 1;
                     }
                     else if (strippedName.ToLower().Contains("hill"))
                     {
-                        editorFolder.Value = 2;
+                        editorFolder.Value = 4;
                         gametypeFlag.RawValue = 8;
                     }
                     else if (strippedName.ToLower().Contains("assault"))
                     {
-                        editorFolder.Value = 3;
+                        editorFolder.Value = 5;
                         gametypeFlag.RawValue = 64;
                     }
                     else if (strippedName.ToLower().Contains("territories"))
                     {
-                        editorFolder.Value = 4;
+                        editorFolder.Value = 6;
                         gametypeFlag.RawValue = 32;
                     }
                     else
