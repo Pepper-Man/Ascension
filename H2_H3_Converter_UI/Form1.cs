@@ -438,7 +438,7 @@ namespace H2_H3_Converter_UI
                         }
                         
                         SquadsConverter.ConvertSquadGroups(scen_path, loadingForm, scenFile);
-                        SquadsConverter.ConvertSquads(scen_path, loadingForm, scenFile);
+                        SquadsConverter.ConvertSquads(scen_path, loadingForm, scenFile, use_squad_folder_names.Checked);
                     }
                 });
 

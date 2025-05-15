@@ -134,7 +134,7 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertSquads(string scenPath, Loading loadingForm, XmlDocument scenfile)
+        public static void ConvertSquads(string scenPath, Loading loadingForm, XmlDocument scenfile, bool useSquadFolders)
         {
             loadingForm.UpdateOutputBox("Begin reading scenario squads from XML...", false);
 
@@ -172,19 +172,22 @@ namespace H2_H3_Converter_UI
 
             if (squadsBlock.Count > 0)
             {
-                // Grab user-specified folder names for squads
-                try
+                if (useSquadFolders)
                 {
-                    squadFolderNames = File.ReadAllLines("squad_folders_CHANGME.txt");
-                    loadingForm.UpdateOutputBox("Using user-specified squad folders.", false);
-                }
-                catch (FileNotFoundException)
-                {
-                    loadingForm.UpdateOutputBox("Squad folder names txt not found, no squad sub-folders will be used.", false);
-                }
-                catch (Exception e)
-                {
-                    loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
+                    // Grab user-specified folder names for squads
+                    try
+                    {
+                        squadFolderNames = File.ReadAllLines("squad_folders_CHANGME.txt");
+                        loadingForm.UpdateOutputBox("Using user-specified squad folders.", false);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        loadingForm.UpdateOutputBox("Squad folder names txt not found, no squad sub-folders will be used.", false);
+                    }
+                    catch (Exception e)
+                    {
+                        loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
+                    }
                 }
 
                 while (!squadDataEnd)
