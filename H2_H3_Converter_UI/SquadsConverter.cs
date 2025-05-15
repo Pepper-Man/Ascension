@@ -138,21 +138,7 @@ namespace H2_H3_Converter_UI
         {
             loadingForm.UpdateOutputBox("Begin reading scenario squads from XML...", false);
 
-            // Grab user-specified folder names for squads
             string[] squadFolderNames = null;
-            try
-            {
-                squadFolderNames = File.ReadAllLines("squad_folders_CHANGME.txt");
-                loadingForm.UpdateOutputBox("Using user-specified squad folders.", false);
-            }
-            catch (FileNotFoundException)
-            {
-                loadingForm.UpdateOutputBox("Squad folder names txt not found, no squad sub-folders will be used.", false);
-            }
-            catch (Exception e)
-            {
-                loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
-            }
 
             Dictionary<string, uint> squadFlagMapping = new Dictionary<string, uint>()
             {
@@ -186,6 +172,21 @@ namespace H2_H3_Converter_UI
 
             if (squadsBlock.Count > 0)
             {
+                // Grab user-specified folder names for squads
+                try
+                {
+                    squadFolderNames = File.ReadAllLines("squad_folders_CHANGME.txt");
+                    loadingForm.UpdateOutputBox("Using user-specified squad folders.", false);
+                }
+                catch (FileNotFoundException)
+                {
+                    loadingForm.UpdateOutputBox("Squad folder names txt not found, no squad sub-folders will be used.", false);
+                }
+                catch (Exception e)
+                {
+                    loadingForm.UpdateOutputBox($"Error when reading squad folder name txt - {e}", false);
+                }
+
                 while (!squadDataEnd)
                 {
                     XmlNode squadEntry = squadsBlock[0].SelectSingleNode("./element[@index='" + i + "']");
