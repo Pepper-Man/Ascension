@@ -148,6 +148,7 @@ class ScenData
         XmlNodeList scenEntriesBlock = root.SelectNodes(".//block[@name='scenery']");
         XmlNodeList trigVolBlock = root.SelectNodes(".//block[@name='trigger volumes']");
         XmlNodeList vehiEntriesBlock = root.SelectNodes(".//block[@name='vehicles']");
+        XmlNodeList cratePaletteBlock = root.SelectNodes(".//block[@name='crate palette']");
         XmlNodeList crateEntriesBlock = root.SelectNodes(".//block[@name='crates']");
         XmlNodeList objectNamesBlock = root.SelectNodes(".//block[@name='object names']");
         XmlNodeList netgameFlagsBlock = root.SelectNodes(".//block[@name='netgame flags']");
@@ -166,6 +167,7 @@ class ScenData
         List<Scenery> allScenEntries = new List<Scenery>();
         List<TrigVol> allTrigVols = new List<TrigVol>();
         List<Vehicle> allVehiEntries = new List<Vehicle>();
+        List<TagPath> allCrateTypes = new List<TagPath>();
         List<Crate> allCrateEntries = new List<Crate>();
         List<string> allObjectNames = new List<string>();
         List<NetFlag> allNetgameFlags = new List<NetFlag>();
@@ -252,7 +254,7 @@ class ScenData
             }
         }
 
-        // Have to handle weapons/vehicles/equipment/scenery differently for solo vs mult
+        // Have to handle weapons/vehicles/equipment/scenery/crates differently for solo vs mult
         if (scenarioType == "1,multiplayer")
         {
             foreach (XmlNode netgameObjEntry in netgameObjEntriesBlock)
@@ -305,6 +307,29 @@ class ScenData
                         scenTypesEnd = true;
                         Console.WriteLine("Finished processing scenery palette data.");
                         loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
+                    }
+                }
+            }
+
+            // Crate palette
+            foreach (XmlNode crateType in cratePaletteBlock)
+            {
+                bool crateTypesEnd = false;
+                int i = 0;
+                while (!crateTypesEnd)
+                {
+                    XmlNode element = crateType.SelectSingleNode("./element[@index='" + i + "']");
+                    if (element != null)
+                    {
+                        string cratRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        allCrateTypes.Add(TagPath.FromPathAndType(cratRef, "bloc*"));
+                        i++;
+                    }
+                    else
+                    {
+                        crateTypesEnd = true;
+                        Console.WriteLine("Finished processing crate palette data.");
+                        loadingForm.UpdateOutputBox("Finished processing crate palette data.", false);
                     }
                 }
             }
@@ -660,11 +685,11 @@ class ScenData
             }
         }
 
-        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
+        XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
         return true;
     }
 
-    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
+    static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)
     {
         Utils utilsInstance = new Utils();
         var tagPath = TagPath.FromPathAndType(Path.ChangeExtension(scenpath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
@@ -775,13 +800,15 @@ class ScenData
                 loadingForm.UpdateOutputBox("Done spawns", false);
 
                 // MP netgame equipment section
-                // First, remove all palette and entry data for equipment, vehicles and weapon
+                // First, remove all palette and entry data for equipment, vehicles, weapons and crates
                 ((TagFieldBlock)tagFile.SelectField($"Block:equipment palette")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:equipment")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:vehicle palette")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:vehicles")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:weapon palette")).RemoveAllElements();
                 ((TagFieldBlock)tagFile.SelectField($"Block:weapons")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:crate palette")).RemoveAllElements();
+                ((TagFieldBlock)tagFile.SelectField($"Block:crates")).RemoveAllElements();
 
                 Dictionary<string, int> netgamePaletteMapping = new Dictionary<string, int>();
 
@@ -937,6 +964,30 @@ class ScenData
                     else if (z == 4)
                     {
                         name.Data = "territories";
+                    }
+                }
+
+                // Crate palette - same as scenery, we are just giving invalid refs to be changed when objects have been ported
+                foreach (TagPath crateType in allCrateTypes)
+                {
+                    // Check if current type exists in palette
+                    bool typeAlreadyExists = false;
+                    foreach (var paletteEntry in ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements)
+                    {
+                        var x = ((TagFieldReference)paletteEntry.Fields[0]).Path;
+                        if (x == crateType)
+                        {
+                            typeAlreadyExists = true;
+                            break;
+                        }
+                    }
+
+                    // Add palette entry if needed
+                    if (!typeAlreadyExists)
+                    {
+                        int currentCount = ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).Elements.Count();
+                        ((TagFieldBlock)tagFile.SelectField("Block:crate palette")).AddElement();
+                        ((TagFieldReference)tagFile.SelectField($"Block:crate palette[{currentCount}]/Reference:name")).Path = crateType;
                     }
                 }
 
