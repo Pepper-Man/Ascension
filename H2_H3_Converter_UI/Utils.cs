@@ -615,7 +615,7 @@ namespace H2_H3_Converter_UI
         {
             {"frag_grenades", TagPath.FromPathAndType(@"objects\weapons\grenade\frag_grenade\frag_grenade", "eqip*")},
             {"plasma_grenades", TagPath.FromPathAndType(@"objects\weapons\grenade\plasma_grenade\plasma_grenade", "eqip*")},
-            {"energy_sword", TagPath.FromPathAndType(@"objects\weapons\melee\energy_sword\energy_sword", "weap*")},
+            {"energy_sword", TagPath.FromPathAndType(@"objects\weapons\melee\energy_blade\energy_blade", "weap*")},
             {"magnum", TagPath.FromPathAndType(@"objects\weapons\pistol\magnum\magnum", "weap*")},
             {"needler", TagPath.FromPathAndType(@"objects\weapons\pistol\needler\needler", "weap*")},
             {"plasma_pistol", TagPath.FromPathAndType(@"objects\weapons\pistol\plasma_pistol\plasma_pistol", "weap*")},
