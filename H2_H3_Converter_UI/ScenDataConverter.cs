@@ -1059,9 +1059,16 @@ class ScenData
                     float[] rotation = new float[3] { netflag.Facing, 0.0f, 0.0f };
                     ((TagFieldElementArraySingle)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:object data/RealEulerAngles3d:rotation")).Data = rotation;
 
-                    // Team
-                    ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.Team;
-
+                    // Team - always set neutral for koth or they don't spawn
+                    if (strippedName.ToLower().Contains("hill"))
+                    {
+                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = 8;
+                    }
+                    else
+                    {
+                        ((TagFieldEnum)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/ShortEnum:owner team")).Value = netflag.Team;
+                    }
+                     
                     // Spawn order (identifier)
                     ((TagFieldElementInteger)tagFile.SelectField($"Block:crates[{currentCount}]/Struct:multiplayer data/CharInteger:spawn order")).Data = netflag.SpawnOrder;
 
