@@ -815,7 +815,7 @@ namespace H2_H3_Converter_UI
             {
                 SpecCoeff = 0.2546479f,
                 Roughness = 0.2f,
-                AreaContr = 0.5f,
+                AreaContr = 0.3f,
                 AnalContr = 0.6f,
                 EnvContr = 1.0f
             };
@@ -1904,9 +1904,9 @@ namespace H2_H3_Converter_UI
 
                         if ((param.Name == "detail_map_c" || param.Name == "overlay_detail_map") && shader.Template.Contains("detail"))
                         {
-                            // Set three detail blend
+                            // Set two detail + overlay
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[0]/ShortInteger:short");
-                            albedo_option.Data = 5; // 5 for three detail blend
+                            albedo_option.Data = 6; // 6 for two detail overlay
 
                             string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string sec_detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
@@ -1914,7 +1914,7 @@ namespace H2_H3_Converter_UI
                             // Add detail map parameter
                             ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
                             var param_name = (TagFieldElementStringID)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/StringID:parameter name");
-                            param_name.Data = "detail_map3";
+                            param_name.Data = "detail_map_overlay";
                             var param_type = (TagFieldEnum)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/LongEnum:parameter type");
                             param_type.Value = 0;
 
