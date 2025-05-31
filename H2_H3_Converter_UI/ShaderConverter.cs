@@ -483,6 +483,29 @@ namespace H2_H3_Converter_UI
                                 sbyte byte1_scaleY = new sbyte();
                                 byte byte2_scaleY = new byte();
 
+                                // GROUND SHADER HACK //
+
+                                // If shader template is two detail + overlay, ignore "normal" detail maps (map, map_a, map_b, secondary) so as to only grab blend details maps
+                                if (shd_templ.Contains("detail_blend_detail"))
+                                {
+                                    if (prm_name == "detail_map" || prm_name == "detail_map_a" || prm_name == "detail_map_b" || prm_name == "secondary_detail_map")
+                                    {
+                                        i++;
+                                        continue;
+                                    }
+                                }
+                                // If shader template is three detail blend, ignore "blend_detail", "overlay" and "secondary" detail maps (3DB template uses detail_map, a, b or c)
+                                else if (shd_templ.Contains("three_detail_blend"))
+                                {
+                                    if (prm_name == "blend_detail_map_1" || prm_name == "blend_detail_map_2" || prm_name == "overlay_detail_map" || prm_name == "secondary_detail_map")
+                                    {
+                                        i++;
+                                        continue;
+                                    }
+                                }
+
+                                // END GROUND SHADER HACK //
+
                                 if (anim_data_block != null)
                                 {
                                     // Animation data exists
@@ -1904,9 +1927,18 @@ namespace H2_H3_Converter_UI
 
                         if ((param.Name == "detail_map_c" || param.Name == "overlay_detail_map") && shader.Template.Contains("detail"))
                         {
-                            // Set two detail + overlay
+                            // Either two_detail_overlay or three_detail_blend
+
+                            // Set albedo type (2DT or 3DB)
                             var albedo_option = (TagFieldElementInteger)tagFile.SelectField("Struct:render_method[0]/Block:options[0]/ShortInteger:short");
-                            albedo_option.Data = 6; // 6 for two detail overlay
+                            if (shader.Template.Contains("detail_blend_detail"))
+                            {
+                                albedo_option.Data = 6; // 6 for two detail overlay
+                            }
+                            else
+                            {
+                                albedo_option.Data = 5; // 5 for three detail blend
+                            }
 
                             string bitmap_filename = new DirectoryInfo(param.Bitmap).Name;
                             string sec_detail_map_path = Path.Combine(bitmap_tags_dir, bitmap_filename);
@@ -1914,7 +1946,14 @@ namespace H2_H3_Converter_UI
                             // Add detail map parameter
                             ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
                             var param_name = (TagFieldElementStringID)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/StringID:parameter name");
-                            param_name.Data = "detail_map_overlay";
+                            if (shader.Template.Contains("detail_blend_detail"))
+                            {
+                                param_name.Data = "detail_map_overlay";
+                            }
+                            else
+                            {
+                                param_name.Data = "detail_map3";
+                            }
                             var param_type = (TagFieldEnum)tagFile.SelectField($"Struct:render_method[0]/Block:parameters[{param_index}]/LongEnum:parameter type");
                             param_type.Value = 0;
 
