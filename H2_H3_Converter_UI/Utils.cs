@@ -475,6 +475,37 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         
+        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, Loading loadingForm)
+        {
+            string fullTagPath = Path.Combine(h3ekPath, "tags\\halo_2", objectTagPath.RelativePathWithExtension);
+            if (!File.Exists(fullTagPath))
+            {
+                Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
+                loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
+                
+                // Create .model tag
+                TagPath modelTagPath = TagPath.FromPathAndType(objectTagPath.RelativePath, "hlmt*");
+                TagFile modelTag = new TagFile();
+                modelTag.New(modelTagPath);
+                modelTag.Save();
+
+                // Create top-level object tag
+                TagFile objectTag = new TagFile();
+                objectTag.New(objectTagPath);
+
+                using(objectTag)
+                {
+                    ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                    objectTag.Save();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Tag \"{objectTagPath.RelativePathWithExtension}\" already exists! Skipping tag creation...");
+                loadingForm.UpdateOutputBox($"Tag \"{objectTagPath.RelativePathWithExtension}\" already exists! Skipping tag creation...", false);
+            }
+        }
+        
         // Dictionaries that use Bungie stuff cant be static
         public Dictionary<string, TagPath> characterMapping = new Dictionary<string, TagPath>()
         {

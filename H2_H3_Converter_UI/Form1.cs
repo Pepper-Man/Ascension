@@ -19,6 +19,7 @@ namespace H2_H3_Converter_UI
         bool bsps_valid = false;
         bool h3_valid = false;
         bool h2_valid = false;
+        bool create_object_tags = false;
 
         public form1()
         {
@@ -409,7 +410,7 @@ namespace H2_H3_Converter_UI
                     if (checkBox3.Checked)
                     {
                         // Scenario conversion
-                        if(!ScenData.ConvertScenarioData(scen_path, h2_xml_path, loadingForm))
+                        if(!ScenData.ConvertScenarioData(scen_path, h2_xml_path, create_object_tags, loadingForm))
                         {
                             success = false;
                             return;
@@ -510,6 +511,18 @@ namespace H2_H3_Converter_UI
         {
             ObjectCreatorHelp object_crt_help_window = new ObjectCreatorHelp();
             object_crt_help_window.ShowDialog();
+        }
+
+        private void create_objects_CheckedChanged(object sender, EventArgs e)
+        {
+            if (create_objects.Checked)
+            {
+                create_object_tags = true;
+            }
+            else
+            {
+                create_object_tags = false;
+            }
         }
     }
 }

@@ -529,6 +529,7 @@
             this.create_objects.TabIndex = 12;
             this.create_objects.Text = "Create missing .model and object-level tags?";
             this.create_objects.UseVisualStyleBackColor = true;
+            this.create_objects.CheckedChanged += new System.EventHandler(this.create_objects_CheckedChanged);
             // 
             // help_create_objects
             // 

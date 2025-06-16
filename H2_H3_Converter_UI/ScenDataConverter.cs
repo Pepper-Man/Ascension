@@ -116,7 +116,7 @@ class DeviceGroup
 
 class ScenData
 {
-    public static bool ConvertScenarioData(string scenPath, string xmlPath, Loading loadingForm)
+    public static bool ConvertScenarioData(string scenPath, string xmlPath, bool create_objects, Loading loadingForm)
     {
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
@@ -298,8 +298,18 @@ class ScenData
                     XmlNode element = sceneryType.SelectSingleNode("./element[@index='" + i + "']");
                     if (element != null)
                     {
-                        string scenRef = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
-                        allScenTypes.Add(TagPath.FromPathAndType(scenRef, "scen*"));
+                        // Add in "halo_2" into tag path
+                        string scenRef = String.Format("halo_2\\{0}", element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim());
+
+                        TagPath sceneryTagPath = TagPath.FromPathAndType(scenRef, "scen*");
+                        allScenTypes.Add(sceneryTagPath);
+
+                        // Create .model and .scenery tags if requested, ignore flag_base entry
+                        if (create_objects && sceneryTagPath.RelativePathWithExtension != "halo_2\\objects\\multi\\flag_base\\flag_base.scenery")
+                        {
+                            Utils.CreateObjectTags(sceneryTagPath, h3ekPath, loadingForm);
+                        }
+
                         i++;
                     }
                     else
