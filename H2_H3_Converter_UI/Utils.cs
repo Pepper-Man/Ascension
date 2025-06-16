@@ -493,11 +493,9 @@ namespace H2_H3_Converter_UI
                 TagFile objectTag = new TagFile();
                 objectTag.New(objectTagPath);
 
-                using(objectTag)
-                {
-                    ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
-                    objectTag.Save();
-                }
+                // Set .model reference
+                ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                objectTag.Save();
             }
             else
             {
