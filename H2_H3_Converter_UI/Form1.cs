@@ -58,8 +58,6 @@ namespace H2_H3_Converter_UI
                 browse_scen.Enabled = true;
                 existing_bitmaps.Enabled = true;
                 info_label.Enabled = true;
-                create_objects.Enabled = true;
-                help_create_objects.Enabled = true;
             }
             else
             {
@@ -76,8 +74,6 @@ namespace H2_H3_Converter_UI
                 bsp_remove.Enabled = false;
                 existing_bitmaps.Enabled = false;
                 info_label.Enabled = false;
-                create_objects.Enabled = false;
-                help_create_objects.Enabled = false;
             }
             update_start_button();
         }
@@ -121,6 +117,8 @@ namespace H2_H3_Converter_UI
                 scenario_label.Enabled = true;
                 scen_box.Enabled = true;
                 browse_scen.Enabled = true;
+                create_objects.Enabled = true;
+                help_create_objects.Enabled = true;
             }
             else
             {
@@ -136,6 +134,9 @@ namespace H2_H3_Converter_UI
                     h2_scen_box.Enabled = false;
                     browse_scen_h2.Enabled = false;
                 }
+
+                create_objects.Enabled = false;
+                help_create_objects.Enabled = false;
             }
             update_start_button();
         }
