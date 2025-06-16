@@ -78,7 +78,7 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertPalette(string scenPath, Loading loadingForm, XmlDocument scenfile, string paletteType)
+        public static void ConvertPalette(string scenPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
         {
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
 
@@ -198,8 +198,15 @@ namespace H2_H3_Converter_UI
                 // Not gonna bother trying to convert machine types as 99% of the time they have no equivalent
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "device_machine");
-                    h3ObjPaths.Add(h3Obj);
+                    string modifiedPath = String.Format("halo_2\\{0}", h2Path);
+                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_machine");
+                    h3ObjPaths.Add(h3ObjectPath);
+
+                    // Create .model and .device_machine tags if requested
+                    if (createObjects)
+                    {
+                        Utils.CreateObjectTags(h3ObjectPath, h3ek_path, loadingForm);
+                    }
                 }
             }
             else if (paletteType == "control")
@@ -207,8 +214,15 @@ namespace H2_H3_Converter_UI
                 // Same goes for controls
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "device_control");
-                    h3ObjPaths.Add(h3Obj);
+                    string modifiedPath = String.Format("halo_2\\{0}", h2Path);
+                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_control");
+                    h3ObjPaths.Add(h3ObjectPath);
+
+                    // Create .model and .device_control tags if requested
+                    if (createObjects)
+                    {
+                        Utils.CreateObjectTags(h3ObjectPath, h3ek_path, loadingForm);
+                    }
                 }
             }
             else if (paletteType == "biped")
@@ -477,7 +491,7 @@ namespace H2_H3_Converter_UI
         
         public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, Loading loadingForm)
         {
-            string fullTagPath = Path.Combine(h3ekPath, "tags\\halo_2", objectTagPath.RelativePathWithExtension);
+            string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
             if (!File.Exists(fullTagPath))
             {
                 Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
@@ -494,7 +508,21 @@ namespace H2_H3_Converter_UI
                 objectTag.New(objectTagPath);
 
                 // Set .model reference
-                ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                switch (objectTagPath.Extension)
+                {
+                    case "scenery":
+                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                        break;
+
+                    case "crate":
+                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                        break;
+
+                    case "device_machine": case "device_control":
+                        ((TagFieldReference)objectTag.SelectField("Struct:device[0]/Struct:object[0]/Reference:model")).Path = modelTagPath;
+                        break;
+                }
+
                 objectTag.Save();
             }
             else
