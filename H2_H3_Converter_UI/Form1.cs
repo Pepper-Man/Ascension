@@ -58,6 +58,8 @@ namespace H2_H3_Converter_UI
                 browse_scen.Enabled = true;
                 existing_bitmaps.Enabled = true;
                 info_label.Enabled = true;
+                create_objects.Enabled = true;
+                help_create_objects.Enabled = true;
             }
             else
             {
@@ -74,6 +76,8 @@ namespace H2_H3_Converter_UI
                 bsp_remove.Enabled = false;
                 existing_bitmaps.Enabled = false;
                 info_label.Enabled = false;
+                create_objects.Enabled = false;
+                help_create_objects.Enabled = false;
             }
             update_start_button();
         }
@@ -494,6 +498,17 @@ namespace H2_H3_Converter_UI
                     squad_folder_names_text.ScrollToCaret();
                 }
             }
+        }
+
+        private void versionLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void help_create_objects_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ObjectCreatorHelp object_crt_help_window = new ObjectCreatorHelp();
+            object_crt_help_window.ShowDialog();
         }
     }
 }

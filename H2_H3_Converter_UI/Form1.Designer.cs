@@ -59,6 +59,9 @@
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.use_squad_folder_names = new System.Windows.Forms.CheckBox();
             this.help_squad_folders = new System.Windows.Forms.LinkLabel();
+            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
+            this.create_objects = new System.Windows.Forms.CheckBox();
+            this.help_create_objects = new System.Windows.Forms.LinkLabel();
             this.versionLabel = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -67,6 +70,7 @@
             this.layout_scenario.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
+            this.tableLayoutPanel6.SuspendLayout();
             this.SuspendLayout();
             // 
             // title
@@ -101,8 +105,8 @@
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel4, 0, 18);
-            this.tableLayoutPanel1.Controls.Add(this.layout_h2_scen, 0, 16);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel4, 0, 19);
+            this.tableLayoutPanel1.Controls.Add(this.layout_h2_scen, 0, 17);
             this.tableLayoutPanel1.Controls.Add(this.title, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.hintlabel, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 2);
@@ -113,14 +117,15 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 9);
             this.tableLayoutPanel1.Controls.Add(this.scenario_label, 0, 11);
             this.tableLayoutPanel1.Controls.Add(this.layout_scenario, 0, 12);
-            this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 15);
-            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 20);
+            this.tableLayoutPanel1.Controls.Add(this.h2_scen_label, 0, 16);
+            this.tableLayoutPanel1.Controls.Add(this.start_button, 0, 21);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 13);
             this.tableLayoutPanel1.Controls.Add(this.checkBox4, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel5, 0, 17);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel5, 0, 18);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel6, 0, 14);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 21;
+            this.tableLayoutPanel1.RowCount = 22;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
@@ -135,14 +140,15 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 15F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 703);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(583, 736);
             this.tableLayoutPanel1.TabIndex = 3;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
@@ -154,7 +160,7 @@
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
             this.tableLayoutPanel4.Controls.Add(this.squad_folder_names_browse, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.squad_folder_names_text, 0, 0);
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(65, 609);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(65, 639);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -190,7 +196,7 @@
             this.layout_h2_scen.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.09456F));
             this.layout_h2_scen.Controls.Add(this.browse_scen_h2, 1, 0);
             this.layout_h2_scen.Controls.Add(this.h2_scen_box, 0, 0);
-            this.layout_h2_scen.Location = new System.Drawing.Point(65, 539);
+            this.layout_h2_scen.Location = new System.Drawing.Point(65, 569);
             this.layout_h2_scen.Name = "layout_h2_scen";
             this.layout_h2_scen.RowCount = 2;
             this.layout_h2_scen.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -375,7 +381,7 @@
             this.h2_scen_label.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.h2_scen_label.AutoSize = true;
             this.h2_scen_label.Enabled = false;
-            this.h2_scen_label.Location = new System.Drawing.Point(205, 513);
+            this.h2_scen_label.Location = new System.Drawing.Point(205, 543);
             this.h2_scen_label.Name = "h2_scen_label";
             this.h2_scen_label.Size = new System.Drawing.Size(172, 16);
             this.h2_scen_label.TabIndex = 14;
@@ -387,7 +393,7 @@
             this.start_button.AutoSize = true;
             this.start_button.Enabled = false;
             this.start_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.start_button.Location = new System.Drawing.Point(206, 666);
+            this.start_button.Location = new System.Drawing.Point(206, 698);
             this.start_button.Name = "start_button";
             this.start_button.Size = new System.Drawing.Size(170, 28);
             this.start_button.TabIndex = 13;
@@ -459,7 +465,7 @@
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
             this.tableLayoutPanel5.Controls.Add(this.use_squad_folder_names, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.help_squad_folders, 1, 0);
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(69, 575);
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(69, 605);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.RowCount = 1;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -495,20 +501,63 @@
             this.help_squad_folders.Text = "help";
             this.help_squad_folders.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.help_squad_folders_LinkClicked);
             // 
+            // tableLayoutPanel6
+            // 
+            this.tableLayoutPanel6.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tableLayoutPanel6.ColumnCount = 2;
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 87.16216F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
+            this.tableLayoutPanel6.Controls.Add(this.create_objects, 0, 0);
+            this.tableLayoutPanel6.Controls.Add(this.help_create_objects, 1, 0);
+            this.tableLayoutPanel6.Location = new System.Drawing.Point(116, 483);
+            this.tableLayoutPanel6.Name = "tableLayoutPanel6";
+            this.tableLayoutPanel6.RowCount = 1;
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutPanel6.Size = new System.Drawing.Size(350, 26);
+            this.tableLayoutPanel6.TabIndex = 18;
+            // 
+            // create_objects
+            // 
+            this.create_objects.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.create_objects.AutoSize = true;
+            this.create_objects.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.create_objects.Enabled = false;
+            this.create_objects.Location = new System.Drawing.Point(4, 3);
+            this.create_objects.Name = "create_objects";
+            this.create_objects.Size = new System.Drawing.Size(297, 20);
+            this.create_objects.TabIndex = 12;
+            this.create_objects.Text = "Create missing .model and object-level tags?";
+            this.create_objects.UseVisualStyleBackColor = true;
+            // 
+            // help_create_objects
+            // 
+            this.help_create_objects.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.help_create_objects.Enabled = false;
+            this.help_create_objects.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.help_create_objects.Location = new System.Drawing.Point(308, 5);
+            this.help_create_objects.Name = "help_create_objects";
+            this.help_create_objects.Size = new System.Drawing.Size(39, 16);
+            this.help_create_objects.TabIndex = 13;
+            this.help_create_objects.TabStop = true;
+            this.help_create_objects.Text = "help";
+            this.help_create_objects.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.help_create_objects_LinkClicked);
+            // 
             // versionLabel
             // 
             this.versionLabel.AutoSize = true;
-            this.versionLabel.Location = new System.Drawing.Point(526, 706);
+            this.versionLabel.Location = new System.Drawing.Point(526, 745);
             this.versionLabel.Name = "versionLabel";
             this.versionLabel.Size = new System.Drawing.Size(44, 16);
             this.versionLabel.TabIndex = 4;
             this.versionLabel.Text = "label1";
+            this.versionLabel.Click += new System.EventHandler(this.versionLabel_Click);
             // 
             // form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 731);
+            this.ClientSize = new System.Drawing.Size(582, 770);
             this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -528,6 +577,8 @@
             this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
+            this.tableLayoutPanel6.ResumeLayout(false);
+            this.tableLayoutPanel6.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -565,6 +616,9 @@
         private System.Windows.Forms.CheckBox use_squad_folder_names;
         private System.Windows.Forms.LinkLabel help_squad_folders;
         private System.Windows.Forms.Label versionLabel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
+        private System.Windows.Forms.CheckBox create_objects;
+        private System.Windows.Forms.LinkLabel help_create_objects;
     }
 }
 

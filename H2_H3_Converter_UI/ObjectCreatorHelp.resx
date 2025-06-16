@@ -129,7 +129,6 @@ An example path would be: "C:\\...\H3EK\data\levels\custom\test_level\bitmaps"
 
 Any missing textures that have not been provided will be identified and extracted
 from Halo 2 with Tool automatically.
-
 </value>
   </data>
 </root>
