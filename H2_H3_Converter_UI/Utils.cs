@@ -133,8 +133,8 @@ namespace H2_H3_Converter_UI
             }
 
             // MB tiem
-            string h3ek_path = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
-            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ek_path);
+            string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
+            ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
             var relativeScenPath = TagPath.FromPathAndType(Path.ChangeExtension(scenPath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
             TagFile scenTag = new TagFile();
 
@@ -205,7 +205,7 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_machine tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ek_path, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
                     }
                 }
             }
@@ -221,7 +221,7 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_control tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ek_path, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
                     }
                 }
             }
@@ -237,8 +237,21 @@ namespace H2_H3_Converter_UI
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "sound_scenery");
-                    h3ObjPaths.Add(h3Obj);
+                    // I want to write sound data to a "sound" folder within the scenario's directory
+                    // So we are gonna have to do some file/folder path messing around
+                    // Get tags-relative scenario folder path
+                    string scenarioFolder = Path.GetDirectoryName(relativeScenPath.RelativePath);
+                    // Combine
+                    string modifiedPath = Path.Combine(scenarioFolder, h2Path);
+
+                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "sound_scenery");
+                    h3ObjPaths.Add(h3ObjectPath);
+
+                    // Create .sound_scenery tag if requested
+                    if (createObjects)
+                    {
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
+                    }
                 }
             }
             else if (paletteType == "crate")
@@ -496,30 +509,47 @@ namespace H2_H3_Converter_UI
             {
                 Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
+
+                TagPath referenceTagPath;
                 
                 // Create .model tag
-                TagPath modelTagPath = TagPath.FromPathAndType(objectTagPath.RelativePath, "hlmt*");
-                TagFile modelTag = new TagFile();
-                modelTag.New(modelTagPath);
-                modelTag.Save();
+                if (objectTagPath.Extension != "sound_scenery")
+                {
+                    referenceTagPath = TagPath.FromPathAndType(objectTagPath.RelativePath, "hlmt*");
+                    TagFile modelTag = new TagFile();
+                    modelTag.New(referenceTagPath);
+                    modelTag.Save();
+                }
+                // Create sound_looping tag
+                else
+                {
+                    referenceTagPath = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "sound_looping");
+                    TagFile loopTag = new TagFile();
+                    loopTag.New(referenceTagPath);
+                    loopTag.Save();
+                }
 
                 // Create top-level object tag
                 TagFile objectTag = new TagFile();
                 objectTag.New(objectTagPath);
 
-                // Set .model reference
+                // Set .model or .sound_looping reference
                 switch (objectTagPath.Extension)
                 {
                     case "scenery":
-                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
-                        break;
-
                     case "crate":
-                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = modelTagPath;
+                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = referenceTagPath;
                         break;
 
-                    case "device_machine": case "device_control":
-                        ((TagFieldReference)objectTag.SelectField("Struct:device[0]/Struct:object[0]/Reference:model")).Path = modelTagPath;
+                    case "device_machine": 
+                    case "device_control":
+                        ((TagFieldReference)objectTag.SelectField("Struct:device[0]/Struct:object[0]/Reference:model")).Path = referenceTagPath;
+                        break;
+
+                    case "sound_scenery":
+                        ((TagFieldEnum)objectTag.SelectField("Struct:object[0]/CharEnum:sweetener size")).Value = 1;
+                        ((TagFieldBlock)objectTag.SelectField("Struct:object[0]/Block:attachments")).AddElement();
+                        ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Block:attachments[0]/Reference:type")).Path = referenceTagPath;
                         break;
                 }
 
