@@ -15,9 +15,7 @@ namespace H2_H3_Converter_UI
     {
         public static void GetTagsForModel(TagPath objectTagPath, string h2ekPath, Loading loadingForm)
         {
-            bool render = false;
-            bool collision = false;
-            bool physics = false;
+            List<string> extractedTags = new List<string>();
 
             // Remove "halo_2"
             string[] parts = objectTagPath.RelativePathWithExtension.Split(Path.DirectorySeparatorChar);
@@ -45,21 +43,24 @@ namespace H2_H3_Converter_UI
             if (File.Exists(renderFullH2Path))
             {
                 loadingForm.UpdateOutputBox($"Extracting {renderRelativeH2Path}", false);
-                ExtractTag(renderRelativeH2Path, toolExePath, "extract-render-data", h2ekPath);
+                ToolExtractTag(renderRelativeH2Path, toolExePath, "extract-render-data", h2ekPath);
+                extractedTags.Add(renderFullH2Path);
             }
             if (File.Exists(collisionFullH2Path))
             {
                 loadingForm.UpdateOutputBox($"Extracting {collisionRelativeH2Path}", false);
-                ExtractTag(collisionRelativeH2Path, toolExePath, "extract-collision-data", h2ekPath);
+                ToolExtractTag(collisionRelativeH2Path, toolExePath, "extract-collision-data", h2ekPath);
+                extractedTags.Add(collisionFullH2Path);
             }
             if (File.Exists(physicsFullH2Path))
             {
                 loadingForm.UpdateOutputBox($"Extracting {physicsRelativeH2Path}", false);
-                ExtractTag(physicsRelativeH2Path, toolExePath, "extract-physics-data", h2ekPath);
+                ToolExtractTag(physicsRelativeH2Path, toolExePath, "extract-physics-data", h2ekPath);
+                extractedTags.Add(physicsFullH2Path);
             }
         }
 
-        private static void ExtractTag(string tagPath, string toolExePath, string extractCommand, string h2ekPath)
+        private static void ToolExtractTag(string tagPath, string toolExePath, string extractCommand, string h2ekPath)
         {
             List<string> argumentsList = new List<string>
             {
