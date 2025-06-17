@@ -32,30 +32,47 @@ namespace H2_H3_Converter_UI
             string physicsFullH2Path = Path.Combine(h2ekPath, "tags\\", physicsRelativeH2Path);
 
             // Determine H2 Tool.exe path
-            string toolExePath = h2ekPath + @"\tool.exe";
+            string h2ToolPath = h2ekPath + @"\tool.exe";
 
-            // Now extract existing files
+            // Determine H3 Tool.exe path
+            string h3ToolPath = h3ekPath + @"\tool.exe";
+
+            // Now extract existing files, then import with H3 tool
             if (File.Exists(renderFullH2Path))
             {
+                // Extraction
                 loadingForm.UpdateOutputBox($"Extracting {renderRelativeH2Path}", false);
-                ToolExtractTag(renderRelativeH2Path, toolExePath, "extract-render-data", h2ekPath);
+                RunTool(renderRelativeH2Path, h2ToolPath, "extract-render-data", h2ekPath);
                 extractedTags.Add(renderFullH2Path);
+                // File moving
                 MoveJMSToH3(renderRelativeH2Path, renderFullH2Path, h3ekPath, "render", loadingForm);
+                // Importing
+                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(renderRelativeH2Path)), h3ToolPath, "render", h3ekPath);
             }
             if (File.Exists(collisionFullH2Path))
             {
+                // Extraction
                 loadingForm.UpdateOutputBox($"Extracting {collisionRelativeH2Path}", false);
-                ToolExtractTag(collisionRelativeH2Path, toolExePath, "extract-collision-data", h2ekPath);
+                RunTool(collisionRelativeH2Path, h2ToolPath, "extract-collision-data", h2ekPath);
                 extractedTags.Add(collisionFullH2Path);
+                // File moving
                 MoveJMSToH3(collisionRelativeH2Path, collisionFullH2Path, h3ekPath, "collision", loadingForm);
+                // Importing
+                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(collisionRelativeH2Path)), h3ToolPath, "collision", h3ekPath);
             }
             if (File.Exists(physicsFullH2Path))
             {
+                // Extraction
                 loadingForm.UpdateOutputBox($"Extracting {physicsRelativeH2Path}", false);
-                ToolExtractTag(physicsRelativeH2Path, toolExePath, "extract-physics-data", h2ekPath);
+                RunTool(physicsRelativeH2Path, h2ToolPath, "extract-physics-data", h2ekPath);
                 extractedTags.Add(physicsFullH2Path);
+                // File moving
                 MoveJMSToH3(physicsRelativeH2Path, physicsFullH2Path, h3ekPath, "physics", loadingForm);
+                // Importing
+                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(physicsRelativeH2Path)), h3ToolPath, "physics", h3ekPath);
             }
+
+            Console.WriteLine("Done importing!");
         }
 
         private static void MoveJMSToH3(string relativeH2TagPath, string fullH2TagPath, string h3ekPath, string type, Loading loadingForm)
@@ -114,21 +131,43 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        private static void ToolExtractTag(string tagPath, string toolExePath, string extractCommand, string h2ekPath)
+        private static void RunTool(string filePath, string toolExePath, string command, string editingKitPath)
         {
-            List<string> argumentsList = new List<string>
-            {
-                extractCommand,
-                "\"" + Path.Combine(Path.GetDirectoryName(tagPath), Path.GetFileNameWithoutExtension(tagPath)) + "\""
-            };
+            List<string> argumentsList = new List<string>();
 
-            string arguments = string.Join(" ", argumentsList);
+            if (command.Contains("extract"))
+            {
+                argumentsList.Add(command);
+                argumentsList.Add("\"" + Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)) + "\"");
+            }
+            else if (command == "render")
+            {
+                argumentsList.Add(command);
+                argumentsList.Add("\"" + filePath + "\"");
+                argumentsList.Add("draft");
+            }
+            else if (command == "collision")
+            {
+                argumentsList.Add(command);
+                argumentsList.Add("\"" + filePath + "\"");
+            }
+            else if (command == "physics")
+            {
+                argumentsList.Add(command);
+                argumentsList.Add("\"" + filePath + "\"");
+            }
+            else
+            {
+                argumentsList.Add(command);
+            }
+
+                string arguments = string.Join(" ", argumentsList);
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
                 FileName = toolExePath,
                 Arguments = arguments,
-                WorkingDirectory = h2ekPath,
+                WorkingDirectory = editingKitPath,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
