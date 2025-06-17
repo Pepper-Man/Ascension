@@ -13,7 +13,7 @@ namespace H2_H3_Converter_UI
 {
     internal class TagExtractor
     {
-        public static void GetTagsForModel(TagPath objectTagPath, string h2ekPath, Loading loadingForm)
+        public static void GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
         {
             List<string> extractedTags = new List<string>();
 
@@ -31,11 +31,6 @@ namespace H2_H3_Converter_UI
             string collisionFullH2Path = Path.Combine(h2ekPath, "tags\\", collisionRelativeH2Path);
             string physicsFullH2Path = Path.Combine(h2ekPath, "tags\\", physicsRelativeH2Path);
 
-            //// Determine which tags exist
-            //if (File.Exists(renderFullH2Path)) { render = true; }
-            //if (File.Exists(collisionFullH2Path)) { collision = true; }
-            //if (File.Exists(physicsFullH2Path)) { physics = true; }
-
             // Determine H2 Tool.exe path
             string toolExePath = h2ekPath + @"\tool.exe";
 
@@ -45,18 +40,77 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox($"Extracting {renderRelativeH2Path}", false);
                 ToolExtractTag(renderRelativeH2Path, toolExePath, "extract-render-data", h2ekPath);
                 extractedTags.Add(renderFullH2Path);
+                MoveJMSToH3(renderRelativeH2Path, renderFullH2Path, h3ekPath, "render", loadingForm);
             }
             if (File.Exists(collisionFullH2Path))
             {
                 loadingForm.UpdateOutputBox($"Extracting {collisionRelativeH2Path}", false);
                 ToolExtractTag(collisionRelativeH2Path, toolExePath, "extract-collision-data", h2ekPath);
                 extractedTags.Add(collisionFullH2Path);
+                MoveJMSToH3(collisionRelativeH2Path, collisionFullH2Path, h3ekPath, "collision", loadingForm);
             }
             if (File.Exists(physicsFullH2Path))
             {
                 loadingForm.UpdateOutputBox($"Extracting {physicsRelativeH2Path}", false);
                 ToolExtractTag(physicsRelativeH2Path, toolExePath, "extract-physics-data", h2ekPath);
                 extractedTags.Add(physicsFullH2Path);
+                MoveJMSToH3(physicsRelativeH2Path, physicsFullH2Path, h3ekPath, "physics", loadingForm);
+            }
+        }
+
+        private static void MoveJMSToH3(string relativeH2TagPath, string fullH2TagPath, string h3ekPath, string type, Loading loadingForm)
+        {
+            // Get location of JMS in H2EK\data\!extracted
+            string marker = "H2EK\\tags" + Path.DirectorySeparatorChar;
+            int markerIndex = fullH2TagPath.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (markerIndex == -1)
+            {
+                Console.WriteLine($"Error when attempting to locate JMS file of \"{relativeH2TagPath}\"");
+                loadingForm.UpdateOutputBox($"Error when attempting to locate JMS file of \"{relativeH2TagPath}\"", false);
+                return;
+            }
+
+            // Extract root up to "H2EK\\data\\"
+            string root = fullH2TagPath.Substring(0, markerIndex + marker.Length).Replace("H2EK\\tags", "H2EK\\data");
+
+            // Get file name and object folder
+            string filename = Path.GetFileNameWithoutExtension(fullH2TagPath);
+            string objectFolder = Path.GetFileName(Path.GetDirectoryName(fullH2TagPath));
+
+            // Rebuild new path
+            string fullH2JMSPath = Path.ChangeExtension(Path.Combine(root, "!extracted", objectFolder, type, filename), "jms");
+
+            // Determine correct location for the file in the H3EK data folder
+            string fullH3JMSPath = Path.Combine(h3ekPath, "data\\halo_2", Path.GetDirectoryName(relativeH2TagPath), type, Path.GetFileName(relativeH2TagPath));
+
+            // Move that file!
+            try
+            {
+                MoveFile(fullH2JMSPath, Path.ChangeExtension(fullH3JMSPath, "jms"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex.ToString()}");
+                loadingForm.UpdateOutputBox($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex.ToString()}", false);
+            }
+            
+        }
+
+        private static void MoveFile(string sourcePath, string destinationPath)
+        {
+            if (!File.Exists(sourcePath))
+            {
+                throw new FileNotFoundException($"Source .JMS file not found: {sourcePath}");
+            }
+
+            string destDir = Path.GetDirectoryName(destinationPath);
+            // Create the directory if it doesn't exist
+            Directory.CreateDirectory(destDir);
+
+            // Never overwrite
+            if (!File.Exists(destinationPath))
+            {
+                File.Move(sourcePath, destinationPath);
             }
         }
 

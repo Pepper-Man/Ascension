@@ -512,7 +512,7 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
 
                 // First, let's try to get the render model, collision, physics for the .model tag
-                TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, loadingForm);
+                TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
 
                 TagPath referenceTagPath;
                 
