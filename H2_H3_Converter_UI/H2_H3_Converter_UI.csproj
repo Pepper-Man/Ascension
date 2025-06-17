@@ -117,6 +117,7 @@
     <Compile Include="ScenDataConverter.cs" />
     <Compile Include="ScriptPointConverter.cs" />
     <Compile Include="SquadsConverter.cs" />
+    <Compile Include="TagExtractor.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ZonesConverter.cs" />
     <Compile Include="Program.cs" />

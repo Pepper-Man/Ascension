@@ -78,9 +78,10 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertPalette(string scenPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
+        public static void ConvertPalette(string scenPath, string h2XmlPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
         {
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
+            string h2ekPath = h2XmlPath.Substring(0, h2XmlPath.IndexOf("H2EK") + "H2EK".Length);
 
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
@@ -205,7 +206,7 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_machine tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
                     }
                 }
             }
@@ -221,7 +222,7 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_control tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
                     }
                 }
             }
@@ -250,7 +251,7 @@ namespace H2_H3_Converter_UI
                     // Create .sound_scenery tag if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
                     }
                 }
             }
@@ -502,13 +503,16 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         
-        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, Loading loadingForm)
+        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, Loading loadingForm)
         {
             string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
             if (!File.Exists(fullTagPath))
             {
                 Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
+
+                // First, let's try to get the render model, collision, physics for the .model tag
+                TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, loadingForm);
 
                 TagPath referenceTagPath;
                 
