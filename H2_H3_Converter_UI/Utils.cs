@@ -197,32 +197,32 @@ namespace H2_H3_Converter_UI
             else if (paletteType == "machine")
             {
                 // Not gonna bother trying to convert machine types as 99% of the time they have no equivalent
-                foreach (string h2Path in h2ObjRefs)
+                foreach (string h2TagPath in h2ObjRefs)
                 {
-                    string modifiedPath = String.Format("halo_2\\{0}", h2Path);
+                    string modifiedPath = String.Format("halo_2\\{0}", h2TagPath);
                     TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_machine");
                     h3ObjPaths.Add(h3ObjectPath);
 
                     // Create .model and .device_machine tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
                     }
                 }
             }
             else if (paletteType == "control")
             {
                 // Same goes for controls
-                foreach (string h2Path in h2ObjRefs)
+                foreach (string h2TagPath in h2ObjRefs)
                 {
-                    string modifiedPath = String.Format("halo_2\\{0}", h2Path);
+                    string modifiedPath = String.Format("halo_2\\{0}", h2TagPath);
                     TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_control");
                     h3ObjPaths.Add(h3ObjectPath);
 
                     // Create .model and .device_control tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
                     }
                 }
             }
@@ -236,14 +236,14 @@ namespace H2_H3_Converter_UI
             }
             else if (paletteType == "sound scenery")
             {
-                foreach (string h2Path in h2ObjRefs)
+                foreach (string h2TagPath in h2ObjRefs)
                 {
                     // I want to write sound data to a "sound" folder within the scenario's directory
                     // So we are gonna have to do some file/folder path messing around
                     // Get tags-relative scenario folder path
                     string scenarioFolder = Path.GetDirectoryName(relativeScenPath.RelativePath);
                     // Combine
-                    string modifiedPath = Path.Combine(scenarioFolder, h2Path);
+                    string modifiedPath = Path.Combine(scenarioFolder, h2TagPath);
 
                     TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "sound_scenery");
                     h3ObjPaths.Add(h3ObjectPath);
@@ -251,7 +251,7 @@ namespace H2_H3_Converter_UI
                     // Create .sound_scenery tag if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, loadingForm);
+                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
                     }
                 }
             }
@@ -503,7 +503,7 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         
-        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, Loading loadingForm)
+        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, string relativeH2TagPath, Loading loadingForm)
         {
             string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
             if (!File.Exists(fullTagPath))
@@ -511,7 +511,23 @@ namespace H2_H3_Converter_UI
                 Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
 
-                // First, let's try to get the render model, collision, physics for the .model tag
+                // First we need to determine the bounding radius so that the object will actually be visible
+                // Build full H2 tag path
+                string fullH2TagPath = Path.ChangeExtension(Path.Combine(h2ekPath, "tags", relativeH2TagPath), objectTagPath.Extension);
+
+                // Read tag as bytes. Bounding radius is stored as a 4-byte single-precision float at 0x54-0x57
+                float boundingRadius = 1.0f; // Default to 1.0
+                using (FileStream fs = new FileStream(fullH2TagPath, FileMode.Open, FileAccess.Read))
+                {
+                    using (BinaryReader reader = new BinaryReader(fs))
+                    {
+                        fs.Seek(0x54, SeekOrigin.Begin); // Jump to 0x54
+                        boundingRadius = reader.ReadSingle();
+                        Console.WriteLine($"Bounding radius of {objectTagPath}: {boundingRadius}");
+                    }
+                }
+
+                // Now, let's try to get the render model, collision, physics for the .model tag
                 string[] modelTagReferences = TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
 
                 TagPath referenceTagPath;

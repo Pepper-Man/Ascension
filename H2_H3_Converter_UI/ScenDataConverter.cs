@@ -300,7 +300,8 @@ class ScenData
                     if (element != null)
                     {
                         // Add in "halo_2" into tag path
-                        string scenRef = String.Format("halo_2\\{0}", element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim());
+                        string h2TagPath = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        string scenRef = String.Format("halo_2\\{0}", h2TagPath);
 
                         TagPath sceneryTagPath = TagPath.FromPathAndType(scenRef, "scen*");
                         allScenTypes.Add(sceneryTagPath);
@@ -308,7 +309,7 @@ class ScenData
                         // Create .model and .scenery tags if requested, ignore flag_base entry
                         if (create_objects && sceneryTagPath.RelativePathWithExtension != "halo_2\\objects\\multi\\flag_base\\flag_base.scenery")
                         {
-                            Utils.CreateObjectTags(sceneryTagPath, h3ekPath, h2ekPath, loadingForm);
+                            Utils.CreateObjectTags(sceneryTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
                         }
 
                         i++;
@@ -333,7 +334,8 @@ class ScenData
                     if (element != null)
                     {
                         // Add in "halo_2" into tag path
-                        string cratRef = String.Format("halo_2\\{0}", element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim());
+                        string h2TagPath = element.SelectSingleNode("./tag_reference[@name='name']").InnerText.Trim();
+                        string cratRef = String.Format("halo_2\\{0}", h2TagPath);
 
                         TagPath crateTagPath = TagPath.FromPathAndType(cratRef, "bloc*");
                         allCrateTypes.Add(crateTagPath);
@@ -341,7 +343,7 @@ class ScenData
                         // Create .model and .crate tags if requested
                         if (create_objects)
                         {
-                            Utils.CreateObjectTags(crateTagPath, h3ekPath, h2ekPath, loadingForm);
+                            Utils.CreateObjectTags(crateTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
                         }
 
                         i++;
