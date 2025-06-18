@@ -133,12 +133,12 @@ namespace H2_H3_Converter_UI
             return destinationPath;
         }
 
-        private static async Task ShadersFromJMS(string jmsPath, Loading loadingForm)
+        private static void ShadersFromJMS(string jmsPath, Loading loadingForm)
         {
             loadingForm.UpdateOutputBox($"Beginning shader creation for \"{jmsPath}\"", false);
 
             // Simple check for files in shaders folder - let's not mess with/regenerate shaders if they already exist
-            string destinationShadersPath = Path.Combine(Path.GetDirectoryName(jmsPath).Replace("H3EK\\data", "H3EK\\tags"), "shaders");
+            string destinationShadersPath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(jmsPath).Replace("H3EK\\data", "H3EK\\tags").TrimEnd()), "shaders");
 
             try
             {
@@ -159,7 +159,11 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox("Shaders folder does not exist, proceeding with shader generation...", false);
             }
 
+            // Get all the material names from the render JMS file
             string[] materials = ReadJMSMaterials(jmsPath);
+
+            // Aaaand send them off to be made
+            CreateShaderTags(materials, destinationShadersPath);
         }
 
         // Modified from similar code I wrote for Osoyoos
@@ -214,6 +218,26 @@ namespace H2_H3_Converter_UI
             return shaders.ToArray();
         }
 
+        private static void CreateShaderTags(string[] shadersToMake, string shadersFolder)
+        {
+            // Make the shaders folder if it doesn't exist already
+            Directory.CreateDirectory(shadersFolder);
+
+            // Get relative shader folder path
+            string marker = @"H3EK\tags\";
+            int index = shadersFolder.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            string relativeShadersFolder = shadersFolder.Substring(index + marker.Length);
+
+            // Create tag for each shader
+            foreach (string shaderName in shadersToMake)
+            {
+                TagPath shaderPath = TagPath.FromPathAndExtension(Path.Combine(relativeShadersFolder, shaderName), "shader");
+                TagFile tagFile = new TagFile();
+                tagFile.New(shaderPath);
+                tagFile.Save();
+            }
+        }
+        
         private static void RunTool(string filePath, string toolExePath, string command, string editingKitPath)
         {
             List<string> argumentsList = new List<string>();
