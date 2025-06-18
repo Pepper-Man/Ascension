@@ -576,17 +576,20 @@ namespace H2_H3_Converter_UI
                     case "scenery":
                     case "crate":
                         ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Reference:model")).Path = referenceTagPath;
+                        ((TagFieldElementSingle)objectTag.SelectField("Struct:object[0]/Real:bounding radius")).Data = boundingRadius;
                         break;
 
                     case "device_machine": 
                     case "device_control":
                         ((TagFieldReference)objectTag.SelectField("Struct:device[0]/Struct:object[0]/Reference:model")).Path = referenceTagPath;
+                        ((TagFieldElementSingle)objectTag.SelectField("Struct:device[0]/Struct:object[0]/Real:bounding radius")).Data = boundingRadius;
                         break;
 
                     case "sound_scenery":
                         ((TagFieldEnum)objectTag.SelectField("Struct:object[0]/CharEnum:sweetener size")).Value = 1;
                         ((TagFieldBlock)objectTag.SelectField("Struct:object[0]/Block:attachments")).AddElement();
                         ((TagFieldReference)objectTag.SelectField("Struct:object[0]/Block:attachments[0]/Reference:type")).Path = referenceTagPath;
+                        ((TagFieldElementSingle)objectTag.SelectField("Struct:object[0]/Real:bounding radius")).Data = boundingRadius;
                         break;
                 }
 
