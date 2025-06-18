@@ -13,7 +13,7 @@ namespace H2_H3_Converter_UI
 {
     internal class TagExtractor
     {
-        public static void GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
+        public static string[] GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
         {
             List<string> extractedTags = new List<string>();
 
@@ -73,6 +73,7 @@ namespace H2_H3_Converter_UI
             }
 
             Console.WriteLine("Done importing!");
+            return extractedTags.ToArray();
         }
 
         private static void MoveJMSToH3(string relativeH2TagPath, string fullH2TagPath, string h3ekPath, string type, Loading loadingForm)
@@ -107,8 +108,8 @@ namespace H2_H3_Converter_UI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex.ToString()}");
-                loadingForm.UpdateOutputBox($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex.ToString()}", false);
+                Console.WriteLine($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex}");
+                loadingForm.UpdateOutputBox($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex}", false);
             }
             
         }

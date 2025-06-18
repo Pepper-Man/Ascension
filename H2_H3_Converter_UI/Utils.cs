@@ -512,7 +512,7 @@ namespace H2_H3_Converter_UI
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
 
                 // First, let's try to get the render model, collision, physics for the .model tag
-                TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
+                string[] modelTagReferences = TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
 
                 TagPath referenceTagPath;
                 
@@ -522,6 +522,23 @@ namespace H2_H3_Converter_UI
                     referenceTagPath = TagPath.FromPathAndType(objectTagPath.RelativePath, "hlmt*");
                     TagFile modelTag = new TagFile();
                     modelTag.New(referenceTagPath);
+
+                    foreach (string reference in modelTagReferences)
+                    {
+                        switch (Path.GetExtension(reference))
+                        {
+                            case ".render_model":
+                                ((TagFieldReference)modelTag.SelectField("Reference:render model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "render_model");
+                                break;
+                            case ".collision_model":
+                                ((TagFieldReference)modelTag.SelectField("Reference:collision model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "collision_model");
+                                break;
+                            case ".physics_model":
+                                ((TagFieldReference)modelTag.SelectField("Reference:physics_model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "physics_model");
+                                break;
+                        }
+                    }
+
                     modelTag.Save();
                 }
                 // Create sound_looping tag
