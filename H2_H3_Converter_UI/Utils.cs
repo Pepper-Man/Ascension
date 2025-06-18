@@ -528,7 +528,7 @@ namespace H2_H3_Converter_UI
                 }
 
                 // Now, let's try to get the render model, collision, physics for the .model tag
-                string[] modelTagReferences = TagExtractor.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
+                string[] modelTagReferences = ObjectPorter.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
 
                 TagPath referenceTagPath;
                 

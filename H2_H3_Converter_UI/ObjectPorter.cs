@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace H2_H3_Converter_UI
 {
-    internal class TagExtractor
+    internal class ObjectPorter
     {
         public static string[] GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
         {
@@ -132,6 +132,11 @@ namespace H2_H3_Converter_UI
             }
         }
 
+        private static void ShadersFromJMS()
+        {
+
+        }
+        
         private static void RunTool(string filePath, string toolExePath, string command, string editingKitPath)
         {
             List<string> argumentsList = new List<string>();
