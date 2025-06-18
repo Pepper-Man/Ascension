@@ -118,17 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="textBox1.Text" xml:space="preserve">
-    <value>Check this box if you wish to use pre-existing .tif files.
-For example, if you are using textures extracted by other means (such as from 
-Reclaimer or Vaporeon's tiff source) that you wish to use instead of extracting
-via Tool. This may reduce the number of times the texture is re-processed.
-The textures must be in the "standard practice" location, e.g. in a folder named
-"bitmaps" in the scenario's data folder (next to the "structure" folder).
-
-An example path would be: "C:\\...\H3EK\data\levels\custom\test_level\bitmaps"
-
-Any missing textures that have not been provided will be identified and extracted
-from Halo 2 with Tool automatically.
-</value>
+    <value>Check this box if you want Ascension to automatically port the basic tags of .scenery, .crate, .device_machine, .device_control and .sound_scenery objects referenced by the scenario.
+Objects will have their .render_model, .collision_model and/or .physics_model (if they exist) extracted from Halo 2 into JMS.
+They are then moved to your H3EK data folder, and imported with tool automatically.
+Blank/empty shader tags are created for all referenced materials in the render JMS for your convenience.
+A .model tag is then generated, and has the references to the 3 previously mentioned tags set for you.
+Finally, the top-level (.scenery, .crate etc) is created. The .model reference is automatically filled, and the bounding radius value is also transferred from H2 to make sure the object is visible.
+For sound scenery, a .sound_looping tag with the same name is generated, and referenced in the sound scenery's attachments. It is placed in the scenario's "sound" folder.</value>
   </data>
 </root>

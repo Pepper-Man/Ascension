@@ -509,12 +509,12 @@
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.83784F));
             this.tableLayoutPanel6.Controls.Add(this.create_objects, 0, 0);
             this.tableLayoutPanel6.Controls.Add(this.help_create_objects, 1, 0);
-            this.tableLayoutPanel6.Location = new System.Drawing.Point(116, 483);
+            this.tableLayoutPanel6.Location = new System.Drawing.Point(91, 483);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 1;
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
-            this.tableLayoutPanel6.Size = new System.Drawing.Size(350, 26);
+            this.tableLayoutPanel6.Size = new System.Drawing.Size(400, 26);
             this.tableLayoutPanel6.TabIndex = 18;
             // 
             // create_objects
@@ -525,9 +525,9 @@
             this.create_objects.Enabled = false;
             this.create_objects.Location = new System.Drawing.Point(4, 3);
             this.create_objects.Name = "create_objects";
-            this.create_objects.Size = new System.Drawing.Size(297, 20);
+            this.create_objects.Size = new System.Drawing.Size(340, 20);
             this.create_objects.TabIndex = 12;
-            this.create_objects.Text = "Create missing .model and object-level tags?";
+            this.create_objects.Text = "Port missing object tags? (Scenery, Crates, Devices)";
             this.create_objects.UseVisualStyleBackColor = true;
             this.create_objects.CheckedChanged += new System.EventHandler(this.create_objects_CheckedChanged);
             // 
@@ -536,7 +536,7 @@
             this.help_create_objects.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.help_create_objects.Enabled = false;
             this.help_create_objects.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.help_create_objects.Location = new System.Drawing.Point(308, 5);
+            this.help_create_objects.Location = new System.Drawing.Point(354, 5);
             this.help_create_objects.Name = "help_create_objects";
             this.help_create_objects.Size = new System.Drawing.Size(39, 16);
             this.help_create_objects.TabIndex = 13;
