@@ -555,6 +555,9 @@ namespace H2_H3_Converter_UI
                         }
                     }
 
+                    ((TagFieldEnum)modelTag.SelectField("CharEnum:PRT shadow detail")).Value = 2;
+                    ((TagFieldEnum)modelTag.SelectField("CharEnum:PRT shadow bounces")).Value = 2;
+
                     modelTag.Save();
                 }
                 // Create sound_looping tag
