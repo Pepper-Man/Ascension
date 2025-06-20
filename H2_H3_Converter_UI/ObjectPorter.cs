@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -38,41 +39,73 @@ namespace H2_H3_Converter_UI
             // Determine H3 Tool.exe path
             string h3ToolPath = h3ekPath + @"\tool.exe";
 
-            // Now extract existing files, then import with H3 tool
-            if (File.Exists(renderFullH2Path))
+            // Sometimes sub-object tag names differ from the parent, do our best to find them
+            // RENDER
+            string[] possibleRenderPaths =
+            {
+                renderFullH2Path,
+                renderFullH2Path.Replace(".render_model", "s.render_model")
+            };
+
+            foreach (string path in possibleRenderPaths)
+            {
+                if (File.Exists(path))
+                {
+                    renderFullH2Path = path;
+                    renderRelativeH2Path = Path.ChangeExtension(renderFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "render_model");
+                    ProcessModelTag(renderRelativeH2Path, renderFullH2Path, "extract-render-data", "render");
+                    break;
+                }
+            }
+
+            // COLLISION
+            string[] possibleCollisionPaths =
+            {
+                collisionFullH2Path,
+                collisionFullH2Path.Replace(".collision_model", "s.collision_model")
+            };
+
+            foreach (string path in possibleCollisionPaths)
+            {
+                if (File.Exists(path))
+                {
+                    collisionFullH2Path = path;
+                    collisionRelativeH2Path = Path.ChangeExtension(collisionFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "collision_model");
+                    ProcessModelTag(collisionRelativeH2Path, collisionFullH2Path, "extract-collision-data", "collision");
+                    break;
+                }
+            }
+
+            // PHYSICS
+            string[] possiblePhysicsPaths =
+            {
+                physicsFullH2Path,
+                physicsFullH2Path.Replace(".physics_model", "s.physics_model")
+            };
+
+            foreach (string path in possiblePhysicsPaths)
+            {
+                if (File.Exists(path))
+                {
+                    physicsFullH2Path = path;
+                    physicsRelativeH2Path = Path.ChangeExtension(physicsFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "physics_model");
+                    ProcessModelTag(physicsRelativeH2Path, physicsFullH2Path, "extract-physics-data", "physics");
+                    break;
+                }
+            }
+
+            void ProcessModelTag(string relativePath, string fullPath, string extractCommand, string importCommand)
             {
                 // Extraction
-                loadingForm.UpdateOutputBox($"Extracting {renderRelativeH2Path}", false);
-                RunTool(renderRelativeH2Path, h2ToolPath, "extract-render-data", h2ekPath);
-                extractedTags.Add(renderFullH2Path);
+                loadingForm.UpdateOutputBox($"Extracting {relativePath}", false);
+                RunTool(relativePath, h2ToolPath, extractCommand, h2ekPath);
+                extractedTags.Add(Path.Combine("halo_2", relativePath));
                 // File moving
-                string jmsFile = MoveJMSToH3(renderRelativeH2Path, renderFullH2Path, h3ekPath, "render", loadingForm);
+                string jmsFile = MoveJMSToH3(relativePath, fullPath, h3ekPath, importCommand, loadingForm);
                 // Shader creation
-                ShadersFromJMS(jmsFile, loadingForm);
+                if (importCommand == "render") { ShadersFromJMS(jmsFile, loadingForm); }
                 // Importing
-                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(renderRelativeH2Path)), h3ToolPath, "render", h3ekPath);
-            }
-            if (File.Exists(collisionFullH2Path))
-            {
-                // Extraction
-                loadingForm.UpdateOutputBox($"Extracting {collisionRelativeH2Path}", false);
-                RunTool(collisionRelativeH2Path, h2ToolPath, "extract-collision-data", h2ekPath);
-                extractedTags.Add(collisionFullH2Path);
-                // File moving
-                MoveJMSToH3(collisionRelativeH2Path, collisionFullH2Path, h3ekPath, "collision", loadingForm);
-                // Importing
-                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(collisionRelativeH2Path)), h3ToolPath, "collision", h3ekPath);
-            }
-            if (File.Exists(physicsFullH2Path))
-            {
-                // Extraction
-                loadingForm.UpdateOutputBox($"Extracting {physicsRelativeH2Path}", false);
-                RunTool(physicsRelativeH2Path, h2ToolPath, "extract-physics-data", h2ekPath);
-                extractedTags.Add(physicsFullH2Path);
-                // File moving
-                MoveJMSToH3(physicsRelativeH2Path, physicsFullH2Path, h3ekPath, "physics", loadingForm);
-                // Importing
-                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(physicsRelativeH2Path)), h3ToolPath, "physics", h3ekPath);
+                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(relativePath)), h3ToolPath, importCommand, h3ekPath);
             }
 
             Console.WriteLine("Done importing!");
@@ -105,32 +138,39 @@ namespace H2_H3_Converter_UI
             // Move that file!
             try
             {
-                return MoveFile(fullH2JMSPath, Path.ChangeExtension(fullH3JMSPath, "jms"));
+                return MoveFile(Path.GetDirectoryName(fullH2JMSPath), Path.GetDirectoryName(fullH3JMSPath));
             }
             catch (Exception ex)
             {
-                throw new IOException($"Error when moving file \"{fullH2JMSPath}\" to \"{fullH3JMSPath}\"! Exception: {ex}");
+                throw new IOException($"Error when moving folder \"{Path.GetDirectoryName(fullH2JMSPath)}\" to \"{Path.GetDirectoryName(fullH3JMSPath)}\"! Exception: {ex}");
             }
         }
 
-        private static string MoveFile(string sourcePath, string destinationPath)
+        private static string MoveFile(string sourceFolder, string destinationFolder)
         {
-            if (!File.Exists(sourcePath))
+            if (!Directory.Exists(sourceFolder))
             {
-                throw new FileNotFoundException($"Source .JMS file not found: {sourcePath}");
+                throw new DirectoryNotFoundException($"Source .JMS folder not found: {sourceFolder}");
             }
 
-            string destDir = Path.GetDirectoryName(destinationPath);
-            // Create the directory if it doesn't exist
-            Directory.CreateDirectory(destDir);
+            // Create the output directory if it doesn't exist
+            Directory.CreateDirectory(destinationFolder);
 
-            // Never overwrite
-            if (!File.Exists(destinationPath))
+            foreach (var filePath in Directory.GetFiles(sourceFolder, "*.jms", SearchOption.AllDirectories))
             {
-                File.Move(sourcePath, destinationPath);
+                string fileName = Path.GetFileName(filePath);
+                string destinationPath = Path.Combine(destinationFolder, fileName);
+
+                // Create any needed subdirectories
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
+                if (!File.Exists(destinationPath))
+                {
+                    File.Copy(filePath, destinationPath);
+                }
             }
 
-            return destinationPath;
+            return destinationFolder;
         }
 
         private static void ShadersFromJMS(string jmsPath, Loading loadingForm)
@@ -138,7 +178,7 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Beginning shader creation for \"{jmsPath}\"", false);
 
             // Simple check for files in shaders folder - let's not mess with/regenerate shaders if they already exist
-            string destinationShadersPath = Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(jmsPath).Replace("H3EK\\data", "H3EK\\tags").TrimEnd()), "shaders");
+            string destinationShadersPath = Path.Combine(Path.GetDirectoryName(jmsPath).Replace("H3EK\\data", "H3EK\\tags").TrimEnd(), "shaders");
 
             try
             {
@@ -167,55 +207,60 @@ namespace H2_H3_Converter_UI
         }
 
         // Modified from similar code I wrote for Osoyoos
-        private static string[] ReadJMSMaterials(string jmsPath)
+        private static string[] ReadJMSMaterials(string jmsFolderPath)
         {
-            string line;
+            // Get all .jms files directly in the folder (no subdirectories)
+            string[] jmsFiles = Directory.GetFiles(jmsFolderPath, "*.jms", SearchOption.TopDirectoryOnly);
+
             List<string> shaders = new List<string>();
-            int counter = 0;
+            string[] extras = { "lm:", "lp:", "hl:", "ds:", "pf:", "lt:", "to:", "at:", "ro:" };
+            string shaderNameStripped;
 
-            using (StreamReader reader = new StreamReader(jmsPath))
+            foreach (string jmsPath in jmsFiles)
             {
-                // Find materials definition header in JMS file
-                while ((line = reader.ReadLine()) != null)
+                string line;
+                int counter = 0;
+
+                using (StreamReader reader = new StreamReader(jmsPath))
                 {
-                    if (line.Contains(";### MATERIALS ###"))
+                    // Find materials definition header in JMS file
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        break;
-                    }
-                    counter++;
-                }
-
-                // Grab number of materials from file
-                int materialCount = int.Parse(File.ReadLines(jmsPath).Skip(counter + 1).Take(1).First());
-
-                // Line number of first material name
-                int currentLine = counter + 7;
-
-                // Take each material name, strip symbols, add to list
-                // Typically the most "complex" materials come in the format: prefix name extra1 extra2 extra3...
-                // I am also ignoring shader collections here as the collections are unlikely to exist
-                string[] extras = { "lm:", "lp:", "hl:", "ds:", "pf:", "lt:", "to:", "at:", "ro:" };
-                string shaderNameStripped;
-
-                for (int i = 0; i < materialCount; i++)
-                {
-                    string[] shaderNameSections = File.ReadLines(jmsPath).Skip(currentLine - 1).Take(1).First().Split(' ');
-                    if (shaderNameSections.Length < 2)
-                    {
-                        shaderNameStripped = Regex.Replace(shaderNameSections[0], "[^0-9a-zA-Z_.]", string.Empty);
-                    }
-                    else // More complex material name
-                    {
-                        shaderNameStripped = Regex.Replace(shaderNameSections[1], "[^0-9a-zA-Z_.]", string.Empty).Trim();
+                        if (line.Contains(";### MATERIALS ###"))
+                        {
+                            break;
+                        }
+                        counter++;
                     }
 
-                    shaders.Add(shaderNameStripped);
-                    currentLine += 4;
+                    // Grab number of materials from file
+                    int materialCount = int.Parse(File.ReadLines(jmsPath).Skip(counter + 1).Take(1).First());
+
+                    // Line number of first material name
+                    int currentLine = counter + 7;
+
+                    // Take each material name, strip symbols, add to list
+                    // Typically the most "complex" materials come in the format: prefix name extra1 extra2 extra3...
+                    // I am also ignoring shader collections here as the collections are unlikely to exist
+                    for (int i = 0; i < materialCount; i++)
+                    {
+                        string[] shaderNameSections = File.ReadLines(jmsPath).Skip(currentLine - 1).Take(1).First().Split(' ');
+                        if (shaderNameSections.Length < 2)
+                        {
+                            shaderNameStripped = Regex.Replace(shaderNameSections[0], "[^0-9a-zA-Z_.]", string.Empty);
+                        }
+                        else // More complex material name
+                        {
+                            shaderNameStripped = Regex.Replace(shaderNameSections[1], "[^0-9a-zA-Z_.]", string.Empty).Trim();
+                        }
+
+                        shaders.Add(shaderNameStripped);
+                        currentLine += 4;
+                    }
                 }
             }
 
-            shaders = shaders.Distinct().ToList();
-            return shaders.ToArray();
+            return shaders.Distinct().ToArray();
         }
 
         private static void CreateShaderTags(string[] shadersToMake, string shadersFolder)

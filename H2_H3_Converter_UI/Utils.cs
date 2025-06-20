@@ -544,13 +544,13 @@ namespace H2_H3_Converter_UI
                         switch (Path.GetExtension(reference))
                         {
                             case ".render_model":
-                                ((TagFieldReference)modelTag.SelectField("Reference:render model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "render_model");
+                                ((TagFieldReference)modelTag.SelectField("Reference:render model")).Path = TagPath.FromPathAndExtension(Path.Combine(Path.GetDirectoryName(reference), Path.GetFileNameWithoutExtension(reference)), "render_model");
                                 break;
                             case ".collision_model":
-                                ((TagFieldReference)modelTag.SelectField("Reference:collision model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "collision_model");
+                                ((TagFieldReference)modelTag.SelectField("Reference:collision model")).Path = TagPath.FromPathAndExtension(Path.Combine(Path.GetDirectoryName(reference), Path.GetFileNameWithoutExtension(reference)), "collision_model");
                                 break;
                             case ".physics_model":
-                                ((TagFieldReference)modelTag.SelectField("Reference:physics_model")).Path = TagPath.FromPathAndExtension(objectTagPath.RelativePath, "physics_model");
+                                ((TagFieldReference)modelTag.SelectField("Reference:physics_model")).Path = TagPath.FromPathAndExtension(Path.Combine(Path.GetDirectoryName(reference), Path.GetFileNameWithoutExtension(reference)), "physics_model");
                                 break;
                         }
                     }
