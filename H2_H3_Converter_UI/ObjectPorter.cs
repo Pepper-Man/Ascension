@@ -21,17 +21,7 @@ namespace H2_H3_Converter_UI
 
             // Remove "halo_2"
             string[] parts = objectTagPath.RelativePathWithExtension.Split(Path.DirectorySeparatorChar);
-            string h2ObjectTagPath = Path.Combine(parts.Skip(1).ToArray());
-
-            // Determine relative filepaths for render, collision and physics models (they may not actually exist, so we need to check)
-            string renderRelativeH2Path = Path.ChangeExtension(h2ObjectTagPath, "render_model");
-            string collisionRelativeH2Path = Path.ChangeExtension(h2ObjectTagPath, "collision_model");
-            string physicsRelativeH2Path = Path.ChangeExtension(h2ObjectTagPath, "physics_model");
-
-            // Determine full filepaths
-            string renderFullH2Path = Path.Combine(h2ekPath, "tags\\", renderRelativeH2Path);
-            string collisionFullH2Path = Path.Combine(h2ekPath, "tags\\", collisionRelativeH2Path);
-            string physicsFullH2Path = Path.Combine(h2ekPath, "tags\\", physicsRelativeH2Path);
+            string h2RelativeObjectTagFolder = Path.Combine(parts.Skip(1).ToArray());
 
             // Determine H2 Tool.exe path
             string h2ToolPath = h2ekPath + @"\tool.exe";
@@ -39,59 +29,40 @@ namespace H2_H3_Converter_UI
             // Determine H3 Tool.exe path
             string h3ToolPath = h3ekPath + @"\tool.exe";
 
-            // Sometimes sub-object tag names differ from the parent, do our best to find them
-            // RENDER
-            string[] possibleRenderPaths =
-            {
-                renderFullH2Path,
-                renderFullH2Path.Replace(".render_model", "s.render_model")
-            };
+            // Sometimes sub-object tag names differ from the parent, best we can do is just grab the first tag of the right type in the same folder
+            string h2FullObjectTagFolder = Path.GetDirectoryName(Path.Combine(h2ekPath, "tags", h2RelativeObjectTagFolder));
+            string renderFullH2Path = "";
+            string collisionFullH2Path = "";
+            string physicsFullH2Path = "";
 
-            foreach (string path in possibleRenderPaths)
+            // Attempt to locate render, collision and physics tags
+            try { renderFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.render_model", SearchOption.TopDirectoryOnly).First(); }
+            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate render model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+
+            try { collisionFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.collision_model", SearchOption.TopDirectoryOnly).First(); }
+            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate collision model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+
+            try { physicsFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.physics_model", SearchOption.TopDirectoryOnly).First(); }
+            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate physics model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+
+
+            // Determine relative tag path, then send it off to be extracted, moved, and imported into H3
+            if (File.Exists(renderFullH2Path))
             {
-                if (File.Exists(path))
-                {
-                    renderFullH2Path = path;
-                    renderRelativeH2Path = Path.ChangeExtension(renderFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "render_model");
-                    ProcessModelTag(renderRelativeH2Path, renderFullH2Path, "extract-render-data", "render");
-                    break;
-                }
+                string renderRelativeH2Path = renderFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
+                ProcessModelTag(renderRelativeH2Path, renderFullH2Path, "extract-render-data", "render");
             }
 
-            // COLLISION
-            string[] possibleCollisionPaths =
+            if (File.Exists(collisionFullH2Path))
             {
-                collisionFullH2Path,
-                collisionFullH2Path.Replace(".collision_model", "s.collision_model")
-            };
-
-            foreach (string path in possibleCollisionPaths)
-            {
-                if (File.Exists(path))
-                {
-                    collisionFullH2Path = path;
-                    collisionRelativeH2Path = Path.ChangeExtension(collisionFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "collision_model");
-                    ProcessModelTag(collisionRelativeH2Path, collisionFullH2Path, "extract-collision-data", "collision");
-                    break;
-                }
+                string collisionRelativeH2Path = collisionFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
+                ProcessModelTag(collisionRelativeH2Path, collisionFullH2Path, "extract-collision-data", "collision");
             }
 
-            // PHYSICS
-            string[] possiblePhysicsPaths =
+            if (File.Exists(physicsFullH2Path))
             {
-                physicsFullH2Path,
-                physicsFullH2Path.Replace(".physics_model", "s.physics_model")
-            };
-
-            foreach (string path in possiblePhysicsPaths)
-            {
-                if (File.Exists(path))
-                {
-                    physicsFullH2Path = path;
-                    physicsRelativeH2Path = Path.ChangeExtension(physicsFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length), "physics_model");
-                    ProcessModelTag(physicsRelativeH2Path, physicsFullH2Path, "extract-physics-data", "physics");
-                    break;
-                }
+                string physicsRelativeH2Path = physicsFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
+                ProcessModelTag(physicsRelativeH2Path, physicsFullH2Path, "extract-physics-data", "physics");
             }
 
             void ProcessModelTag(string relativePath, string fullPath, string extractCommand, string importCommand)
@@ -106,9 +77,9 @@ namespace H2_H3_Converter_UI
                 if (importCommand == "render") { ShadersFromJMS(jmsFile, loadingForm); }
                 // Importing
                 RunTool(Path.Combine("halo_2", Path.GetDirectoryName(relativePath)), h3ToolPath, importCommand, h3ekPath);
+                Console.WriteLine("Done importing!");
             }
 
-            Console.WriteLine("Done importing!");
             return extractedTags.ToArray();
         }
 
