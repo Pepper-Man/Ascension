@@ -1,6 +1,7 @@
 ﻿using Bungie;
 using Bungie.Tags;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,7 +18,9 @@ namespace H2_H3_Converter_UI
     {
         public static string[] GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
         {
-            List<string> extractedTags = new List<string>();
+            ConcurrentBag<string> extractedTags = new ConcurrentBag<string>();
+            ConcurrentBag<string> jmsPathsForShaders = new ConcurrentBag<string>();
+            int tagsFolderOffset = h2ekPath.Length + @"\tags\".Length;
 
             // Remove "halo_2"
             string[] parts = objectTagPath.RelativePathWithExtension.Split(Path.DirectorySeparatorChar);
@@ -37,48 +40,53 @@ namespace H2_H3_Converter_UI
 
             // Attempt to locate render, collision and physics tags
             try { renderFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.render_model", SearchOption.TopDirectoryOnly).First(); }
-            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate render model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+            catch (InvalidOperationException) { loadingForm.UpdateOutputBox($"Could not locate render model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
 
             try { collisionFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.collision_model", SearchOption.TopDirectoryOnly).First(); }
-            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate collision model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+            catch (InvalidOperationException) { loadingForm.UpdateOutputBox($"Could not locate collision model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
 
             try { physicsFullH2Path = Directory.GetFiles(h2FullObjectTagFolder, "*.physics_model", SearchOption.TopDirectoryOnly).First(); }
-            catch (InvalidOperationException e) { loadingForm.UpdateOutputBox($"Could not locate physics model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
+            catch (InvalidOperationException) { loadingForm.UpdateOutputBox($"Could not locate physics model tag in \"{h2FullObjectTagFolder}\", skipping...", false); }
 
-
-            // Determine relative tag path, then send it off to be extracted, moved, and imported into H3
-            if (File.Exists(renderFullH2Path))
+            var modelTypes = new List<(string fullPath, string type, string extractCmd)>
             {
-                string renderRelativeH2Path = renderFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
-                ProcessModelTag(renderRelativeH2Path, renderFullH2Path, "extract-render-data", "render");
-            }
+                (renderFullH2Path, "render", "extract-render-data"),
+                (collisionFullH2Path, "collision", "extract-collision-data"),
+                (physicsFullH2Path, "physics", "extract-physics-data")
+            };
 
-            if (File.Exists(collisionFullH2Path))
+            // Exporting and moving
+            Parallel.ForEach(modelTypes.Where(m => File.Exists(m.fullPath)), modelTag =>
             {
-                string collisionRelativeH2Path = collisionFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
-                ProcessModelTag(collisionRelativeH2Path, collisionFullH2Path, "extract-collision-data", "collision");
-            }
-
-            if (File.Exists(physicsFullH2Path))
-            {
-                string physicsRelativeH2Path = physicsFullH2Path.Substring(h2ekPath.Length + @"\tags\".Length);
-                ProcessModelTag(physicsRelativeH2Path, physicsFullH2Path, "extract-physics-data", "physics");
-            }
-
-            void ProcessModelTag(string relativePath, string fullPath, string extractCommand, string importCommand)
-            {
-                // Extraction
+                // Export
+                string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 loadingForm.UpdateOutputBox($"Extracting {relativePath}", false);
-                RunTool(relativePath, h2ToolPath, extractCommand, h2ekPath);
+                RunTool(relativePath, h2ToolPath, modelTag.extractCmd, h2ekPath);
                 extractedTags.Add(Path.Combine("halo_2", relativePath));
-                // File moving
-                string jmsFile = MoveJMSToH3(relativePath, fullPath, h3ekPath, importCommand, loadingForm);
-                // Shader creation
-                if (importCommand == "render") { ShadersFromJMS(jmsFile, loadingForm); }
-                // Importing
-                RunTool(Path.Combine("halo_2", Path.GetDirectoryName(relativePath)), h3ToolPath, importCommand, h3ekPath);
-                Console.WriteLine("Done importing!");
+
+                // Move
+                string jmsFile = MoveJMSToH3(relativePath, modelTag.fullPath, h3ekPath, modelTag.type, loadingForm);
+
+                // Queue shader creation if needed - has to be done on main thread
+                if (modelTag.type == "render")
+                {
+                    jmsPathsForShaders.Add(jmsFile);
+                }
+            });
+
+            // Shader generation, on main thread
+            foreach (string jmsPath in jmsPathsForShaders)
+            {
+                ShadersFromJMS(jmsPath, loadingForm);
             }
+
+            // H3 importing - can run this in parallel
+            Parallel.ForEach(modelTypes.Where(m => File.Exists(m.fullPath)), modelTag =>
+            {
+                string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
+                string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
+                RunTool(importFolder, h3ToolPath, modelTag.type, h3ekPath);
+            });
 
             return extractedTags.ToArray();
         }
@@ -253,7 +261,7 @@ namespace H2_H3_Converter_UI
                 tagFile.Save();
             }
         }
-        
+
         private static void RunTool(string filePath, string toolExePath, string command, string editingKitPath)
         {
             List<string> argumentsList = new List<string>();
@@ -284,7 +292,7 @@ namespace H2_H3_Converter_UI
                 argumentsList.Add(command);
             }
 
-                string arguments = string.Join(" ", argumentsList);
+            string arguments = string.Join(" ", argumentsList);
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
