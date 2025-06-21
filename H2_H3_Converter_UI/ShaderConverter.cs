@@ -70,7 +70,7 @@ namespace H2_H3_Converter_UI
         Pretty much everything else except the way in which tool output is captured is identical to the standalone
         version of the program.
         */
-        public static async Task ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
+        public static void ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
         {
             string existing_bitmaps = "";
 
@@ -199,8 +199,7 @@ namespace H2_H3_Converter_UI
                 // Grab all bitmaps
                 Console.WriteLine("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...");
                 loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...", false);
-                Task task = ExtractBitmaps(all_bitmap_refs, h2ek_path, tga_output_path, loadingForm);
-                await WaitForTaskCompletion(task);
+                ExtractBitmaps(all_bitmap_refs, h2ek_path, tga_output_path, loadingForm);
                 Console.WriteLine("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...");
                 loadingForm.UpdateOutputBox("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...", false);
             }
@@ -215,8 +214,7 @@ namespace H2_H3_Converter_UI
                 // Grab missing bitmaps
                 Console.WriteLine("\nObtained all referenced bitmaps!\n\nExtracting any missing bitmaps to TGA...");
                 loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps!\n\nExtracting any missing bitmaps to TGA...", false);
-                Task task = ExtractBitmaps(missing_files, h2ek_path, tga_output_path, loadingForm);
-                await WaitForTaskCompletion(task);
+                ExtractBitmaps(missing_files, h2ek_path, tga_output_path, loadingForm);
                 Console.WriteLine("\nExtracted all missing bitmaps to .TGA\nRunning .TIF conversion process...");
                 loadingForm.UpdateOutputBox("\nExtracted all missing bitmaps to .TGA\nRunning .TIF conversion process...", false);
             }
@@ -591,55 +589,65 @@ namespace H2_H3_Converter_UI
             return all_shader_data;
         }
 
-        static async Task ExtractBitmaps(List<string> all_bitmap_refs, string h2ek_path, string tga_output_path, Loading loadingForm)
+        static void ExtractBitmaps(List<string> all_bitmap_refs, string h2ek_path, string tga_output_path, Loading loadingForm)
         {
-            List<Task> tasks = new List<Task>();
             string tool_path = h2ek_path + @"\tool.exe";
 
-            foreach (string bitmap in all_bitmap_refs)
+            // Export bitmaps in parallel
+            Parallel.ForEach(all_bitmap_refs, bitmap =>
             {
-                // Extracting bitmap to TGA
-                List<string> argumentListTGA = new List<string>
+                try
+                {
+                    // Build arguments for Tool.exe
+                    List<string> argumentListTGA = new List<string>
+                    {
+                        "export-bitmap-tga",
+                        "\"" + bitmap + "\"",
+                        "\"" + tga_output_path + "\\\\" + "\""
+                    };
+
+                    string arguments = string.Join(" ", argumentListTGA);
+                    RunTool(tool_path, arguments, h2ek_path, loadingForm);
+
+                    lock (loadingForm)
+                    {
+                        Console.WriteLine("Extracted " + bitmap);
+                        loadingForm.UpdateOutputBox("Extracted " + bitmap, false);
+                    }
+                }
+                catch (Exception e)
+                {
+                    lock (loadingForm)
+                    {
+                        loadingForm.UpdateOutputBox($"Failed to extract {bitmap}: {e.Message}", false);
+                    }
+                }
+            });
+
+            // Extract bitmaps to XML in parallel
+            Parallel.ForEach(all_bitmap_refs, bitmap =>
             {
-                "export-bitmap-tga",
-                "\"" + bitmap + "\"",
-                "\"" + tga_output_path + "\\\\" + "\""
-            };
+                try
+                {
+                    // Build arguments for Tool.exe
+                    List<string> argumentListXML = new List<string>
+                    {
+                        "export-tag-to-xml",
+                        "\"" + h2ek_path + "\\tags\\" + bitmap + ".bitmap" + "\"",
+                        "\"" + tga_output_path.Replace("textures_output", "bitmap_xml") + "\\" + bitmap.Split('\\').Last() + ".xml" + "\""
+                    };
 
-                string arguments = string.Join(" ", argumentListTGA);
-                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, loadingForm)));
-
-                Console.WriteLine("Extracted " + bitmap);
-                loadingForm.UpdateOutputBox("Extracted " + bitmap, false);
-            }
-
-            await Task.WhenAll(tasks);
-
-            tasks.Clear();
-
-            foreach (string bitmap in all_bitmap_refs)
-            {
-                // Extracting bitmap to XML
-                List<string> argumentListXML = new List<string>
-            {
-                "export-tag-to-xml",
-                "\"" + h2ek_path + "\\tags\\" + bitmap + ".bitmap" + "\"",
-                "\"" + tga_output_path.Replace("textures_output", "bitmap_xml") + "\\" + bitmap.Split('\\').Last() + ".xml" + "\""
-            };
-
-                string arguments = string.Join(" ", argumentListXML);
-                tasks.Add(Task.Run(() => RunTool(tool_path, arguments, h2ek_path, loadingForm)));
-            }
-
-            await Task.WhenAll(tasks);
-        }
-
-        static async Task WaitForTaskCompletion(Task task)
-        {
-            while (task.Status != TaskStatus.RanToCompletion && task.Status != TaskStatus.Faulted && task.Status != TaskStatus.Canceled)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
+                    string arguments = string.Join(" ", argumentListXML);
+                    RunTool(tool_path, arguments, h2ek_path, loadingForm);
+                }
+                catch (Exception e)
+                {
+                    lock (loadingForm)
+                    {
+                        loadingForm.UpdateOutputBox($"Failed to export XML for {bitmap}: {e.Message}", false);
+                    }
+                }
+            });
         }
 
         static string[] TGAToTIF(string tga_output_path, string bitmaps_dir, string h3ek_path, Loading loadingForm)

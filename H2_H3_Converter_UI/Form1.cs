@@ -396,7 +396,7 @@ namespace H2_H3_Converter_UI
                     if (checkBox1.Checked)
                     {
                         // Shader conversion
-                        await ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, loadingForm);
+                        ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, loadingForm);
                     }
                     if (checkBox2.Checked)
                     {
