@@ -118,6 +118,7 @@
     <Compile Include="ScriptPointConverter.cs" />
     <Compile Include="SquadsConverter.cs" />
     <Compile Include="ObjectPorter.cs" />
+    <Compile Include="ToolRunner.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ZonesConverter.cs" />
     <Compile Include="Program.cs" />

@@ -61,15 +61,6 @@ namespace H2_H3_Converter_UI
 
     public class ShaderConverter
     {
-        /*
-        Okay so, perhaps passing the secondary form to every function here is a terrible way to do this.
-        But I tried many alternatives and determined that idk enough about asynchronous functions and UI blockers
-        to do this in a better way.
-        Each function gets passed the secondary loading form and appends its own output to it, thus mirroring the
-        console output to the user.
-        Pretty much everything else except the way in which tool output is captured is identical to the standalone
-        version of the program.
-        */
         public static void ConvertShaders(List<string> bsp_paths, string h3_scen, bool use_existing_bitmaps, Loading loadingForm)
         {
             string existing_bitmaps = "";
@@ -197,11 +188,13 @@ namespace H2_H3_Converter_UI
             if (existing_bitmaps == "")
             {
                 // Grab all bitmaps
-                Console.WriteLine("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...");
-                loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps!\n\nExtracting bitmap tags to TGA...", false);
+                Console.WriteLine("\nObtained all referenced bitmaps! Extracting bitmap tags to TGA...");
+                loadingForm.UpdateOutputBox("\nObtained all referenced bitmaps! Extracting bitmap tags to TGA...", false);
                 ExtractBitmaps(all_bitmap_refs, h2ek_path, tga_output_path, loadingForm);
-                Console.WriteLine("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...");
-                loadingForm.UpdateOutputBox("\nExtracted all bitmaps to .TGA\nRunning .TIF conversion process...", false);
+                Console.WriteLine("\nExtracted all bitmaps to .TGA");
+                Console.WriteLine("\nRunning .TIF conversion process...");
+                loadingForm.UpdateOutputBox("\nExtracted all bitmaps to .TGA", false);
+                loadingForm.UpdateOutputBox("\nRunning .TIF conversion process...", false);
             }
             else
             {
@@ -343,76 +336,8 @@ namespace H2_H3_Converter_UI
 
             foreach (string shader_path in shader_paths)
             {
-                List<string> argumentList = new List<string>
-            {
-                "export-tag-to-xml",
-                "\"" + shader_path + "\"",
-                "\"" + xml_output_path + "\\" + shader_path.Split('\\').Last().Replace(".shader", "") + ".xml" + "\""
-            };
-
-                string arguments = string.Join(" ", argumentList);
-
-                RunTool(tool_path, arguments, h2ek_path, loadingForm);
+                ToolRunner.RunTool(tool_path, "export-tag-to-xml", h2ek_path, shader_path, loadingForm, xml_output_path, "shader");
             }
-        }
-
-        static void RunTool(string tool_path, string arguments, string ek_path, Loading loadingForm)
-        {
-            ProcessStartInfo processStartInfo = new ProcessStartInfo
-            {
-                FileName = tool_path,
-                Arguments = arguments,
-                WorkingDirectory = ek_path,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            };
-
-            Process process = new Process
-            {
-                StartInfo = processStartInfo
-            };
-
-            if (tool_path.Contains("H3EK"))
-            {
-                process.OutputDataReceived += (sender, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        Console.WriteLine(e.Data);
-                        loadingForm.UpdateOutputBox(e.Data + Environment.NewLine, true);
-                    }
-                };
-                process.ErrorDataReceived += (sender, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        Console.WriteLine("Error: " + e.Data);
-                        loadingForm.UpdateOutputBox("Error: " + e.Data + Environment.NewLine, true);
-                    }
-                };
-            }
-
-            process.Start();
-            if (tool_path.Contains("H3EK"))
-            {
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-            }
-
-            // Wait for the process to exit or the timeout to elapse
-            Task processTask = Task.Run(() =>
-            {
-                if (!process.WaitForExit(5 * 1000)) // Wait with timeout
-                {
-                    // TODO: Implement failure case
-                }
-            });
-
-            processTask.Wait(); // Wait for the process task to complete
-
-            process.Close();
         }
 
         static List<Shader> GetShaderData(string xml_output_path)
@@ -598,16 +523,7 @@ namespace H2_H3_Converter_UI
             {
                 try
                 {
-                    // Build arguments for Tool.exe
-                    List<string> argumentListTGA = new List<string>
-                    {
-                        "export-bitmap-tga",
-                        "\"" + bitmap + "\"",
-                        "\"" + tga_output_path + "\\\\" + "\""
-                    };
-
-                    string arguments = string.Join(" ", argumentListTGA);
-                    RunTool(tool_path, arguments, h2ek_path, loadingForm);
+                    ToolRunner.RunTool(tool_path, "export-bitmap-tga", h2ek_path, bitmap, loadingForm, tga_output_path);
 
                     lock (loadingForm)
                     {
@@ -629,16 +545,7 @@ namespace H2_H3_Converter_UI
             {
                 try
                 {
-                    // Build arguments for Tool.exe
-                    List<string> argumentListXML = new List<string>
-                    {
-                        "export-tag-to-xml",
-                        "\"" + h2ek_path + "\\tags\\" + bitmap + ".bitmap" + "\"",
-                        "\"" + tga_output_path.Replace("textures_output", "bitmap_xml") + "\\" + bitmap.Split('\\').Last() + ".xml" + "\""
-                    };
-
-                    string arguments = string.Join(" ", argumentListXML);
-                    RunTool(tool_path, arguments, h2ek_path, loadingForm);
+                    ToolRunner.RunTool(tool_path, "export-tag-to-xml", h2ek_path, bitmap, loadingForm, tga_output_path, "bitmap");
                 }
                 catch (Exception e)
                 {
@@ -695,14 +602,8 @@ namespace H2_H3_Converter_UI
             Console.WriteLine("Importing bitmaps...");
             loadingForm.UpdateOutputBox("Importing bitmaps...", false);
             string tool_path = h3ek_path + @"\tool.exe";
-            List<string> argumentList = new List<string>
-        {
-            "bitmaps",
-            "\"" + bitmaps_dir.Split(new[] { "\\data\\" }, StringSplitOptions.None).LastOrDefault() + "\""
-        };
 
-            string arguments = string.Join(" ", argumentList);
-            RunTool(tool_path, arguments, h3ek_path, loadingForm);
+            ToolRunner.RunTool(tool_path, "bitmaps", h3ek_path, bitmaps_dir, loadingForm);
 
             Console.WriteLine("Setting bitmap options...");
             loadingForm.UpdateOutputBox("Setting bitmap options...", false);
@@ -808,7 +709,7 @@ namespace H2_H3_Converter_UI
             // Run import again to update bitmaps
             Console.WriteLine("Reimport bitmaps...");
             loadingForm.UpdateOutputBox("Reimport bitmaps...", false);
-            RunTool(tool_path, arguments, h3ek_path, loadingForm);
+            ToolRunner.RunTool(tool_path, "bitmaps", h3ek_path, bitmaps_dir, loadingForm);
             return error_files.ToArray();
         }
 
@@ -1047,7 +948,7 @@ namespace H2_H3_Converter_UI
 
                                 Console.WriteLine($"Reimporting bitmap {bitmap_filename} as colour for shader foliage...");
                                 loadingForm.UpdateOutputBox($"Reimporting bitmap {bitmap_filename} as colour for shader foliage...", false);
-                                RunTool(tool_path, arguments, h3ek_path, loadingForm);
+                                ToolRunner.RunTool(tool_path, "reimport-bitmaps-single", h3ek_path, alpha_map_path, loadingForm);
                             }
 
                             // Add alpha map parameter
@@ -2112,7 +2013,7 @@ namespace H2_H3_Converter_UI
 
                             Console.WriteLine($"Reimporting bitmap {bitmap_filename} as DXT5 to make sure alpha works for transparency...");
                             loadingForm.UpdateOutputBox($"Reimporting bitmap {bitmap_filename} as DXT5 to make sure alpha works for transparency...", false);
-                            RunTool(tool_path, arguments, h3ek_path, loadingForm);
+                            ToolRunner.RunTool(tool_path, "reimport-bitmaps-single", h3ek_path, alpha_map_path, loadingForm);
 
                             // Add alpha test map parameter
                             ((TagFieldBlock)tagFile.SelectField("Struct:render_method[0]/Block:parameters")).AddElement();
