@@ -61,7 +61,7 @@ namespace H2_H3_Converter_UI
                 // Export
                 string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 loadingForm.UpdateOutputBox($"Extracting {relativePath}", false);
-                RunTool(relativePath, h2ToolPath, modelTag.extractCmd, h2ekPath);
+                ToolRunner.RunTool(h2ToolPath, modelTag.extractCmd, h2ekPath, relativePath);
                 extractedTags.Add(Path.Combine("halo_2", relativePath));
 
                 // Move
@@ -85,7 +85,7 @@ namespace H2_H3_Converter_UI
             {
                 string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
-                RunTool(importFolder, h3ToolPath, modelTag.type, h3ekPath);
+                ToolRunner.RunTool(h3ToolPath, modelTag.type, h3ekPath, importFolder);
             });
 
             return extractedTags.ToArray();
@@ -260,70 +260,6 @@ namespace H2_H3_Converter_UI
                 tagFile.New(shaderPath);
                 tagFile.Save();
             }
-        }
-
-        private static void RunTool(string filePath, string toolExePath, string command, string editingKitPath)
-        {
-            List<string> argumentsList = new List<string>();
-
-            if (command.Contains("extract"))
-            {
-                argumentsList.Add(command);
-                argumentsList.Add("\"" + Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)) + "\"");
-            }
-            else if (command == "render")
-            {
-                argumentsList.Add(command);
-                argumentsList.Add("\"" + filePath + "\"");
-                argumentsList.Add("draft");
-            }
-            else if (command == "collision")
-            {
-                argumentsList.Add(command);
-                argumentsList.Add("\"" + filePath + "\"");
-            }
-            else if (command == "physics")
-            {
-                argumentsList.Add(command);
-                argumentsList.Add("\"" + filePath + "\"");
-            }
-            else
-            {
-                argumentsList.Add(command);
-            }
-
-            string arguments = string.Join(" ", argumentsList);
-
-            ProcessStartInfo processStartInfo = new ProcessStartInfo
-            {
-                FileName = toolExePath,
-                Arguments = arguments,
-                WorkingDirectory = editingKitPath,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            };
-
-            Process process = new Process
-            {
-                StartInfo = processStartInfo
-            };
-
-            process.Start();
-
-            // Wait for the process to exit or the timeout to elapse
-            Task processTask = Task.Run(() =>
-            {
-                if (!process.WaitForExit(5 * 1000)) // Wait with timeout
-                {
-                    // TODO: Implement failure case
-                }
-            });
-
-            processTask.Wait(); // Wait for the process task to complete
-
-            process.Close();
         }
     }
 }

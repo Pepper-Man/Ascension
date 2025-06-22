@@ -149,37 +149,34 @@ namespace H2_H3_Converter_UI
                 StartInfo = processStartInfo
             };
 
-            bool isH3 = toolExePath.IndexOf("H3EK", StringComparison.OrdinalIgnoreCase) >= 0;
-
-            // If we are running H3 tool.exe rather than the H2 one, we want to capture the output so it can be shown to the user
-            if (isH3 && loadingForm != null)
+            process.OutputDataReceived += (sender, e) =>
             {
-                process.OutputDataReceived += (sender, e) =>
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    Console.WriteLine(e.Data);
+                    if (loadingForm != null)
                     {
-                        Console.Write(e.Data);
                         loadingForm.UpdateOutputBox(e.Data + Environment.NewLine, true);
-                    }
-                };
-                process.ErrorDataReceived += (sender, e) =>
+                    }   
+                }
+            };
+
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    Console.Error.WriteLine("Error: " + e.Data);
+                    if (loadingForm != null)
                     {
-                        Console.WriteLine("Error: " + e.Data);
                         loadingForm.UpdateOutputBox("Error: " + e.Data + Environment.NewLine, true);
-                    }
-                };
-            }
+                    }   
+                }
+            };
 
             // Start process
             process.Start();
-
-            if (isH3 && loadingForm != null)
-            {
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-            }
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
             try
             {
