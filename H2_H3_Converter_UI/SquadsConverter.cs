@@ -224,7 +224,7 @@ namespace H2_H3_Converter_UI
                                 }
                                 catch (KeyNotFoundException)
                                 {
-                                    Console.WriteLine("Unknown or missing flag, skipping");
+                                    loadingForm.UpdateOutputBox("Unknown or missing squad flag, skipping...", false);
                                 }
                             }
 
@@ -303,7 +303,7 @@ namespace H2_H3_Converter_UI
                                         }
                                         catch (KeyNotFoundException)
                                         {
-                                            Console.WriteLine("Unknown or missing flag, skipping");
+                                            loadingForm.UpdateOutputBox("Unknown or missing squad flag, skipping...", false);
                                         }
                                     }
 

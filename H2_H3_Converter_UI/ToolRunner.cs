@@ -153,7 +153,6 @@ namespace H2_H3_Converter_UI
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    Console.WriteLine(e.Data);
                     if (loadingForm != null)
                     {
                         loadingForm.UpdateOutputBox(e.Data + Environment.NewLine, true);
@@ -165,7 +164,6 @@ namespace H2_H3_Converter_UI
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    Console.Error.WriteLine("Error: " + e.Data);
                     if (loadingForm != null)
                     {
                         loadingForm.UpdateOutputBox("Error: " + e.Data + Environment.NewLine, true);

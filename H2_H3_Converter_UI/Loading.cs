@@ -37,10 +37,12 @@ namespace H2_H3_Converter_UI
                 // Update the UI control on the UI thread.
                 if (!fromTool)
                 {
+                    Console.WriteLine(text + Environment.NewLine);
                     output_box.AppendText(text + Environment.NewLine);
                 }
                 else
                 {
+                    Console.WriteLine(text);
                     output_box.AppendText(text);
                 }
                 

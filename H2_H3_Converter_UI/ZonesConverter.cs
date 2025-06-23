@@ -56,12 +56,10 @@ class MB_Zones
 
         if (zonesBlock == null)
         {
-            Console.WriteLine("\nNo zones block found! Skipping...\n");
             loadingForm.UpdateOutputBox("\nNo zones block found! Skipping...\n", false);
             return true;
         }
 
-        Console.WriteLine("\nBegin reading zones data:\n");
         loadingForm.UpdateOutputBox("\nBegin reading zones data:\n", false);
 
         List<Zone> allZones = new List<Zone>();
@@ -146,14 +144,12 @@ class MB_Zones
 
 
                 allZones.Add(zone);
-                Console.WriteLine($"Read data for Zone {zone.ZoneName}");
                 loadingForm.UpdateOutputBox($"Read data for zone \"{zone.ZoneName}\"", false);
                 zoneIndex++;
             }
             else
             {
                 zonesEnd = true;
-                Console.WriteLine("Finished reading all zone data!");
                 loadingForm.UpdateOutputBox("Finished reading all zone data!", false);
             }
         }
@@ -176,7 +172,6 @@ class MB_Zones
             int zoneIndex = 0;
             foreach (var zone in allZones)
             {
-                Console.WriteLine($"Writing data for zone {zone.ZoneName}");
                 loadingForm.UpdateOutputBox($"Writing data for zone {zone.ZoneName}", false);
                 ((TagFieldBlock)tagFile.SelectField("Block:zones")).AddElement();
 
@@ -229,7 +224,6 @@ class MB_Zones
             // Aaaaand save everything in one go
             tagFile.Save();
 
-            Console.WriteLine("All zones, areas and firing positions have been successfully transferred into the H3 scenario!");
             loadingForm.UpdateOutputBox("All zones, areas and firing positions have been successfully transferred into the H3 scenario!", false);
         }
     }

@@ -196,7 +196,6 @@ class ScenData
                 else
                 {
                     objNamesEnd = true;
-                    Console.WriteLine("Finished processing object name data.");
                     loadingForm.UpdateOutputBox("Finished processing object name data.", false);
                 }
             }
@@ -217,7 +216,6 @@ class ScenData
                 else
                 {
                     netFlagsEnd = true;
-                    Console.WriteLine("Finished processing netgame flag name data.");
                     loadingForm.UpdateOutputBox("Finished processing netgame flag name data.", false);
                 }
             }
@@ -242,14 +240,12 @@ class ScenData
                     };
 
                     allStartingLocs.Add(startLocation);
-                    Console.WriteLine("Processed starting position " + i);
                     loadingForm.UpdateOutputBox("Processed starting position " + i, false);
                     i++;
                 }
                 else
                 {
                     startLocsEnd = true;
-                    Console.WriteLine("\nFinished processing starting positions data.");
                     loadingForm.UpdateOutputBox("\nFinished processing starting positions data.", false);
                 }
             }
@@ -276,14 +272,12 @@ class ScenData
                         };
 
                         allNetgameEquipLocs.Add(netgameEquip);
-                        Console.WriteLine("Process netgame equipment " + i);
                         loadingForm.UpdateOutputBox("Process netgame equipment " + i, false);
                         i++;
                     }
                     else
                     {
                         netgameObjsEnd = true;
-                        Console.WriteLine("\nFinished processing netgame equipment data.");
                         loadingForm.UpdateOutputBox("\nFinished processing netgame equipment data.", false);
                     }
                 }
@@ -317,7 +311,6 @@ class ScenData
                     else
                     {
                         scenTypesEnd = true;
-                        Console.WriteLine("Finished processing scenery palette data.");
                         loadingForm.UpdateOutputBox("Finished processing scenery palette data.", false);
                     }
                 }
@@ -351,7 +344,6 @@ class ScenData
                     else
                     {
                         crateTypesEnd = true;
-                        Console.WriteLine("Finished processing crate palette data.");
                         loadingForm.UpdateOutputBox("Finished processing crate palette data.", false);
                     }
                 }
@@ -372,7 +364,7 @@ class ScenData
 
                     if (element != null)
                     {
-                        SpWeapLoc weapon = Utils.GetObjectDataFromXML<SpWeapLoc>(element);
+                        SpWeapLoc weapon = Utils.GetObjectDataFromXML<SpWeapLoc>(element, loadingForm);
                         allSpWeaponLocs.Add(weapon);
                         loadingForm.UpdateOutputBox($"Processed weapon placement {i}.", false);
                         i++;
@@ -380,7 +372,6 @@ class ScenData
                     else
                     {
                         weaponsEnd = true;
-                        Console.WriteLine("\nFinished processing weapon data.");
                         loadingForm.UpdateOutputBox("\nFinished processing weapon placement data.", false);
                     }
                 }
@@ -400,14 +391,13 @@ class ScenData
                     XmlNode element = vehicleEntry.SelectSingleNode("./element[@index='" + i + "']");
                     if (element != null)
                     {
-                        Vehicle vehicle = Utils.GetObjectDataFromXML<Vehicle>(element);
+                        Vehicle vehicle = Utils.GetObjectDataFromXML<Vehicle>(element, loadingForm);
                         allVehiEntries.Add(vehicle);
                         i++;
                     }
                     else
                     {
                         vehiclesEnd = true;
-                        Console.WriteLine("Finished processing vehicle placement data.");
                         loadingForm.UpdateOutputBox("Finished processing vehicle placement data.", false);
                     }
                 }
@@ -427,14 +417,13 @@ class ScenData
                 XmlNode element = sceneryEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Scenery scenery = Utils.GetObjectDataFromXML<Scenery>(element);
+                    Scenery scenery = Utils.GetObjectDataFromXML<Scenery>(element, loadingForm);
                     allScenEntries.Add(scenery);
                     i++;
                 }
                 else
                 {
                     sceneriesEnd = true;
-                    Console.WriteLine("Finished processing scenery placement data.");
                     loadingForm.UpdateOutputBox("Finished processing scenery placement data.", false);
                 }
             }
@@ -465,7 +454,6 @@ class ScenData
                 else
                 {
                     trigVolsEnd = true;
-                    Console.WriteLine("Finished processing trigger volume data.");
                     loadingForm.UpdateOutputBox("Finished processing trigger volume data.", false);
                 }
             }
@@ -483,14 +471,13 @@ class ScenData
                 XmlNode element = crateEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Crate crate = Utils.GetObjectDataFromXML<Crate>(element);
+                    Crate crate = Utils.GetObjectDataFromXML<Crate>(element, loadingForm);
                     allCrateEntries.Add(crate);
                     i++;
                 }
                 else
                 {
                     cratesEnd = true;
-                    Console.WriteLine("Finished processing crate placement data.");
                     loadingForm.UpdateOutputBox("Finished processing crate placement data.", false);
                 }
             }
@@ -522,7 +509,6 @@ class ScenData
                 else
                 {
                     netFlagsEnd = true;
-                    Console.WriteLine("Finished processing netgame flags data.");
                     loadingForm.UpdateOutputBox("Finished processing netgame flags data.", false);
                 }
             }
@@ -544,7 +530,6 @@ class ScenData
                 else
                 {
                     decalTypesEnd = true;
-                    Console.WriteLine("Finished processing decal palette data.");
                     loadingForm.UpdateOutputBox("Finished processing decal palette data.", false);
                 }
             }
@@ -573,7 +558,6 @@ class ScenData
                 else
                 {
                     decalsEnd = true;
-                    Console.WriteLine("Finished processing decal placement data.");
                     loadingForm.UpdateOutputBox("Finished processing decal placement data.", false);
                 }
             }
@@ -591,14 +575,13 @@ class ScenData
                 XmlNode element = machineEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Device machine = Utils.GetObjectDataFromXML<Device>(element);
+                    Device machine = Utils.GetObjectDataFromXML<Device>(element, loadingForm);
                     allMachineEntries.Add(machine);
                     i++;
                 }
                 else
                 {
                     machinesEnd = true;
-                    Console.WriteLine("Finished processing device machine placement data.");
                     loadingForm.UpdateOutputBox("Finished processing device machine placement data.", false);
                 }
             }
@@ -616,14 +599,13 @@ class ScenData
                 XmlNode element = controlEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Device control = Utils.GetObjectDataFromXML<Device>(element);
+                    Device control = Utils.GetObjectDataFromXML<Device>(element, loadingForm);
                     allControlEntries.Add(control);
                     i++;
                 }
                 else
                 {
                     controlsEnd = true;
-                    Console.WriteLine("Finished processing device control placement data.");
                     loadingForm.UpdateOutputBox("Finished processing device control placement data.", false);
                 }
             }
@@ -652,7 +634,6 @@ class ScenData
                 else
                 {
                     devGroupsEnd = true;
-                    Console.WriteLine("Finished processing device group data.");
                     loadingForm.UpdateOutputBox("Finished processing device group data.", false);
                 }
             }
@@ -670,14 +651,13 @@ class ScenData
                 XmlNode element = bipedEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    Biped biped = Utils.GetObjectDataFromXML<Biped>(element);
+                    Biped biped = Utils.GetObjectDataFromXML<Biped>(element, loadingForm);
                     allBipedEntries.Add(biped);
                     i++;
                 }
                 else
                 {
                     bipedsEnd = true;
-                    Console.WriteLine("Finished processing biped placement data.");
                     loadingForm.UpdateOutputBox("Finished processing biped placement data.", false);
                 }
             }
@@ -695,14 +675,13 @@ class ScenData
                 XmlNode element = sscenEntry.SelectSingleNode("./element[@index='" + i + "']");
                 if (element != null)
                 {
-                    SoundScenery sscen = Utils.GetObjectDataFromXML<SoundScenery>(element);
+                    SoundScenery sscen = Utils.GetObjectDataFromXML<SoundScenery>(element, loadingForm);
                     allSscenEntries.Add(sscen);
                     i++;
                 }
                 else
                 {
                     sscenEnd = true;
-                    Console.WriteLine("Finished processing sound scenery placement data.");
                     loadingForm.UpdateOutputBox("Finished processing sound scenery placement data.", false);
                 }
             }
@@ -767,7 +746,6 @@ class ScenData
                 nameIndex++;
             }
 
-            Console.WriteLine($"Finished writing object name data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing object name data to scenario tag!", false);
 
             // Scenario type-specific data
@@ -785,7 +763,6 @@ class ScenData
                 ((TagFieldElementLongString)tagFile.SelectField($"Block:editor folders[1]/LongString:name")).Data = "Everything else";
 
                 // Add respawn point scenery to palette
-                Console.WriteLine("\nNo existing sceneries, adding respawn point\n");
                 loadingForm.UpdateOutputBox("\nNo existing sceneries, adding respawn point\n", false);
                 ((TagFieldBlock)tagFile.SelectField($"Block:scenery palette")).AddElement();
                 ((TagFieldReference)tagFile.SelectField($"Block:scenery palette[0]/Reference:name")).Path = respawnScenPath;
@@ -819,7 +796,6 @@ class ScenData
                     i++;
                 }
 
-                Console.WriteLine("Done spawns");
                 loadingForm.UpdateOutputBox("Done spawns", false);
 
                 // MP netgame equipment section
@@ -859,7 +835,6 @@ class ScenData
                     else if (equipType == "")
                     {
                         // All games entries, ignore
-                        Console.WriteLine("Ignoring blank weapon collection");
                         loadingForm.UpdateOutputBox("Ignoring blank weapon collection", false);
                         continue;
                     }
@@ -898,7 +873,6 @@ class ScenData
                         }
                     }
                 }
-                Console.WriteLine($"Finished writing netgame equipment data to scenario tag!");
                 loadingForm.UpdateOutputBox($"Finished writing equipment data to scenario tag!", false);
 
                 // Scenery Section - the idea is to place blank scenery with bad references so they can be easily changed to ported versions by the user
@@ -954,7 +928,6 @@ class ScenData
                     ((TagFieldBlockIndex)tagFile.SelectField($"Block:scenery[{currentCount}]/Struct:object data/ShortBlockIndex:editor folder")).Value = 1;
                 }
 
-                Console.WriteLine($"Finished writing scenery data to scenario tag!");
                 loadingForm.UpdateOutputBox($"Finished writing scenery data to scenario tag!", false);
 
                 // Crates section
@@ -1133,7 +1106,6 @@ class ScenData
                     }
                 }
 
-                Console.WriteLine($"Finished writing crate data to scenario tag!");
                 loadingForm.UpdateOutputBox($"Finished writing crate data to scenario tag!", false);
             }
             else if (scenarioType == "0,solo")
@@ -1167,7 +1139,6 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:trigger volumes[{currentCount}]/RealPoint3d:extents")).Data = vol.Extents;
             }
 
-            Console.WriteLine($"Finished writing trigger volume data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing trigger volume data to scenario tag!", false);
 
             // Decals section
@@ -1212,7 +1183,6 @@ class ScenData
                 ((TagFieldElementArraySingle)tagFile.SelectField($"Block:decals[{currentCount}]/RealQuaternion:rotation")).Data = quaternionString.Split(',').Select(valueString => float.TryParse(valueString, out float floatValue) ? floatValue : float.NaN).ToArray();
             }
 
-            Console.WriteLine($"Finished writing decal data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing decal data to scenario tag!", false);
 
             // Device machine section
@@ -1232,7 +1202,6 @@ class ScenData
                 groupIndex++;
             }
 
-            Console.WriteLine($"Finished writing device group data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing device group data to scenario tag!", false);
 
             // Biped section
@@ -1247,11 +1216,10 @@ class ScenData
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Tag save failure: {ex}");
                 loadingForm.UpdateOutputBox("Tag failed to save. Usually it isn't necessary, but close Sapien/TagTest and try again.", false);
+                throw new IOException($"Tag failed to save. Usually it isn't necessary, but close Sapien/TagTest and try again. Error: {ex}");
             }
 
-            Console.WriteLine("\nScenario data conversion complete!");
             loadingForm.UpdateOutputBox("\nScenario data conversion complete!", false);
         }
     }

@@ -12,7 +12,6 @@ namespace H2_H3_Converter_UI
     {
         public static string ConvertXML(string xmlPath, Loading loadingForm)
         {
-            Console.WriteLine("\nBeginning XML Conversion:\n");
             loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
 
             string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "modified_input.xml");
@@ -46,12 +45,10 @@ namespace H2_H3_Converter_UI
                     }
                 }
 
-                Console.WriteLine("Modified file saved successfully.\n\nPreparing to patch tag data:\n");
                 loadingForm.UpdateOutputBox("Modified file saved successfully. Preparing to patch tag data:\n", false);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
                 loadingForm.UpdateOutputBox("An error occurred: " + ex.Message, false);
             }
 
@@ -68,12 +65,10 @@ namespace H2_H3_Converter_UI
             if (!File.Exists(backup_filepath))
             {
                 File.Copy(scenPath, backup_filepath);
-                Console.WriteLine("Backup created successfully.");
                 loadingForm.UpdateOutputBox("Backup created successfully.", false);
             }
             else
             {
-                Console.WriteLine("Backup already exists.");
                 loadingForm.UpdateOutputBox("Backup already exists.", false);
             }
         }
@@ -329,7 +324,7 @@ namespace H2_H3_Converter_UI
             { "startup", 256 },
         };
 
-        public static TPlacement GetObjectDataFromXML<TPlacement>(XmlNode element) where TPlacement : ObjectPlacement, new()
+        public static TPlacement GetObjectDataFromXML<TPlacement>(XmlNode element, Loading loadingForm) where TPlacement : ObjectPlacement, new()
         {
             TPlacement objPlacement = new TPlacement
             {
@@ -359,7 +354,7 @@ namespace H2_H3_Converter_UI
                 }
                 catch (KeyNotFoundException)
                 {
-                    Console.WriteLine($"Couldn't find H3 equivalent for flag {flagString}, ignoring");
+                    loadingForm.UpdateOutputBox($"Couldn't find H3 equivalent for flag {flagString}, ignoring", false);
                 }
             }
             objPlacement.Flags = flagEnum;
@@ -499,7 +494,6 @@ namespace H2_H3_Converter_UI
 
                 index++;
             }
-            Console.WriteLine($"Finished writing {type} data to scenario tag!");
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         
@@ -508,7 +502,6 @@ namespace H2_H3_Converter_UI
             string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
             if (!File.Exists(fullTagPath))
             {
-                Console.WriteLine($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"");
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
 
                 // First we need to determine the bounding radius so that the object will actually be visible
@@ -523,7 +516,7 @@ namespace H2_H3_Converter_UI
                     {
                         fs.Seek(0x54, SeekOrigin.Begin); // Jump to 0x54
                         boundingRadius = reader.ReadSingle();
-                        Console.WriteLine($"Bounding radius of {objectTagPath}: {boundingRadius}");
+                        loadingForm.UpdateOutputBox($"Bounding radius of {objectTagPath}: {boundingRadius}", false);
                     }
                 }
 
@@ -600,7 +593,6 @@ namespace H2_H3_Converter_UI
             }
             else
             {
-                Console.WriteLine($"Tag \"{objectTagPath.RelativePathWithExtension}\" already exists! Skipping tag creation...");
                 loadingForm.UpdateOutputBox($"Tag \"{objectTagPath.RelativePathWithExtension}\" already exists! Skipping tag creation...", false);
             }
         }
