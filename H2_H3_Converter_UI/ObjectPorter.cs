@@ -16,15 +16,11 @@ namespace H2_H3_Converter_UI
 {
     internal class ObjectPorter
     {
-        public static string[] GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, Loading loadingForm)
+        public static string[] GetTagsForModel(TagPath objectTagPath, string h2ekPath, string h3ekPath, string h2RelativeObjectTagFolder, Loading loadingForm)
         {
             ConcurrentBag<string> extractedTags = new ConcurrentBag<string>();
             ConcurrentBag<string> jmsPathsForShaders = new ConcurrentBag<string>();
             int tagsFolderOffset = h2ekPath.Length + @"\tags\".Length;
-
-            // Remove "halo_2"
-            string[] parts = objectTagPath.RelativePathWithExtension.Split(Path.DirectorySeparatorChar);
-            string h2RelativeObjectTagFolder = Path.Combine(parts.Skip(1).ToArray());
 
             // Determine H2 Tool.exe path
             string h2ToolPath = h2ekPath + @"\tool.exe";
@@ -32,7 +28,6 @@ namespace H2_H3_Converter_UI
             // Determine H3 Tool.exe path
             string h3ToolPath = h3ekPath + @"\tool.exe";
 
-            // Sometimes sub-object tag names differ from the parent, best we can do is just grab the first tag of the right type in the same folder
             string h2FullObjectTagFolder = Path.GetDirectoryName(Path.Combine(h2ekPath, "tags", h2RelativeObjectTagFolder));
             string renderFullH2Path = "";
             string collisionFullH2Path = "";

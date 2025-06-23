@@ -352,7 +352,7 @@ class ScenData
         else if (scenarioType == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "weapon", create_objects);
+            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "weapon", create_objects);
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
             foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
             {
@@ -380,7 +380,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "vehicle", create_objects);
+            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "vehicle", create_objects);
             loadingForm.UpdateOutputBox("\nBegin reading vehicle placement data.", false);
             foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
@@ -404,7 +404,7 @@ class ScenData
             }
 
             // Scenery palette
-            Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "scenery", create_objects);
+            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "scenery", create_objects);
         }
 
         // Scenery placements
@@ -460,7 +460,7 @@ class ScenData
         }
 
         // Crates section
-        Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "crate", create_objects);
+        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "crate", create_objects);
         loadingForm.UpdateOutputBox("\nBegin reading crate placement data.", false);
         foreach (XmlNode crateEntry in crateEntriesBlock)
         {
@@ -564,7 +564,7 @@ class ScenData
         }
 
         // Device machines section
-        Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "machine", create_objects);
+        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "machine", create_objects);
         loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
         foreach (XmlNode machineEntry in machEntriesBlock)
         {
@@ -588,7 +588,7 @@ class ScenData
         }
 
         // Device controls section
-        Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "control", create_objects);
+        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "control", create_objects);
         loadingForm.UpdateOutputBox("\nBegin reading device control placement data.", false);
         foreach (XmlNode controlEntry in ctrlEntriesBlock)
         {
@@ -640,7 +640,7 @@ class ScenData
         }
 
         // Bipeds section
-        Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "biped", create_objects);
+        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "biped", create_objects);
         loadingForm.UpdateOutputBox("\nBegin reading biped placement data.", false);
         foreach (XmlNode bipedEntry in bipdEntriesBlock)
         {
@@ -664,7 +664,7 @@ class ScenData
         }
 
         // Sound scenery section
-        Utils.ConvertPalette(scenPath, xmlPath, loadingForm, scenfile, "sound scenery", create_objects);
+        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "sound scenery", create_objects);
         loadingForm.UpdateOutputBox("\nBegin reading sound scenery placement data.", false);
         foreach (XmlNode sscenEntry in sscenEntriesBlock)
         {

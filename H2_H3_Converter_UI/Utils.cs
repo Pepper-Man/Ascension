@@ -73,10 +73,9 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertPalette(string scenPath, string h2XmlPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
+        public static void ConvertPalette(string scenPath, string h2ekPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
         {
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
-            string h2ekPath = h2XmlPath.Substring(0, h2XmlPath.IndexOf("H2EK") + "H2EK".Length);
 
             XmlNode root = scenfile.DocumentElement;
             string scenarioType = root.SelectSingleNode(".//field[@name='type']").InnerText.Trim();
@@ -521,7 +520,7 @@ namespace H2_H3_Converter_UI
                 }
 
                 // Now, let's try to get the render model, collision, physics for the .model tag
-                string[] modelTagReferences = ObjectPorter.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, loadingForm);
+                string[] modelTagReferences = ObjectPorter.GetTagsForModel(objectTagPath, h2ekPath, h3ekPath, relativeH2TagPath, loadingForm);
 
                 TagPath referenceTagPath;
                 
