@@ -47,6 +47,9 @@ This is a UI-based compilation of all my previously released H2-to-H3 converters
     * All device machine and control types and placements, including correct placement and device flags. Also includes device groups.
     * All biped types and placements. Dead bipeds still need to have their ragdoll positions set manually.
 
+## Object Porter
+* The Scenario Data Converter also features an option to port the object tags (.render_model, .collision_model, and .physics_model) from H2 to your H3EK. It extracts the JMS source files, moves them to your H3EK data directory within a "halo_2" folder, then imports them. Any shader tags referenced by the render model are created (but left blank). This option then creates the .model and object-level (.crate, .scenery etc) tag and sets the correct references. Bounding radius is set to the H2 value to make sure the object is visible. Does not overwrite already existing ports of the object.
+
 ## AI/Scripting Data Converter
 * Translates everything required for functional squads, as well as data used for mission scripting.
 * Currently includes:
