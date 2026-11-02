@@ -116,8 +116,10 @@ class DeviceGroup
 
 class ScenData
 {
-    public static bool ConvertScenarioData(string scenPath, string xmlPath, bool create_objects, Loading loadingForm)
+    public static (bool, List<string>) ConvertScenarioData(string scenPath, string xmlPath, bool create_objects, Loading loadingForm)
     {
+        List<string> portedObjects = new List<string>();
+
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
         string h2ekPath = xmlPath.Substring(0, xmlPath.IndexOf("H2EK") + "H2EK".Length);
 
@@ -136,7 +138,7 @@ class ScenData
         catch (Exception e)
         {
             MessageBox.Show("Error when loading XML file!\n\n" + e, "XML Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            return false;
+            return (false, portedObjects);
         }
         
         XmlNode root = scenfile.DocumentElement;
@@ -303,7 +305,8 @@ class ScenData
                         // Create .model and .scenery tags if requested, ignore flag_base entry
                         if (create_objects && sceneryTagPath.RelativePathWithExtension != "halo_2\\objects\\multi\\flag_base\\flag_base.scenery")
                         {
-                            Utils.CreateObjectTags(sceneryTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                            bool createdTags = Utils.CreateObjectTags(sceneryTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                            if (createdTags) portedObjects.Add(sceneryTagPath.RelativePathWithExtension);
                         }
 
                         i++;
@@ -336,7 +339,8 @@ class ScenData
                         // Create .model and .crate tags if requested
                         if (create_objects)
                         {
-                            Utils.CreateObjectTags(crateTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                            bool createdTags = Utils.CreateObjectTags(crateTagPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                            if (createdTags) portedObjects.Add(crateTagPath.RelativePathWithExtension);
                         }
 
                         i++;
@@ -352,7 +356,7 @@ class ScenData
         else if (scenarioType == "0,solo")
         {
             // Before we can do anything, gotta transfer the weapon palette data so the indices line up
-            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "weapon", create_objects);
+            portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "weapon", create_objects));
             loadingForm.UpdateOutputBox("\nBegin reading weapon placement data.", false);
             foreach (XmlNode weaponEntry in weaponSpEntriesBlock)
             {
@@ -380,7 +384,7 @@ class ScenData
             // SP vehicles - MP vehicles from H2 don't actually use the vehicle palette
 
             // Transfer the vehicle palette data so the indices line up
-            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "vehicle", create_objects);
+            portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "vehicle", create_objects));
             loadingForm.UpdateOutputBox("\nBegin reading vehicle placement data.", false);
             foreach (XmlNode vehicleEntry in vehiEntriesBlock)
             {
@@ -404,7 +408,7 @@ class ScenData
             }
 
             // Scenery palette
-            Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "scenery", create_objects);
+            portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "scenery", create_objects));
         }
 
         // Scenery placements
@@ -460,7 +464,7 @@ class ScenData
         }
 
         // Crates section
-        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "crate", create_objects);
+        portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "crate", create_objects));
         loadingForm.UpdateOutputBox("\nBegin reading crate placement data.", false);
         foreach (XmlNode crateEntry in crateEntriesBlock)
         {
@@ -564,7 +568,7 @@ class ScenData
         }
 
         // Device machines section
-        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "machine", create_objects);
+        portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "machine", create_objects));
         loadingForm.UpdateOutputBox("\nBegin reading device machine placement data.", false);
         foreach (XmlNode machineEntry in machEntriesBlock)
         {
@@ -588,7 +592,7 @@ class ScenData
         }
 
         // Device controls section
-        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "control", create_objects);
+        portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "control", create_objects));
         loadingForm.UpdateOutputBox("\nBegin reading device control placement data.", false);
         foreach (XmlNode controlEntry in ctrlEntriesBlock)
         {
@@ -640,7 +644,7 @@ class ScenData
         }
 
         // Bipeds section
-        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "biped", create_objects);
+        portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "biped", create_objects));
         loadingForm.UpdateOutputBox("\nBegin reading biped placement data.", false);
         foreach (XmlNode bipedEntry in bipdEntriesBlock)
         {
@@ -664,7 +668,7 @@ class ScenData
         }
 
         // Sound scenery section
-        Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "sound scenery", create_objects);
+        portedObjects.AddRange(Utils.ConvertPalette(scenPath, h2ekPath, loadingForm, scenfile, "sound scenery", create_objects));
         loadingForm.UpdateOutputBox("\nBegin reading sound scenery placement data.", false);
         foreach (XmlNode sscenEntry in sscenEntriesBlock)
         {
@@ -688,7 +692,7 @@ class ScenData
         }
 
         XmlToTag(allObjectNames, allStartingLocs, allNetgameEquipLocs, allSpWeaponLocs, allScenTypes, allScenEntries, allTrigVols, allVehiEntries, allCrateTypes, allCrateEntries, allNetgameFlags, allDecalTypes, allDecalEntries, allMachineEntries, allControlEntries, allDeviceGroups, allBipedEntries, allSscenEntries, h3ekPath, scenPath, loadingForm, scenarioType);
-        return true;
+        return (true, portedObjects);
     }
 
     static void XmlToTag(List<string> allObjectNames, List<StartLoc> startLocations, List<NetEquip> netgameEquipment, List<SpWeapLoc> allSpWeapLocs, List<TagPath> allScenTypes, List<Scenery> allScenEntries, List<TrigVol> allTrigVols, List<Vehicle> allVehiEntries, List<TagPath> allCrateTypes, List<Crate> allCrateEntries, List<NetFlag> allNetgameFlags, List<TagPath> allDecalTypes, List<Decal> allDecalEntries, List<Device> allMachineEntries, List<Device> allControlEntries, List<DeviceGroup> allDeviceGroups, List<Biped> allBipedEntries, List<SoundScenery> allSscenEntries, string h3ekPath, string scenpath, Loading loadingForm, string scenarioType)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -390,6 +391,8 @@ namespace H2_H3_Converter_UI
                 // Show loading
                 loadingForm.Show();
 
+                HashSet<string> uniquePortedObjects = new HashSet<string>();
+
                 await Task.Run(async () =>
                 {
                     // It's go time
@@ -410,11 +413,14 @@ namespace H2_H3_Converter_UI
                     if (checkBox3.Checked)
                     {
                         // Scenario conversion
-                        if(!ScenData.ConvertScenarioData(scen_path, h2_xml_path, create_object_tags, loadingForm))
+                        (bool, List<string>) results = ScenData.ConvertScenarioData(scen_path, h2_xml_path, create_object_tags, loadingForm);
+                        if (!results.Item1)
                         {
                             success = false;
                             return;
                         }
+
+                        uniquePortedObjects.UnionWith(results.Item2);
                     }
                     if (checkBox4.Checked)
                     {
@@ -434,13 +440,13 @@ namespace H2_H3_Converter_UI
                         ScriptPointConverter.ConvertScriptPoints(scen_path, loadingForm, scenFile);
 
                         // Squads conversion
-                        Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character", create_object_tags);
+                        uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character", create_object_tags));
 
                         // Only convert weapon and vehicle palettes if scenario data conversion was not already done, since it is done there too
                         if (!checkBox3.Checked)
                         {
-                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon", create_object_tags);
-                            Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle", create_object_tags);
+                            uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon", create_object_tags));
+                            uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle", create_object_tags));
                         }
                         
                         SquadsConverter.ConvertSquadGroups(scen_path, loadingForm, scenFile);
@@ -448,14 +454,38 @@ namespace H2_H3_Converter_UI
                     }
                 });
 
-                if (success)
+                string statusMessage = success
+                    ? "All conversions complete! Click \"close\" to exit the program."
+                    : "A critical error was encountered. Click \"close\" to exit the program.";
+
+                string objectHeader = success
+                    ? "Ported Objects:"
+                    : "The following objects were ported before the error:";
+
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(statusMessage);
+
+                if (uniquePortedObjects.Count > 0)
                 {
-                    loadingForm.UpdateOutputBox("All conversions complete! Click \"close\" to exit the program.", false);
+                    sb.AppendLine();
+                    sb.AppendLine(objectHeader);
+                    sb.AppendLine();
+
+                    int index = 0;
+                    int totalObjects = uniquePortedObjects.Count;
+                    foreach (string portedObjectPath in uniquePortedObjects)
+                    {
+                        sb.AppendLine($" • \"{portedObjectPath}\"");
+
+                        index++;
+                        if (index < totalObjects)
+                        {
+                            sb.AppendLine();
+                        }
+                    }
                 }
-                else
-                {
-                    loadingForm.UpdateOutputBox("A critical error was encountered. Click \"close\" to exit the program.", false);
-                }
+
+                loadingForm.UpdateOutputBox(sb.ToString(), false);
 
                 loadingForm.Enable_Close();
 

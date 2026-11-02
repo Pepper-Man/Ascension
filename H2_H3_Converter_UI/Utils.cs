@@ -73,8 +73,10 @@ namespace H2_H3_Converter_UI
             }
         }
 
-        public static void ConvertPalette(string scenPath, string h2ekPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
+        public static List<string> ConvertPalette(string scenPath, string h2ekPath, Loading loadingForm, XmlDocument scenfile, string paletteType, bool createObjects)
         {
+            List<string> portedObjects = new List<string>();
+
             loadingForm.UpdateOutputBox($"Begin reading scenario {paletteType} palette from XML...", false);
 
             XmlNode root = scenfile.DocumentElement;
@@ -84,7 +86,7 @@ namespace H2_H3_Converter_UI
             if (scenarioType.Contains("multiplayer") && paletteType != "machine" && paletteType != "control" && paletteType != "sound scenery" && paletteType != "scenery")
             {
                 loadingForm.UpdateOutputBox($"Scenario type is MP, not processing {paletteType} palette from SP data.", false);
-                return;
+                return portedObjects;
             }
 
             XmlNodeList paletteBlock = root.SelectNodes($".//block[@name='{paletteType} palette']");
@@ -200,7 +202,8 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_machine tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        bool createdTags = Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        if (createdTags) portedObjects.Add(h3ObjectPath.RelativePathWithExtension);
                     }
                 }
             }
@@ -216,7 +219,8 @@ namespace H2_H3_Converter_UI
                     // Create .model and .device_control tags if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        bool createdTags = Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        if (createdTags) portedObjects.Add(h3ObjectPath.RelativePathWithExtension);
                     }
                 }
             }
@@ -245,7 +249,8 @@ namespace H2_H3_Converter_UI
                     // Create .sound_scenery tag if requested
                     if (createObjects)
                     {
-                        Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        bool createdTags = Utils.CreateObjectTags(h3ObjectPath, h3ekPath, h2ekPath, h2TagPath, loadingForm);
+                        if (createdTags) portedObjects.Add(h3ObjectPath.RelativePathWithExtension);
                     }
                 }
             }
@@ -299,7 +304,7 @@ namespace H2_H3_Converter_UI
             catch
             {
                 loadingForm.UpdateOutputBox($"Unknown managedblam error! {paletteType} palette data will not have been written correctly!", false);
-                return;
+                return portedObjects;
             }
             finally
             {
@@ -307,6 +312,8 @@ namespace H2_H3_Converter_UI
                 scenTag.Dispose();
                 loadingForm.UpdateOutputBox($"Finished writing {paletteType} palette data to scenario tag!", false);
             }
+
+            return portedObjects;
         }
 
         public static Dictionary<string, uint> h3ObjectFlagValues = new Dictionary<string, uint>()
@@ -496,7 +503,7 @@ namespace H2_H3_Converter_UI
             loadingForm.UpdateOutputBox($"Finished writing {type} data to scenario tag!", false);
         }
         
-        public static void CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, string relativeH2TagPath, Loading loadingForm)
+        public static bool CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, string relativeH2TagPath, Loading loadingForm)
         {
             string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
             if (!File.Exists(fullTagPath))
@@ -589,10 +596,12 @@ namespace H2_H3_Converter_UI
                 }
 
                 objectTag.Save();
+                return true;
             }
             else
             {
                 loadingForm.UpdateOutputBox($"Tag \"{objectTagPath.RelativePathWithExtension}\" already exists! Skipping tag creation...", false);
+                return false;
             }
         }
         
