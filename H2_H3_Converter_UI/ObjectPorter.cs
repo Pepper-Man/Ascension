@@ -114,6 +114,10 @@ namespace H2_H3_Converter_UI
             {
                 return MoveFile(Path.GetDirectoryName(fullH2JMSPath), Path.GetDirectoryName(fullH3JMSPath));
             }
+            catch (IOException ex)
+            {
+                return "";
+            }
             catch (Exception ex)
             {
                 throw new IOException($"Error when moving folder \"{Path.GetDirectoryName(fullH2JMSPath)}\" to \"{Path.GetDirectoryName(fullH3JMSPath)}\"! Exception: {ex}");

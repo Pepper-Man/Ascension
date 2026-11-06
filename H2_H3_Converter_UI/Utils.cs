@@ -1,5 +1,6 @@
 ﻿using Bungie;
 using Bungie.Tags;
+using ImageMagick.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,7 +136,6 @@ namespace H2_H3_Converter_UI
             var relativeScenPath = TagPath.FromPathAndType(Path.ChangeExtension(scenPath.Split(new[] { "\\tags\\" }, StringSplitOptions.None).Last(), null).Replace('\\', Path.DirectorySeparatorChar), "scnr*");
             TagFile scenTag = new TagFile();
 
-            // Convert H2 .weapon paths to H3 versions
             Utils utilsInstance = new Utils();
             List<TagPath> h3ObjPaths = new List<TagPath>();
 
@@ -195,8 +195,7 @@ namespace H2_H3_Converter_UI
                 // Not gonna bother trying to convert machine types as 99% of the time they have no equivalent
                 foreach (string h2TagPath in h2ObjRefs)
                 {
-                    string modifiedPath = String.Format("halo_2\\{0}", h2TagPath);
-                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_machine");
+                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(Path.Combine("halo_2", h2TagPath), "device_machine");
                     h3ObjPaths.Add(h3ObjectPath);
 
                     // Create .model and .device_machine tags if requested
@@ -212,8 +211,7 @@ namespace H2_H3_Converter_UI
                 // Same goes for controls
                 foreach (string h2TagPath in h2ObjRefs)
                 {
-                    string modifiedPath = String.Format("halo_2\\{0}", h2TagPath);
-                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(modifiedPath, "device_control");
+                    TagPath h3ObjectPath = TagPath.FromPathAndExtension(Path.Combine("halo_2", h2TagPath), "device_control");
                     h3ObjPaths.Add(h3ObjectPath);
 
                     // Create .model and .device_control tags if requested
@@ -258,16 +256,30 @@ namespace H2_H3_Converter_UI
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "crate");
+                    TagPath h3Obj = TagPath.FromPathAndExtension(Path.Combine("halo_2", h2Path), "crate");
                     h3ObjPaths.Add(h3Obj);
+
+                    // Create .crate tag if requested
+                    if (createObjects)
+                    {
+                        bool createdTags = Utils.CreateObjectTags(h3Obj, h3ekPath, h2ekPath, h2Path, loadingForm);
+                        if (createdTags) portedObjects.Add(h3Obj.RelativePathWithExtension);
+                    }
                 }
             }
             else if (paletteType == "scenery")
             {
                 foreach (string h2Path in h2ObjRefs)
                 {
-                    TagPath h3Obj = TagPath.FromPathAndExtension(h2Path, "scenery");
+                    TagPath h3Obj = TagPath.FromPathAndExtension(Path.Combine("halo_2", h2Path), "scenery");
                     h3ObjPaths.Add(h3Obj);
+
+                    // Create .scenery tag if requested
+                    if (createObjects)
+                    {
+                        bool createdTags = Utils.CreateObjectTags(h3Obj, h3ekPath, h2ekPath, h2Path, loadingForm);
+                        if (createdTags) portedObjects.Add(h3Obj.RelativePathWithExtension);
+                    }
                 }
             }
             else
@@ -276,7 +288,7 @@ namespace H2_H3_Converter_UI
             }
 
 
-            // Now lets write the weapon palette for the H3 scenario
+            // Now lets write the palette data for the H3 scenario
             try
             {
                 scenTag.Load(relativeScenPath);
@@ -506,6 +518,7 @@ namespace H2_H3_Converter_UI
         public static bool CreateObjectTags(TagPath objectTagPath, string h3ekPath, string h2ekPath, string relativeH2TagPath, Loading loadingForm)
         {
             string fullTagPath = Path.Combine(h3ekPath, "tags\\", objectTagPath.RelativePathWithExtension);
+
             if (!File.Exists(fullTagPath))
             {
                 loadingForm.UpdateOutputBox($"Creating tags for object \"{objectTagPath.RelativePathWithExtension}\"", false);
@@ -521,8 +534,18 @@ namespace H2_H3_Converter_UI
                     using (BinaryReader reader = new BinaryReader(fs))
                     {
                         fs.Seek(0x54, SeekOrigin.Begin); // Jump to 0x54
-                        boundingRadius = reader.ReadSingle();
-                        loadingForm.UpdateOutputBox($"Bounding radius of {objectTagPath}: {boundingRadius}", false);
+                        float boundingRadiusFromFile = reader.ReadSingle();
+
+                        if (boundingRadiusFromFile <= 0.0f)
+                        {
+                            loadingForm.UpdateOutputBox($"Bounding radius of {objectTagPath} not set in H2; defaulting to 1.0", false);
+                            boundingRadius = 1.0f;
+                        }
+                        else
+                        {
+                            loadingForm.UpdateOutputBox($"Bounding radius of {objectTagPath}: {boundingRadius}", false);
+                            boundingRadius = boundingRadiusFromFile;
+                        }
                     }
                 }
 
