@@ -84,17 +84,18 @@ namespace H2_H3_Converter_UI
                     ((TagFieldElementArraySingle)scenTag.SelectField($"Block:cutscene flags[{i}]/RealEulerAngles2d:facing")).Data = flag.Facing;
                     i++;
                 }
+
+                scenTag.Save();
+                loadingForm.UpdateOutputBox($"Finished writing flag data to scenario tag!", false);
             }
-            catch
+            catch (Exception e)
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Flag data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing flag data.\nNothing was saved for this step.", false);
                 return;
             }
             finally
             {
-                scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing flag data to scenario tag!", false);
             }
         }
     }

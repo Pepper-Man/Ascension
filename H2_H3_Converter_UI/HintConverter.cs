@@ -322,18 +322,17 @@ namespace H2_H3_Converter_UI
                     }
                 }
 
-                loadingForm.UpdateOutputBox($"Finished writing hint data", false);
+                scenTag.Save();
+                loadingForm.UpdateOutputBox($"Finished writing AI hint data to scenario tag!", false);
             }
-            catch
+            catch (Exception e)
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Hint data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing AI hint data.\nNothing was saved for this step.", false);
                 return;
             }
             finally
             {
-                scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing data to scenario tag!", false);
             }
         }
     }

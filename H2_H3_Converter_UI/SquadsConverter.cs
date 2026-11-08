@@ -119,17 +119,18 @@ namespace H2_H3_Converter_UI
                     ((TagFieldBlockIndex)scenTag.SelectField($"Block:squad groups[{i}]/ShortBlockIndex:parent")).Value = group.ParentIndex;
                     i++;
                 }
+
+                scenTag.Save();
+                loadingForm.UpdateOutputBox($"Finished writing squad group data to scenario tag!", false);
             }
-            catch
+            catch (Exception e)
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Squad group data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing squad group data.\nNothing was saved for this step.", false);
                 return;
             }
             finally
             {
-                scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing squad group data to scenario tag!", false);
             }
         }
 
@@ -421,17 +422,18 @@ namespace H2_H3_Converter_UI
 
                     i++;
                 }
+
+                scenTag.Save();
+                loadingForm.UpdateOutputBox($"Finished writing squad data to scenario tag!", false);
             }
-            catch
+            catch (Exception e)
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! Squad data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing squad data.\nNothing was saved for this step.", false);
                 return;
             }
             finally
             {
-                scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing squad data to scenario tag!", false);
             }
         }
     }

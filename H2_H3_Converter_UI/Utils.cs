@@ -312,17 +312,18 @@ namespace H2_H3_Converter_UI
 
                     i++;
                 }
+
+                scenTag.Save();
+                loadingForm.UpdateOutputBox($"Finished writing {paletteType} palette data to scenario tag!", false);
             }
-            catch
+            catch (Exception e)
             {
-                loadingForm.UpdateOutputBox($"Unknown managedblam error! {paletteType} palette data will not have been written correctly!", false);
+                loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing {paletteType} palette data.\nNothing was saved for this step.", false);
                 return portedObjects;
             }
             finally
             {
-                scenTag.Save();
                 scenTag.Dispose();
-                loadingForm.UpdateOutputBox($"Finished writing {paletteType} palette data to scenario tag!", false);
             }
 
             return portedObjects;
