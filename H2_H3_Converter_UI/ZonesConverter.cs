@@ -36,6 +36,9 @@ class MB_Zones
 {
     public static bool ZoneConverter(string scenPath, string xmlPath, Loading loadingForm)
     {
+        // Make sure we have a scenario backup
+        Utils.BackupScenario(scenPath, loadingForm);
+
         string h3ekPath = scenPath.Substring(0, scenPath.IndexOf("H3EK") + "H3EK".Length);
 
         ManagedBlamSystem.InitializeProject(InitializationType.TagsOnly, h3ekPath);
