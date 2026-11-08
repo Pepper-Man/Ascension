@@ -12,33 +12,33 @@ namespace H2_H3_Converter_UI
     internal class ToolRunner
     {
         // Overloads
-        public static void RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath, string type)
+        public static int RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath, string type)
         {
-            RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, outputPath, type);
+            return RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, outputPath, type);
         }
 
-        public static void RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath)
+        public static int RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath)
         {
-            RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, outputPath, null);
+            return RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, outputPath, null);
         }
 
-        public static void RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm)
+        public static int RunTool(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm)
         {
-            RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, null, null);
+            return RunToolInternal(toolExePath, command, editingKitPath, filePath, loadingForm, null, null);
         }
 
-        public static void RunTool(string toolExePath, string command, string editingKitPath, string filePath)
+        public static int RunTool(string toolExePath, string command, string editingKitPath, string filePath)
         {
-            RunToolInternal(toolExePath, command, editingKitPath, filePath, null, null, null);
+            return RunToolInternal(toolExePath, command, editingKitPath, filePath, null, null, null);
         }
 
-        public static void RunTool(string toolExePath, string command, string editingKitPath)
+        public static int RunTool(string toolExePath, string command, string editingKitPath)
         {
-            RunToolInternal(toolExePath, command, editingKitPath, null, null, null, null);
+            return RunToolInternal(toolExePath, command, editingKitPath, null, null, null, null);
         }
 
         // Main Tool.exe running method
-        private static void RunToolInternal(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath, string type)
+        private static int RunToolInternal(string toolExePath, string command, string editingKitPath, string filePath, Loading loadingForm, string outputPath, string type)
         {
             // Build arguments
             List<string> argumentsList = new List<string>();
@@ -185,7 +185,9 @@ namespace H2_H3_Converter_UI
                 throw ae.InnerException ?? ae;
             }
 
+            int exitCode = process.ExitCode;
             process.Close();
+            return exitCode;
         }
     }
 }

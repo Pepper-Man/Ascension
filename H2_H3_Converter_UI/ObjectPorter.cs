@@ -20,6 +20,7 @@ namespace H2_H3_Converter_UI
         {
             ConcurrentBag<string> extractedTags = new ConcurrentBag<string>();
             ConcurrentBag<string> jmsPathsForShaders = new ConcurrentBag<string>();
+            ConcurrentBag<string> movedTypes = new ConcurrentBag<string>();
             int tagsFolderOffset = h2ekPath.Length + @"\tags\".Length;
 
             // Determine H2 Tool.exe path
@@ -56,13 +57,23 @@ namespace H2_H3_Converter_UI
                 // Export
                 string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 loadingForm.UpdateOutputBox($"Extracting {relativePath}", false);
-                ToolRunner.RunTool(h2ToolPath, modelTag.extractCmd, h2ekPath, relativePath);
-                extractedTags.Add(Path.Combine("halo_2", relativePath));
+                int exitCode = ToolRunner.RunTool(h2ToolPath, modelTag.extractCmd, h2ekPath, relativePath, loadingForm);
+                if (exitCode != 0)
+                {
+                    loadingForm.UpdateOutputBox($"[Warning] tool.exe exited with code {exitCode} while extracting {relativePath}", false);
+                }
 
                 // Move
                 string jmsFile = MoveJMSToH3(relativePath, modelTag.fullPath, h3ekPath, modelTag.type, loadingForm);
+                if (string.IsNullOrEmpty(jmsFile))
+                {
+                    return; // MoveJMSToH3 already logged why, so just skip
+                }
 
-                // Queue shader creation if needed - has to be done on main thread
+                movedTypes.Add(modelTag.type);
+                extractedTags.Add(Path.Combine("halo_2", relativePath));
+
+                // Queue shader creation if needed - has to be done on the main thread
                 if (modelTag.type == "render")
                 {
                     jmsPathsForShaders.Add(jmsFile);
@@ -81,6 +92,19 @@ namespace H2_H3_Converter_UI
                 string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
                 ToolRunner.RunTool(h3ToolPath, modelTag.type, h3ekPath, importFolder);
+            });
+
+            Parallel.ForEach(modelTypes.Where(m => File.Exists(m.fullPath)), modelTag =>
+            {
+                string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
+                string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
+                ToolRunner.RunTool(h3ToolPath, modelTag.type, h3ekPath, importFolder, loadingForm);
+
+                string importedTagsFolder = Path.Combine(h3ekPath, "tags", importFolder);
+                if (!Directory.Exists(importedTagsFolder) || !Directory.GetFiles(importedTagsFolder, "*." + modelTag.type + "_model", SearchOption.AllDirectories).Any())
+                {
+                    loadingForm.UpdateOutputBox($"[Warning] No {modelTag.type} model tag was created in \"{importFolder}\". The import may have failed.", false);
+                }
             });
 
             return extractedTags.ToArray();
@@ -114,8 +138,14 @@ namespace H2_H3_Converter_UI
             {
                 return MoveFile(Path.GetDirectoryName(fullH2JMSPath), Path.GetDirectoryName(fullH3JMSPath));
             }
+            catch (DirectoryNotFoundException)
+            {
+                loadingForm.UpdateOutputBox($"[Warning] No extracted {type} JMS found for \"{relativeH2TagPath}\" (expected in \"{Path.GetDirectoryName(fullH2JMSPath)}\"). Skipping this model.", false);
+                return "";
+            }
             catch (IOException ex)
             {
+                loadingForm.UpdateOutputBox($"[Warning] Couldn't copy the {type} JMS for \"{relativeH2TagPath}\": {ex.Message}", false);
                 return "";
             }
             catch (Exception ex)

@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace H2_H3_Converter_UI
-{-
+{
     public class Utils
     {
         // Helper methods that grabs only the leading digits part of an enum or flags field
