@@ -190,7 +190,7 @@ namespace H2_H3_Converter_UI
 
             try
             {
-                if (!(Directory.GetFiles(destinationShadersPath) == Array.Empty<string>()))
+                if (Directory.GetFiles(destinationShadersPath).Length > 0)
                 {
                     loadingForm.UpdateOutputBox("Shaders folder exists and has files! Skipping shader generation...", false);
                     return;
