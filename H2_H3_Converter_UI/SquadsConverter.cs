@@ -126,7 +126,7 @@ namespace H2_H3_Converter_UI
             catch (Exception e)
             {
                 loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing squad group data.\nNothing was saved for this step.", false);
-                return;
+                throw;
             }
             finally
             {
@@ -429,7 +429,7 @@ namespace H2_H3_Converter_UI
             catch (Exception e)
             {
                 loadingForm.UpdateOutputBox($"Managedblam error: {e.Message} - occurred whilst processing squad data.\nNothing was saved for this step.", false);
-                return;
+                throw;
             }
             finally
             {

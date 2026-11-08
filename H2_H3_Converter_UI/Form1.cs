@@ -395,62 +395,70 @@ namespace H2_H3_Converter_UI
 
                 await Task.Run(async () =>
                 {
-                    // It's go time
-                    if (checkBox1.Checked)
+                    try
                     {
-                        // Shader conversion
-                        ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, loadingForm);
-                    }
-                    if (checkBox2.Checked)
-                    {
-                        // Zones conversion
-                        if(!MB_Zones.ZoneConverter(scen_path, h2_xml_path, loadingForm))
+                        // It's go time
+                        if (checkBox1.Checked)
                         {
-                            success = false;
-                            return;
+                            // Shader conversion
+                            ShaderConverter.ConvertShaders(bsp_paths, scen_path, use_existing_tifs, loadingForm);
+                        }
+                        if (checkBox2.Checked)
+                        {
+                            // Zones conversion
+                            if (!MB_Zones.ZoneConverter(scen_path, h2_xml_path, loadingForm))
+                            {
+                                success = false;
+                                return;
+                            }
+                        }
+                        if (checkBox3.Checked)
+                        {
+                            // Scenario conversion
+                            (bool, List<string>) results = ScenData.ConvertScenarioData(scen_path, h2_xml_path, create_object_tags, loadingForm);
+                            if (!results.Item1)
+                            {
+                                success = false;
+                                return;
+                            }
+
+                            uniquePortedObjects.UnionWith(results.Item2);
+                        }
+                        if (checkBox4.Checked)
+                        {
+                            // Hint conversion
+                            XmlDocument scenFile = HintConverter.HintsToXML(scen_path, h2_xml_path, loadingForm);
+
+                            if (scenFile == null)
+                            {
+                                success = false;
+                                return;
+                            }
+
+                            // Flags conversion
+                            FlagConverter.ConvertCutsceneFlags(scen_path, loadingForm, scenFile);
+
+                            // Point set conversion
+                            ScriptPointConverter.ConvertScriptPoints(scen_path, loadingForm, scenFile);
+
+                            // Squads conversion
+                            uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character", create_object_tags));
+
+                            // Only convert weapon and vehicle palettes if scenario data conversion was not already done, since it is done there too
+                            if (!checkBox3.Checked)
+                            {
+                                uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon", create_object_tags));
+                                uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle", create_object_tags));
+                            }
+
+                            SquadsConverter.ConvertSquadGroups(scen_path, loadingForm, scenFile);
+                            SquadsConverter.ConvertSquads(scen_path, loadingForm, scenFile, squad_folder_txt_path);
                         }
                     }
-                    if (checkBox3.Checked)
+                    catch (Exception ex)
                     {
-                        // Scenario conversion
-                        (bool, List<string>) results = ScenData.ConvertScenarioData(scen_path, h2_xml_path, create_object_tags, loadingForm);
-                        if (!results.Item1)
-                        {
-                            success = false;
-                            return;
-                        }
-
-                        uniquePortedObjects.UnionWith(results.Item2);
-                    }
-                    if (checkBox4.Checked)
-                    {
-                        // Hint conversion
-                        XmlDocument scenFile = HintConverter.HintsToXML(scen_path, h2_xml_path, loadingForm);
-
-                        if (scenFile == null)
-                        {
-                            success = false;
-                            return;
-                        }
-
-                        // Flags conversion
-                        FlagConverter.ConvertCutsceneFlags(scen_path, loadingForm, scenFile);
-
-                        // Point set conversion
-                        ScriptPointConverter.ConvertScriptPoints(scen_path, loadingForm, scenFile);
-
-                        // Squads conversion
-                        uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "character", create_object_tags));
-
-                        // Only convert weapon and vehicle palettes if scenario data conversion was not already done, since it is done there too
-                        if (!checkBox3.Checked)
-                        {
-                            uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "weapon", create_object_tags));
-                            uniquePortedObjects.UnionWith(Utils.ConvertPalette(scen_path, h2_xml_path, loadingForm, scenFile, "vehicle", create_object_tags));
-                        }
-                        
-                        SquadsConverter.ConvertSquadGroups(scen_path, loadingForm, scenFile);
-                        SquadsConverter.ConvertSquads(scen_path, loadingForm, scenFile, squad_folder_txt_path);
+                        success = false;
+                        loadingForm.UpdateOutputBox($"\nUnhandled error: {ex}", false);
                     }
                 });
 
