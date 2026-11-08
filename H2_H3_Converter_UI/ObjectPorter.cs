@@ -91,13 +91,6 @@ namespace H2_H3_Converter_UI
             {
                 string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
                 string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
-                ToolRunner.RunTool(h3ToolPath, modelTag.type, h3ekPath, importFolder);
-            });
-
-            Parallel.ForEach(modelTypes.Where(m => File.Exists(m.fullPath)), modelTag =>
-            {
-                string relativePath = modelTag.fullPath.Substring(tagsFolderOffset);
-                string importFolder = Path.Combine("halo_2", Path.GetDirectoryName(relativePath));
                 ToolRunner.RunTool(h3ToolPath, modelTag.type, h3ekPath, importFolder, loadingForm);
 
                 string importedTagsFolder = Path.Combine(h3ekPath, "tags", importFolder);
