@@ -1,16 +1,27 @@
 ﻿using Bungie;
 using Bungie.Tags;
-using ImageMagick.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace H2_H3_Converter_UI
-{
+{-
     public class Utils
     {
+        // Helper methods that grabs only the leading digits part of an enum or flags field
+        public static int ParseLeadingInt(string text)
+        {
+            return int.Parse(Regex.Match(text.Trim(), @"^-?\d+").Value, CultureInfo.InvariantCulture);
+        }
+        public static uint ParseLeadingUInt(string text)
+        {
+            return uint.Parse(Regex.Match(text.Trim(), @"^\d+").Value, CultureInfo.InvariantCulture);
+        }
+
         public static string ConvertXML(string xmlPath, Loading loadingForm)
         {
             loadingForm.UpdateOutputBox("\nBeginning XML Conversion:\n", false);
@@ -351,9 +362,9 @@ namespace H2_H3_Converter_UI
                 NameIndex = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='name']").Attributes["index"]?.Value),
                 Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                 Rotation = element.SelectSingleNode("./field[@name='rotation']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
-                ManualBsp = UInt32.Parse(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText.Trim().Substring(0, 1)),
+                ManualBsp = ParseLeadingUInt(element.SelectSingleNode("./field[@name='manual bsp flags']").InnerText),
                 OriginBsp = Int32.Parse(element.SelectSingleNode("./block_index[@name='short block index' and @type='origin bsp index']").Attributes["index"].Value),
-                BspPolicy = Int32.Parse(element.SelectSingleNode("./field[@name='bsp policy']").InnerText.Trim().Substring(0, 1))
+                BspPolicy = ParseLeadingInt(element.SelectSingleNode("./field[@name='bsp policy']").InnerText)
             };
 
             // Devices and sound scenery don't have variant fields
@@ -387,8 +398,8 @@ namespace H2_H3_Converter_UI
             }
             else if (objPlacement is Scenery scenery)
             {
-                scenery.PathfindingType = Int32.Parse(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText.Trim().Substring(0, 1));
-                scenery.LightmappingType = Int32.Parse(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText.Trim().Substring(0, 1));
+                scenery.PathfindingType = ParseLeadingInt(element.SelectSingleNode("./field[@name='Pathfinding policy']").InnerText);
+                scenery.LightmappingType = ParseLeadingInt(element.SelectSingleNode("./field[@name='Lightmapping policy']").InnerText);
             }
             else if (objPlacement is Vehicle vehicle)
             {
@@ -409,7 +420,7 @@ namespace H2_H3_Converter_UI
             }
             else if (objPlacement is SoundScenery sscen)
             {
-                sscen.VolumeType = int.Parse(element.SelectSingleNode("./field[@name='volume type']").InnerText.Trim().Substring(0, 1));
+                sscen.VolumeType = ParseLeadingInt(element.SelectSingleNode("./field[@name='volume type']").InnerText);
                 sscen.Height = float.Parse(element.SelectSingleNode("./field[@name='height']").InnerText.Trim());
                 sscen.DistBounds = element.SelectSingleNode("./field[@name='override distance bounds']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();
                 sscen.ConeAngleBounds = element.SelectSingleNode("./field[@name='override cone angle bounds']").InnerText.Trim().Split(',').Select(float.Parse).ToArray();

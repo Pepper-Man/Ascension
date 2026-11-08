@@ -203,13 +203,13 @@ namespace H2_H3_Converter_UI
                         squad.ParentIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='parent']").Attributes["index"]?.Value);
                         squad.NormalDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='normal diff count']").InnerText.Trim());
                         squad.InsaneDiff = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='insane diff count']").InnerText.Trim());
-                        squad.Upgrade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText.Trim().Substring(0, 1));
+                        squad.Upgrade = Utils.ParseLeadingInt(squadEntry.SelectSingleNode("./field[@name='major upgrade']").InnerText);
                         squad.VehiIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
                         squad.CharIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='character type']").Attributes["index"]?.Value);
                         squad.WeapIndex = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                         squad.WeapIndex2 = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
                         squad.Zone = Int32.Parse(squadEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial zone']").Attributes["index"]?.Value);
-                        squad.Grenade = Int32.Parse(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
+                        squad.Grenade = Utils.ParseLeadingInt(squadEntry.SelectSingleNode("./field[@name='grenade type']").InnerText);
                         squad.VehiVariant = squadEntry.SelectSingleNode("./field[@name='vehicle variant']").InnerText.Trim();
                         squad.PlaceScript = squadEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
 
@@ -282,13 +282,13 @@ namespace H2_H3_Converter_UI
                                 startLoc.WeapIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial weapon']").Attributes["index"]?.Value);
                                 startLoc.WeapIndex2 = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='initial secondary weapon']").Attributes["index"]?.Value);
                                 startLoc.VehiIndex = Int32.Parse(locEntry.SelectSingleNode("./block_index[@name='short block index' and @type='vehicle type']").Attributes["index"]?.Value);
-                                startLoc.SeatType = Int32.Parse(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText.Trim().Substring(0, 1));
-                                startLoc.Grenade = Int32.Parse(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText.Trim().Substring(0, 1));
+                                startLoc.SeatType = Utils.ParseLeadingInt(locEntry.SelectSingleNode("./field[@name='seat type']").InnerText);
+                                startLoc.Grenade = Utils.ParseLeadingInt(locEntry.SelectSingleNode("./field[@name='grenade type']").InnerText);
                                 startLoc.Swarm = Int32.Parse(locEntry.SelectSingleNode("./field[@name='swarm count']").InnerText.Trim());
                                 startLoc.ActorVar = locEntry.SelectSingleNode("./field[@name='actor variant name']").InnerText.Trim();
                                 startLoc.VehiVar = locEntry.SelectSingleNode("./field[@name='vehicle variant name']").InnerText.Trim();
                                 startLoc.MoveDist = float.Parse(locEntry.SelectSingleNode("./field[@name='initial movement distance']").InnerText.Trim());
-                                startLoc.MoveMode = Int32.Parse(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText.Trim().Substring(0, 1));
+                                startLoc.MoveMode = Utils.ParseLeadingInt(locEntry.SelectSingleNode("./field[@name='initial movement mode']").InnerText);
                                 startLoc.PlaceScript = locEntry.SelectSingleNode("./field[@name='Placement script']").InnerText.Trim();
 
                                 // Determine flag value

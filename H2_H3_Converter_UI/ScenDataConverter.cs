@@ -237,8 +237,8 @@ class ScenData
                     {
                         Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                         Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
-                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
-                        PlayerType = Int32.Parse(element.SelectSingleNode("./field[@name='campaign player type']").InnerText.Trim().Substring(0, 1))
+                        Team = Utils.ParseLeadingInt(element.SelectSingleNode("./field[@name='team designator']").InnerText),
+                        PlayerType = Utils.ParseLeadingInt(element.SelectSingleNode("./field[@name='campaign player type']").InnerText)
                     };
 
                     allStartingLocs.Add(startLocation);
@@ -503,7 +503,7 @@ class ScenData
                         Position = element.SelectSingleNode("./field[@name='position']").InnerText.Trim().Split(',').Select(float.Parse).ToArray(),
                         Facing = float.Parse(element.SelectSingleNode("./field[@name='facing']").InnerText.Trim()),
                         Type = element.SelectSingleNode("./field[@name='type']").InnerText.Trim(),
-                        Team = Int32.Parse(element.SelectSingleNode("./field[@name='team designator']").InnerText.Trim().Substring(0, 1)),
+                        Team = Utils.ParseLeadingInt(element.SelectSingleNode("./field[@name='team designator']").InnerText),
                         SpawnOrder = Int32.Parse(element.SelectSingleNode("./field[@name='identifier']").InnerText.Trim())
                     };
 
@@ -629,7 +629,7 @@ class ScenData
                     {
                         Name = element.SelectSingleNode("./field[@name='name']").InnerText.Trim(),
                         InitVal = float.Parse(element.SelectSingleNode("./field[@name='initial value']").InnerText.Trim()),
-                        Flags = uint.Parse(element.SelectSingleNode("./field[@name='flags']").InnerText.Trim().Substring(0, 1))
+                        Flags = Utils.ParseLeadingUInt(element.SelectSingleNode("./field[@name='flags']").InnerText)
                     };
 
                     allDeviceGroups.Add(deviceGroup);
