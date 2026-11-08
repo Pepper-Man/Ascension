@@ -238,7 +238,7 @@ namespace H2_H3_Converter_UI
                             ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry")).AddElement();
 
                             // Flags
-                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/Flags:Flags")).RawValue = UInt32.Parse(para.Flags.Substring(0, 1));
+                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/Flags:Flags")).RawValue = Utils.ParseLeadingUInt(para.Flags);
 
                             // Point 0
                             ((TagFieldElementArraySingle)scenTag.SelectField($"Block:ai user hint data[0]/Block:parallelogram geometry[{parallelCount}]/RealPoint3d:Point 0")).Data = para.Point0.Split(',').Select(float.Parse).ToArray();
@@ -285,14 +285,14 @@ namespace H2_H3_Converter_UI
                             ((TagFieldBlock)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints")).AddElement();
 
                             // Flags
-                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/WordFlags:Flags")).RawValue = UInt32.Parse(jHint.Flags.Substring(0, 1));
+                            ((TagFieldFlags)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/WordFlags:Flags")).RawValue = Utils.ParseLeadingUInt(jHint.Flags);
 
                             // Geometry index - H2 stores jump hints and their respective parallelograms on a per-bsp basis. H3 does not, so we must account for the previous parallelograms as well
                             ((TagFieldBlockIndex)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortBlockIndex:geometry index")).Value = Int32.Parse(jHint.ParallelIndex) + hintStartIndex;
 
                             // Force jump height
                             string test = jHint.JumpHeight;
-                            ((TagFieldEnum)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortEnum:force jump height")).Value = Int32.Parse(jHint.JumpHeight.Substring(0, 1));
+                            ((TagFieldEnum)scenTag.SelectField($"Block:ai user hint data[0]/Block:jump hints[{hintCount}]/ShortEnum:force jump height")).Value = Utils.ParseLeadingInt(jHint.JumpHeight);
 
                             i++;
                         }

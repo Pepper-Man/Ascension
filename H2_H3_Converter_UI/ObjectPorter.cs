@@ -157,6 +157,12 @@ namespace H2_H3_Converter_UI
             // Create the output directory if it doesn't exist
             Directory.CreateDirectory(destinationFolder);
 
+            string[] jmsFiles = Directory.GetFiles(sourceFolder, "*.jms", SearchOption.AllDirectories);
+            if (jmsFiles.Length == 0)
+            {
+                throw new FileNotFoundException($"No .jms files found in {sourceFolder}");
+            }
+
             foreach (var filePath in Directory.GetFiles(sourceFolder, "*.jms", SearchOption.AllDirectories))
             {
                 string fileName = Path.GetFileName(filePath);
